@@ -7,3 +7,11 @@ yarn-error.log
 dist
 secrets.json
 **/*/db.json
+
+# logs
+*.log
+package-lock.json
+yarn.lock
+
+# env file
+.env
