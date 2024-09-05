@@ -23,14 +23,16 @@ const SeeAllMediaDetail = () => {
   console.log("getStories: ", getStories);
 
   const handleSearchStory = (name: string) => {
-    console.log('storiesMediaDetail: ', storiesMediaDetail);
-    
+    console.log("storiesMediaDetail: ", storiesMediaDetail);
+
     if (!name) {
       setSearchVal("");
       setListVideos(storiesMediaDetail);
     } else {
       setSearchVal(name);
-      const result = storiesMediaDetail.filter((vd: any) => vd?.name?.toLowerCase().includes(name?.toLocaleLowerCase()))
+      const result = storiesMediaDetail.filter((vd: any) =>
+        vd?.name?.toLowerCase().includes(name?.toLocaleLowerCase())
+      );
       setListVideos(result);
     }
   };

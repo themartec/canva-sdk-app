@@ -19,7 +19,7 @@ export const useMediaStore = create<MediaState>()(
         videoUpload: [],
         audioUpload: [],
         imageUpload: [],
-        typeMedia: '',
+        typeMedia: "",
         isSeeAllMediaBrand: false,
         isSeeAllMediaUploaded: false,
         isShowMediaDetail: false,

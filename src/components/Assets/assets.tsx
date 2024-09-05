@@ -45,7 +45,7 @@ export const AssetGrid = () => {
 
   useEffect(() => {
     // fetchProfile();
-    console.log('change');
+    console.log("change");
   }, []);
 
   const handleUpload = async (url, type) => {

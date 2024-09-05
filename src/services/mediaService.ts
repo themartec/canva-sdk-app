@@ -1,5 +1,5 @@
-import axiosInstance from '../api/axiosConfig';
-import { AxiosError } from 'axios';
+import axiosInstance from "../api/axiosConfig";
+import { AxiosError } from "axios";
 
 export const getMediaBrandKit = async () => {
   try {
@@ -9,10 +9,10 @@ export const getMediaBrandKit = async () => {
     // Handle error, e.g., show notification or rethrow
     if (error instanceof AxiosError) {
       // Handle Axios-specific errors if needed
-      console.error('Axios Error:', error.response?.data);
+      console.error("Axios Error:", error.response?.data);
     } else {
-      console.error('Unknown Error:', error);
+      console.error("Unknown Error:", error);
     }
-    throw error;  // Rethrow the error so it can be caught by SWR or the caller
+    throw error; // Rethrow the error so it can be caught by SWR or the caller
   }
 };

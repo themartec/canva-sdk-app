@@ -1,1 +1,1 @@
-export { useMediaStore } from './useMediaStore'
+export { useMediaStore } from "./useMediaStore";

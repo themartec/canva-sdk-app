@@ -1,7 +1,7 @@
 // useVideoData.ts
-import useSWR from 'swr';
-import { useGetDesignToken } from './useGetDesignToken';
-import { useMediaStore } from 'src/store';
+import useSWR from "swr";
+import { useGetDesignToken } from "./useGetDesignToken";
+import { useMediaStore } from "src/store";
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -31,23 +31,22 @@ export interface StoryVideoData {
 }
 
 // const BASE_URL = process.env.REACT_APP_API_BASE_URL
-const BASE_URL = 'https://studiodev-api.themartec.com/v1'
+const BASE_URL = "https://studiodev-api.themartec.com/v1";
 
 // Custom hook to fetch video data
 export const useStoryVideos = () => {
   const designToken = useGetDesignToken();
 
-  const { setStoriesMedia } =
-    useMediaStore();
+  const { setStoriesMedia } = useMediaStore();
 
   // Ensure designToken is available before using fetcher
   const fetcher = async (url: string) => {
     if (!designToken?.token) {
-      throw new Error('Design token is missing');
+      throw new Error("Design token is missing");
     }
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${designToken.token}`,
       },
@@ -55,7 +54,7 @@ export const useStoryVideos = () => {
 
     if (!response.ok) {
       const errorMessage = await response.text();
-      throw new Error(errorMessage || 'Failed to fetch data');
+      throw new Error(errorMessage || "Failed to fetch data");
     }
 
     return response.json();
@@ -71,8 +70,8 @@ export const useStoryVideos = () => {
   );
 
   // save data stories to store
-  if(data?.data) {
-    setStoriesMedia(data?.data)
+  if (data?.data) {
+    setStoriesMedia(data?.data);
   }
 
   return {
