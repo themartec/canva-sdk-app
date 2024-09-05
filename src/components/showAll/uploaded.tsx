@@ -233,7 +233,7 @@ const SeeAllMediaUploaded = () => {
           alignY="stretch"
           columns={2}
           spacing="1u"
-          key={"videoKey"}
+          key="videoKey"
         >
           {listAssets.map((video, index) => {
             return (
@@ -268,7 +268,7 @@ const SeeAllMediaUploaded = () => {
           alignY="stretch"
           columns={2}
           spacing="1u"
-          key={"imageKey"}
+          key="imageKey"
         >
           {listAssets.map((image, index) => (
             <div style={{ maxHeight: "106px" }}>
@@ -297,7 +297,7 @@ const SeeAllMediaUploaded = () => {
           alignY="stretch"
           columns={1}
           spacing="1u"
-          key={"audioKey"}
+          key="audioKey"
         >
           {listAssets.map((audio, index) => (
             <AudioContextProvider>

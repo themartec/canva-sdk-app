@@ -114,7 +114,7 @@ const UploadedTab = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"videoKey"}
+        key="videoKey"
       >
         {videoUpload.slice(0, 4).map((video, index) => {
           return (
@@ -164,7 +164,7 @@ const UploadedTab = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"imageKey"}
+        key="imageKey"
       >
         {imageUpload.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
@@ -210,7 +210,7 @@ const UploadedTab = () => {
         alignY="stretch"
         columns={1}
         spacing="1u"
-        key={"audioKey"}
+        key="audioKey"
       >
         {audioUpload.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>

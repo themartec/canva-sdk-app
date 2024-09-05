@@ -117,7 +117,7 @@ const BrandTab = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"videoKey"}
+        key="videoKey"
       >
         {videoBrandKit.slice(0, 4).map((video, index) => {
           return (
@@ -168,7 +168,7 @@ const BrandTab = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"imageKey"}
+        key="imageKey"
       >
         {imageBrandKit.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
@@ -215,7 +215,7 @@ const BrandTab = () => {
         alignY="stretch"
         columns={1}
         spacing="1u"
-        key={"audioKey"}
+        key="audioKey"
       >
         {audioBrandKit.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
@@ -263,7 +263,7 @@ const BrandTab = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"logoKey"}
+        key="logoKey"
       >
         {logoBrandKit.slice(0, 4).map((logo, index) => (
           <div

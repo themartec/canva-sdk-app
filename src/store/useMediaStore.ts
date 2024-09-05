@@ -1,6 +1,6 @@
 import create from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { MediaState } from "../types/store";
+import type { MediaState } from "../types/store";
 
 export const useMediaStore = create<MediaState>()(
   devtools(

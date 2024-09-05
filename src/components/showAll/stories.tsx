@@ -166,7 +166,7 @@ const SeeAllMediaDetail = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"videoKey"}
+        key="videoKey"
       >
         {listVideos.map((video, index) => {
           return (

@@ -98,7 +98,7 @@ const StoriesTab = () => {
         alignY="stretch"
         columns={1}
         spacing="1u"
-        key={"videoKey"}
+        key="videoKey"
       >
         {storiesMedia?.map((st: any) => (
           <div

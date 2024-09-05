@@ -101,7 +101,7 @@ export const AssetGrid = () => {
         alignY="stretch"
         columns={2}
         spacing="1u"
-        key={"asdasds"}
+        key="asdasds"
       >
         {images.map((image, index) => (
           <div
