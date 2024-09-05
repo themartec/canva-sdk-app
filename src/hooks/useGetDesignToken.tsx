@@ -1,6 +1,6 @@
-import type { DesignToken} from "@canva/design";
+import type { DesignToken } from "@canva/design";
 import { getDesignToken } from "@canva/design";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const useGetDesignToken = () => {
   const [designToken, setDesignToken] = useState<DesignToken | null>(null);
