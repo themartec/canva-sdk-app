@@ -2,7 +2,6 @@ import { Box, Grid, Title, VideoCard } from "@canva/app-ui-kit";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
 import { useState } from "react";
-import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 
 const images = [
   "https://images.pexels.com/photos/26600869/pexels-photo-26600869/free-photo-of-a-whale-tail-is-seen-from-the-ocean.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
@@ -25,8 +24,6 @@ const videoThumbnail =
 export const AssetGrid = () => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
-
-  const currentVideos = useGetCurrentVideo();
 
   const handleUpload = async (url, type) => {
     try {
@@ -56,8 +53,7 @@ export const AssetGrid = () => {
           thumbnailImageUrl: videoThumbnail,
         });
 
-        if (currentVideos.count) await addPage();
-
+        await addPage();
         await addNativeElement({
           type: "VIDEO",
           ref: result?.ref,

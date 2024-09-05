@@ -3,8 +3,9 @@ import { requestExport } from "@canva/design";
 import styles from "styles/components.css";
 import { AssetGrid } from "./components/Assets/assets";
 import { useState } from "react";
-import { getDesignToken } from "@canva/design";
-import { useGetDesignToken } from "./hooks/useGetDesignToken";
+import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
+import { auth } from "@canva/user";
+import { useGetAuthToken } from "./hooks/usegetAuthToken";
 
 const _window = window as any;
 
@@ -13,11 +14,14 @@ export const App = () => {
   const [state, setState] = useState("");
   const [percent, setPercent] = useState(0);
 
-  const designToken = useGetDesignToken();
+  const token = useGetAuthToken();
 
-  if (designToken) {
-    console.log({ designToken });
-  }
+  const authStatus = useGetAuthStatus({
+    onError(error) {
+      auth.requestAuthentication();
+    },
+  });
+
 
   const downloadFile = (url, filename) => {
     const link = document.createElement("a");
@@ -52,6 +56,8 @@ export const App = () => {
       }, 2000);
     }, 3000);
   };
+
+  if (!authStatus.data) return <Text> Loading ... </Text>;
 
   return (
     <div className={styles.scrollContainer}>
@@ -90,6 +96,11 @@ export const App = () => {
         )}
       </Rows>
       <AssetGrid />
+      {/* {storyVideos?.isLoading ? (
+        <Text>Loading...</Text>
+      ) : (
+        <StoryVideosGrid videos={storyVideos.data || []} />
+      )} */}
     </div>
   );
 };
