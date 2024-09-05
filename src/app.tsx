@@ -109,7 +109,21 @@ export const App = () => {
       .then(() => console.log("init indexeddb success"))
       .catch((e) => console.error("error / unsupported", e));
   }, []);
-  if (!authStatus.data) return <Text> Loading ... </Text>;
+
+  if (!authStatus.data)
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <Text size="large"> Authenticating.... </Text>
+      </div>
+    );
 
   return (
     <div className={styles.scrollContainer}>
