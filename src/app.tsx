@@ -21,6 +21,10 @@ import {
   listStories,
   videosStory,
 } from "./constants/mockMedia";
+import { AssetGrid } from "./components/Assets/assets";
+import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
+import { auth } from "@canva/user";
+import { useGetAuthToken } from "./hooks/usegetAuthToken";
 
 const _window = window as any;
 
@@ -45,11 +49,13 @@ export const App = () => {
     isShowMediaDetail,
   } = useMediaStore();
 
-  const designToken = useGetDesignToken();
+  const token = useGetAuthToken();
 
-  if (designToken) {
-    console.log("designToken: :", designToken);
-  }
+  const authStatus = useGetAuthStatus({
+    onError(error) {
+      auth.requestAuthentication();
+    },
+  });
 
   const downloadFile = (url, filename) => {
     const link = document.createElement("a");
@@ -86,6 +92,7 @@ export const App = () => {
   };
 
   useEffect(() => {
+    if (!authStatus.data) return;
     setVideoBrandKit(videosBrandKit);
     setImageBrandKit(imagesBrandKit);
     setAudioBrandKit(audioBrandKit);
@@ -95,13 +102,14 @@ export const App = () => {
     setImageUploaded(imagesUploaed);
     setStoriesMedia(listStories);
     setStoriesMediaDetail(videosStory);
-  }, []);
+  }, [authStatus.data]);
 
   useEffect(() => {
     setupIndexedDB(idbConfig)
       .then(() => console.log("init indexeddb success"))
       .catch((e) => console.error("error / unsupported", e));
   }, []);
+  if (!authStatus.data) return <Text> Loading ... </Text>;
 
   return (
     <div className={styles.scrollContainer}>
