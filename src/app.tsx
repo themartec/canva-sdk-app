@@ -1,10 +1,13 @@
 import { Button, ProgressBar, Rows, Text, Title } from "@canva/app-ui-kit";
 import { requestExport } from "@canva/design";
 import styles from "styles/components.css";
-import { AssetGrid } from "./components/Assets/assets";
 import { useState } from "react";
 import { getDesignToken } from "@canva/design";
 import { useGetDesignToken } from "./hooks/useGetDesignToken";
+import { useMediaStore } from "./store";
+import { IconGrid, IconExport } from "./assets/icons";
+import MediaView from "./components/media";
+import ExportView from "./components/export";
 
 const _window = window as any;
 
@@ -12,11 +15,15 @@ export const App = () => {
   const [loading, setIsLoading] = useState(false);
   const [state, setState] = useState("");
   const [percent, setPercent] = useState(0);
+  const [isMediaView, setIsMediaView] = useState<boolean>(true);
+
+  const { count, increase, reset, isSeeAllMediaBrand, isSeeAllMediaUploaded } =
+    useMediaStore();
 
   const designToken = useGetDesignToken();
 
   if (designToken) {
-    console.log({ designToken });
+    console.log("designToken: :", designToken);
   }
 
   const downloadFile = (url, filename) => {
@@ -56,7 +63,7 @@ export const App = () => {
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        <Text>
+        {/* <Text>
           To make changes to this app, edit the <code>src/app.tsx</code> file,
           then close and reopen the app in the editor to preview the changes.
           <a href="google.com" target="_blank">
@@ -87,9 +94,51 @@ export const App = () => {
           <Button variant="primary" onClick={onClick} stretch>
             Sync & Save your video
           </Button>
-        )}
+        )} */}
+        <div
+          style={{
+            display: `${
+              isSeeAllMediaBrand || isSeeAllMediaUploaded ? "none" : "flex"
+            }`,
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ marginRight: "4px", width: "48%" }}>
+            <Button
+              alignment="center"
+              icon={() => {
+                return <IconGrid />;
+              }}
+              onClick={() => setIsMediaView(true)}
+              variant={isMediaView ? "primary" : "secondary"}
+              stretch={true}
+            >
+              Media
+            </Button>
+          </div>
+          <div style={{ marginLeft: "4px", width: "48%" }}>
+            <Button
+              alignment="center"
+              icon={() => {
+                return <IconExport />;
+              }}
+              onClick={() => setIsMediaView(false)}
+              variant={!isMediaView ? "primary" : "secondary"}
+              stretch={true}
+            >
+              Export
+            </Button>
+          </div>
+        </div>
+        {isMediaView ? <MediaView /> : <ExportView />}
+        {/* <h1>Count: {count}</h1>
+        <Button variant="primary" onClick={increase}>
+          Increase
+        </Button>
+        <Button variant="secondary" onClick={reset}>
+          Reset
+        </Button> */}
       </Rows>
-      <AssetGrid />
     </div>
   );
 };

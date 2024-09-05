@@ -1,8 +1,11 @@
 import { Box, Grid, Title, VideoCard } from "@canva/app-ui-kit";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
+import { getMediaBrandKit } from "src/services/mediaService";
+import { useMediaStore } from "src/store";
+import useSWR from "swr";
 
 const images = [
   "https://images.pexels.com/photos/26600869/pexels-photo-26600869/free-photo-of-a-whale-tail-is-seen-from-the-ocean.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load",
@@ -26,7 +29,24 @@ export const AssetGrid = () => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
 
+  // const { data, error, isLoading } = useSWR('getMediaBrandKit', getMediaBrandKit);
+  const { setBrandKitMedia } = useMediaStore();
+
   const currentVideos = useGetCurrentVideo();
+
+  // const fetchProfile = async () => {
+  //   try {
+  //     const data = await getMediaBrandKit();
+  //     setBrandKitMedia(data);
+  //   } catch (error) {
+  //     console.error("Error fetching profile:", error);
+  //   }
+  // };
+
+  useEffect(() => {
+    // fetchProfile();
+    console.log('change');
+  }, []);
 
   const handleUpload = async (url, type) => {
     try {
