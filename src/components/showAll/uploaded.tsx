@@ -12,14 +12,22 @@ import { audios, images, videoThumbnail, videos } from "../media/tabs/mockData";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { upload } from "@canva/asset";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
+import { useIndexedDBStore } from "use-indexeddb";
 
 interface Props {}
 
 const SeeAllMediaUploaded = () => {
-  const { typeMedia, setSeeAllMediaBrand, setSeeAllMediaUploaded } =
-    useMediaStore();
+  const {
+    typeMedia,
+    setSeeAllMediaBrand,
+    setSeeAllMediaUploaded,
+    videoUpload,
+    imageUpload,
+    audioUpload,
+  } = useMediaStore();
+  const { add, getAll } = useIndexedDBStore("uploaded-videos");
 
-  const [listAssets, setListAssets] = useState(videos);
+  const [listAssets, setListAssets] = useState<any>(videos);
   const [searchVal, setSearchVal] = useState<string>("");
 
   const currentVideos = useGetCurrentVideo();
@@ -114,16 +122,26 @@ const SeeAllMediaUploaded = () => {
   useEffect(() => {
     switch (typeMedia) {
       case "videos":
-        setListAssets(videos);
+        setListAssets(videoUpload);
         break;
       case "images":
-        setListAssets(images);
+        setListAssets(imageUpload);
         break;
       default:
-        setListAssets(audios);
+        setListAssets(audioUpload);
         break;
     }
   }, []);
+
+  useEffect(() => {
+    getAll()
+      .then((result) => {
+        console.log("All assets:", result);
+      })
+      .catch((err) => {
+        console.error("Error fetching videos:", err);
+      });
+  }, [getAll]);
 
   return (
     <div>
@@ -217,9 +235,9 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key={"videoKey"}
         >
-          {videos.map((videoUrl, index) => {
+          {listAssets.map((video, index) => {
             return (
-              <div>
+              <div style={{ maxHeight: "106px" }}>
                 <VideoCard
                   ariaLabel="Add video to design"
                   borderRadius="standard"
@@ -228,11 +246,11 @@ const SeeAllMediaUploaded = () => {
                   onClick={(e) => {
                     setUploadIndex(index);
                     setUploadType("video");
-                    handleUpload(videoUrl, "video");
+                    handleUpload(video?.filePath, "video");
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={videoThumbnail}
-                  videoPreviewUrl="https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4"
+                  thumbnailUrl={video?.avatar || videoThumbnail}
+                  videoPreviewUrl={video?.filePath}
                   loading={
                     uploadIndex === index && uploadType == "video"
                       ? true
@@ -252,22 +270,24 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key={"imageKey"}
         >
-          {images.map((image, index) => (
-            <ImageCard
-              alt="grass image"
-              ariaLabel="Add image to design"
-              borderRadius="standard"
-              onClick={() => {
-                setUploadIndex(index);
-                setUploadType("image");
-                handleUpload(image, "image");
-              }}
-              onDragStart={() => {}}
-              thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-              loading={
-                uploadIndex === index && uploadType == "image" ? true : false
-              }
-            />
+          {listAssets.map((image, index) => (
+            <div style={{ maxHeight: "106px" }}>
+              <ImageCard
+                alt="grass image"
+                ariaLabel="Add image to design"
+                borderRadius="standard"
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("image");
+                  handleUpload(image?.filePath, "image");
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl={image?.filePath}
+                loading={
+                  uploadIndex === index && uploadType == "image" ? true : false
+                }
+              />
+            </div>
           ))}
         </Grid>
       )}
@@ -279,7 +299,7 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key={"audioKey"}
         >
-          {audios.map((audio, index) => (
+          {listAssets.map((audio, index) => (
             <AudioContextProvider>
               <AudioCard
                 ariaLabel="Add audio to design"

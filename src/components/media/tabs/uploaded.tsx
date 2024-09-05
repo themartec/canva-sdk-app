@@ -15,16 +15,22 @@ import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 interface Props {}
 
 const UploadedTab = () => {
-  const { setSeeAllMediaUploaded, setTypeMedia } = useMediaStore();
+  const {
+    setSeeAllMediaUploaded,
+    setTypeMedia,
+    videoUpload,
+    imageUpload,
+    audioUpload,
+  } = useMediaStore();
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
-  
+
   const handleUpload = async (url, type) => {
     try {
       if (type === "image" || type === "logo") {
-        if(type === "image") {
+        if (type === "image") {
           setUploadType("image");
         } else {
           setUploadType("logo");
@@ -110,9 +116,9 @@ const UploadedTab = () => {
         spacing="1u"
         key={"videoKey"}
       >
-        {videos.slice(0, 4).map((videoUrl, index) => {
+        {videoUpload.slice(0, 4).map((video, index) => {
           return (
-            <div>
+            <div style={{ maxHeight: "106px" }}>
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
@@ -121,11 +127,11 @@ const UploadedTab = () => {
                 onClick={(e) => {
                   setUploadIndex(index);
                   setUploadType("video");
-                  handleUpload(videoUrl, "video");
+                  handleUpload(video?.filePath, "video");
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={videoThumbnail}
-                videoPreviewUrl="https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4"
+                thumbnailUrl={video?.avatar || videoThumbnail}
+                videoPreviewUrl={video?.filePath}
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
                 }
@@ -160,22 +166,24 @@ const UploadedTab = () => {
         spacing="1u"
         key={"imageKey"}
       >
-        {images.slice(0, 4).map((image, index) => (
-          <ImageCard
-            alt="grass image"
-            ariaLabel="Add image to design"
-            borderRadius="standard"
-            onClick={() => {
-              setUploadIndex(index);
-              setUploadType("image");
-              handleUpload(image, "image");
-            }}
-            onDragStart={() => {}}
-            thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-            loading={
-              uploadIndex === index && uploadType == "image" ? true : false
-            }
-          />
+        {imageUpload.slice(0, 4).map((image, index) => (
+          <div style={{ maxHeight: "106px" }}>
+            <ImageCard
+              alt="grass image"
+              ariaLabel="Add image to design"
+              borderRadius="standard"
+              onClick={() => {
+                setUploadIndex(index);
+                setUploadType("image");
+                handleUpload(image?.filePath, "image");
+              }}
+              onDragStart={() => {}}
+              thumbnailUrl={image?.filePath}
+              loading={
+                uploadIndex === index && uploadType == "image" ? true : false
+              }
+            />
+          </div>
         ))}
       </Grid>
       <div
@@ -204,16 +212,16 @@ const UploadedTab = () => {
         spacing="1u"
         key={"audioKey"}
       >
-        {audios.slice(0, 2).map((audio, index) => (
+        {audioUpload.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
             <AudioCard
               ariaLabel="Add audio to design"
-              audioPreviewUrl="https://www.canva.dev/example-assets/audio-import/audio.mp3"
+              audioPreviewUrl={audio?.filePath}
               durationInSeconds={86}
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("audio");
-                handleUpload(audio, "audio");
+                handleUpload(audio?.filePath, "audio");
               }}
               onDragStart={() => {}}
               thumbnailUrl=""

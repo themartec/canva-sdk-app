@@ -1,6 +1,7 @@
 // useVideoData.ts
 import useSWR from 'swr';
 import { useGetDesignToken } from './useGetDesignToken';
+import { useMediaStore } from 'src/store';
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -29,9 +30,15 @@ export interface StoryVideoData {
   last_name: string;
 }
 
+// const BASE_URL = process.env.REACT_APP_API_BASE_URL
+const BASE_URL = 'https://studiodev-api.themartec.com/v1'
+
 // Custom hook to fetch video data
 export const useStoryVideos = () => {
   const designToken = useGetDesignToken();
+
+  const { setStoriesMedia } =
+    useMediaStore();
 
   // Ensure designToken is available before using fetcher
   const fetcher = async (url: string) => {
@@ -56,12 +63,17 @@ export const useStoryVideos = () => {
 
   // Use SWR to fetch data
   const { data, error, isLoading } = useSWR<ApiResponse>(
-    designToken ? 'http://localhost:5050/v1/video/platform-for-canva' : null, // Only fetch if designToken is available
+    designToken ? `${BASE_URL}/video/platform-for-canva` : null, // Only fetch if designToken is available
     fetcher,
     {
       revalidateOnFocus: true, // Optional: Auto revalidate on focus
     }
   );
+
+  // save data stories to store
+  if(data?.data) {
+    setStoriesMedia(data?.data)
+  }
 
   return {
     data: data?.data, // Access the actual video data

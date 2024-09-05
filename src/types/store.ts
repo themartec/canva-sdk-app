@@ -1,4 +1,5 @@
 export interface MediaState {
+  // state
   count: number;
   isLoading: boolean;
   brandKitMedia: any;
@@ -13,15 +14,30 @@ export interface MediaState {
   imageUpload: VideoImageMedia[];
   isSeeAllMediaBrand: boolean;
   isSeeAllMediaUploaded: boolean;
+  isShowMediaDetail: boolean;
   typeMedia: string;
+  storySelected: any;
+  storiesMediaDetail: StoryMedia[];
+  // actions
   increase: () => void;
   reset: () => void;
   setLoading: () => void;
   stopLoading: () => void;
   setBrandKitMedia: (data: any) => void;
+  setStoriesMedia: (data: any) => void;
+  setVideoBrandKit: (data: any) => void;
+  setImageBrandKit: (data: any) => void;
+  setAudioBrandKit: (data: any) => void;
+  setLogoBrandKit: (data: any) => void;
+  setVideoUploaded: (data: any) => void;
+  setImageUploaded: (data: any) => void;
+  setAudioUploaded: (data: any) => void;
+  setStoriesMediaDetail: (data: any) => void;
   updateBrandKitMedia: (data: any) => void;
   setSeeAllMediaBrand: (data: boolean) => void;
   setSeeAllMediaUploaded: (data: boolean) => void;
+  setShowMediaDetail: (data: boolean) => void;
+  setStorySelected: (data: any) => void;
   setTypeMedia: (data: string) => void;
 }
 

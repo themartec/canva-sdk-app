@@ -22,6 +22,9 @@ export const useMediaStore = create<MediaState>()(
         typeMedia: '',
         isSeeAllMediaBrand: false,
         isSeeAllMediaUploaded: false,
+        isShowMediaDetail: false,
+        storySelected: {},
+        storiesMediaDetail: [],
         // end intial state
         // ------ //
         // start region actions
@@ -30,6 +33,17 @@ export const useMediaStore = create<MediaState>()(
         setLoading: () => set({ isLoading: true }),
         stopLoading: () => set({ isLoading: false }),
         setBrandKitMedia: (data) => set({ brandKitMedia: data }),
+        setStoriesMedia: (data) => set({ storiesMedia: data }),
+        setVideoBrandKit: (data) => set({ videoBrandKit: data }),
+        setImageBrandKit: (data) => set({ imageBrandKit: data }),
+        setAudioBrandKit: (data) => set({ audioBrandKit: data }),
+        setLogoBrandKit: (data) => set({ logoBrandKit: data }),
+        setVideoUploaded: (data) => set({ videoUpload: data }),
+        setImageUploaded: (data) => set({ imageUpload: data }),
+        setAudioUploaded: (data) => set({ audioUpload: data }),
+        setShowMediaDetail: (data) => set({ isShowMediaDetail: data }),
+        setStorySelected: (data) => set({ storySelected: data }),
+        setStoriesMediaDetail: (data) => set({ storiesMediaDetail: data }),
 
         updateBrandKitMedia: (data) =>
           set((state) => ({

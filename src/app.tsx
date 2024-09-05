@@ -1,13 +1,26 @@
 import { Button, ProgressBar, Rows, Text, Title } from "@canva/app-ui-kit";
 import { requestExport } from "@canva/design";
 import styles from "styles/components.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getDesignToken } from "@canva/design";
 import { useGetDesignToken } from "./hooks/useGetDesignToken";
 import { useMediaStore } from "./store";
 import { IconGrid, IconExport } from "./assets/icons";
 import MediaView from "./components/media";
 import ExportView from "./components/export";
+import setupIndexedDB from "use-indexeddb";
+import { idbConfig } from "./constants/configIndexDb";
+import {
+  videosBrandKit,
+  imagesBrandKit,
+  audioBrandKit,
+  logosBrandKit,
+  videosUploaded,
+  audioUploaded,
+  imagesUploaed,
+  listStories,
+  videosStory,
+} from "./constants/mockMedia";
 
 const _window = window as any;
 
@@ -17,8 +30,20 @@ export const App = () => {
   const [percent, setPercent] = useState(0);
   const [isMediaView, setIsMediaView] = useState<boolean>(true);
 
-  const { count, increase, reset, isSeeAllMediaBrand, isSeeAllMediaUploaded } =
-    useMediaStore();
+  const {
+    setVideoBrandKit,
+    setImageBrandKit,
+    setAudioBrandKit,
+    setLogoBrandKit,
+    setVideoUploaded,
+    setAudioUploaded,
+    setImageUploaded,
+    setStoriesMedia,
+    setStoriesMediaDetail,
+    isSeeAllMediaBrand,
+    isSeeAllMediaUploaded,
+    isShowMediaDetail,
+  } = useMediaStore();
 
   const designToken = useGetDesignToken();
 
@@ -60,6 +85,24 @@ export const App = () => {
     }, 3000);
   };
 
+  useEffect(() => {
+    setVideoBrandKit(videosBrandKit);
+    setImageBrandKit(imagesBrandKit);
+    setAudioBrandKit(audioBrandKit);
+    setLogoBrandKit(logosBrandKit);
+    setVideoUploaded(videosUploaded);
+    setAudioUploaded(audioUploaded);
+    setImageUploaded(imagesUploaed);
+    setStoriesMedia(listStories);
+    setStoriesMediaDetail(videosStory);
+  }, []);
+
+  useEffect(() => {
+    setupIndexedDB(idbConfig)
+      .then(() => console.log("init indexeddb success"))
+      .catch((e) => console.error("error / unsupported", e));
+  }, []);
+
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
@@ -98,7 +141,9 @@ export const App = () => {
         <div
           style={{
             display: `${
-              isSeeAllMediaBrand || isSeeAllMediaUploaded ? "none" : "flex"
+              isSeeAllMediaBrand || isSeeAllMediaUploaded || isShowMediaDetail
+                ? "none"
+                : "flex"
             }`,
             justifyContent: "space-between",
           }}

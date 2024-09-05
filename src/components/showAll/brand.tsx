@@ -19,14 +19,23 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useIndexedDBStore } from "use-indexeddb";
 
 interface Props {}
 
 const SeeAllMediaBrand = () => {
-  const { typeMedia, setSeeAllMediaBrand, setSeeAllMediaUploaded } =
-    useMediaStore();
+  const {
+    typeMedia,
+    setSeeAllMediaBrand,
+    setSeeAllMediaUploaded,
+    videoBrandKit,
+    imageBrandKit,
+    audioBrandKit,
+    logoBrandKit,
+  } = useMediaStore();
+  const { add, getAll } = useIndexedDBStore("brand-videos");
 
-  const [listAssets, setListAssets] = useState(videos);
+  const [listAssets, setListAssets] = useState<any[]>(videoBrandKit);
   const [searchVal, setSearchVal] = useState<string>("");
   const currentVideos = useGetCurrentVideo();
 
@@ -124,18 +133,28 @@ const SeeAllMediaBrand = () => {
   };
 
   useEffect(() => {
+    getAll()
+      .then((result) => {
+        console.log("All assets:", result);
+      })
+      .catch((err) => {
+        console.error("Error fetching videos:", err);
+      });
+  }, [getAll]);
+
+  useEffect(() => {
     switch (typeMedia) {
       case "videos":
-        setListAssets(videos);
+        setListAssets(videoBrandKit);
         break;
       case "images":
-        setListAssets(images);
+        setListAssets(imageBrandKit);
         break;
       case "audios":
-        setListAssets(audios);
+        setListAssets(audioBrandKit);
         break;
       default:
-        setListAssets(logos);
+        setListAssets(logoBrandKit);
         break;
     }
   }, []);
@@ -234,9 +253,9 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key={"videoKey"}
         >
-          {listAssets.map((videoUrl, index) => {
+          {listAssets.map((video, index) => {
             return (
-              <div>
+              <div style={{ maxHeight: "106px" }}>
                 <VideoCard
                   ariaLabel="Add video to design"
                   borderRadius="standard"
@@ -245,11 +264,11 @@ const SeeAllMediaBrand = () => {
                   onClick={(e) => {
                     setUploadIndex(index);
                     setUploadType("video");
-                    handleUpload(videoUrl, "video");
+                    handleUpload(video?.Link, "video");
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={videoThumbnail}
-                  videoPreviewUrl="https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4"
+                  thumbnailUrl={video?.avatar || videoThumbnail}
+                  videoPreviewUrl={video?.Link}
                   loading={
                     uploadIndex === index && uploadType == "video"
                       ? true
@@ -270,21 +289,23 @@ const SeeAllMediaBrand = () => {
           key={"imageKey"}
         >
           {listAssets.map((image, index) => (
-            <ImageCard
-              alt="grass image"
-              ariaLabel="Add image to design"
-              borderRadius="standard"
-              onClick={() => {
-                setUploadIndex(index);
-                setUploadType("image");
-                handleUpload(image, "image");
-              }}
-              onDragStart={() => {}}
-              thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-              loading={
-                uploadIndex === index && uploadType == "image" ? true : false
-              }
-            />
+            <div style={{ maxHeight: "106px" }}>
+              <ImageCard
+                alt="grass image"
+                ariaLabel="Add image to design"
+                borderRadius="standard"
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("image");
+                  handleUpload(image, "image");
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
+                loading={
+                  uploadIndex === index && uploadType == "image" ? true : false
+                }
+              />
+            </div>
           ))}
         </Grid>
       )}
@@ -327,21 +348,29 @@ const SeeAllMediaBrand = () => {
           key={"logoKey"}
         >
           {listAssets.map((logo, index) => (
-            <ImageCard
-              alt="grass image"
-              ariaLabel="Add image to design"
-              borderRadius="standard"
-              onClick={() => {
-                setUploadIndex(index);
-                setUploadType("logo");
-                handleUpload(logo, "logo");
+            <div
+              style={{
+                maxHeight: "106px",
+                border: "1px solid #424858",
+                borderRadius: "8px",
               }}
-              onDragStart={() => {}}
-              thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-              loading={
-                uploadIndex === index && uploadType == "logo" ? true : false
-              }
-            />
+            >
+              <ImageCard
+                alt="grass image"
+                ariaLabel="Add image to design"
+                borderRadius="standard"
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("logo");
+                  handleUpload(logo, "logo");
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
+                loading={
+                  uploadIndex === index && uploadType == "logo" ? true : false
+                }
+              />
+            </div>
           ))}
         </Grid>
         //   <div  style={{ height: 'calc(100vh - 130px)', overflow: 'auto'}}>

@@ -1,55 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { videoThumbnail, videos } from "./mockData";
 import { Grid, VideoCard, Rows } from "@canva/app-ui-kit";
-import { IconSearch, IconTimes } from "src/assets/icons";
+import {
+  IconSearch,
+  IconTimes,
+  IconRecord,
+  IconArrowLeft,
+} from "src/assets/icons";
 import { addNativeElement, addPage } from "@canva/design";
 import { upload } from "@canva/asset";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
+import { useStoryVideos } from "src/hooks/useVideoData";
+import { useMediaStore } from "src/store";
 
 interface Props {}
 
 const StoriesTab = () => {
-  const [listVideos, setListVideos] = useState(videos);
+  const [listStories, setListStories] = useState(videos);
   const [searchVal, setSearchVal] = useState<string>("");
-  const [uploadIndex, setUploadIndex] = useState(-1);
-  const [uploadType, setUploadType] = useState<string>("");
 
-  const currentVideos = useGetCurrentVideo();
+  const { storiesMedia, setShowMediaDetail, setStorySelected } =
+    useMediaStore();
+  const getStories = useStoryVideos();
+
+  console.log("getStories: ", getStories);
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
     const listStories = [];
     const result = listStories.filter((vd: any) => vd?.name === name);
-    setListVideos(result);
+    setListStories(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListVideos(videos);
+    setListStories(videos);
   };
 
-  const handleUpload = async (url, type) => {
-    try {
-      setUploadType("video");
-      const result = await upload({
-        type: "VIDEO",
-        mimeType: "video/mp4",
-        url: "https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4",
-        thumbnailImageUrl: videoThumbnail,
-      });
-
-      if (currentVideos.count) await addPage();
-
-      await addNativeElement({
-        type: "VIDEO",
-        ref: result?.ref,
-      });
-
-      setUploadIndex(-1);
-      setUploadType("");
-    } catch (error) {
-      console.error(error);
-    }
+  const handleShowMediaByStory = (story?: any) => {
+    setShowMediaDetail(true);
+    setStorySelected(story);
   };
 
   return (
@@ -106,51 +96,52 @@ const StoriesTab = () => {
       <Grid
         alignX="stretch"
         alignY="stretch"
-        columns={2}
+        columns={1}
         spacing="1u"
         key={"videoKey"}
       >
-        {listVideos.map((videoUrl, index) => {
-          return (
-            <Rows spacing="1u">
-              <VideoCard
-                ariaLabel="Add video to design"
-                borderRadius="standard"
-                durationInSeconds={8}
-                mimeType="video/mp4"
-                onClick={(e) => {
-                  setUploadIndex(index);
-                  setUploadType("video");
-                  handleUpload(videoUrl, "video");
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl={videoThumbnail}
-                videoPreviewUrl="https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4"
-                loading={
-                  uploadIndex === index && uploadType == "video" ? true : false
-                }
-              />
-              <div
-                style={{
-                  marginTop: "-17px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    width: "100%",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  A video of a beach sunset A video of a beach sunset
-                </p>
-              </div>
-            </Rows>
-          );
-        })}
+        {storiesMedia?.map((st: any) => (
+          <div
+            style={{
+              borderRadius: "8px",
+              display: "flex",
+              marginTop: "4px",
+              border: "1px solid #424858",
+              padding: "4px",
+              height: "55px",
+              cursor: "pointer",
+            }}
+            onClick={() => handleShowMediaByStory(st)}
+          >
+            <div
+              style={{
+                margin: "16px 8px",
+                padding: "6px",
+                width: "12px",
+                height: "12px",
+                borderRadius: "8px",
+                background: "#98E0E5",
+              }}
+            >
+              <IconRecord />
+            </div>
+            <p
+              style={{
+                fontSize: "14px",
+                marginTop: "5px",
+                height: "42px",
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                WebkitLineClamp: 2,
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                wordWrap: "break-word",
+              }}
+            >
+              {st?.audience_research?.headline}
+            </p>
+          </div>
+        ))}
       </Grid>
     </div>
   );

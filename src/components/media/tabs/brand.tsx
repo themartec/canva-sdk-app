@@ -16,7 +16,14 @@ import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 interface Props {}
 
 const BrandTab = () => {
-  const { setSeeAllMediaBrand, setTypeMedia } = useMediaStore();
+  const {
+    setSeeAllMediaBrand,
+    setTypeMedia,
+    videoBrandKit,
+    audioBrandKit,
+    imageBrandKit,
+    logoBrandKit,
+  } = useMediaStore();
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
@@ -25,7 +32,7 @@ const BrandTab = () => {
   const handleUpload = async (url, type) => {
     try {
       if (type === "image" || type === "logo") {
-        if(type === "image") {
+        if (type === "image") {
           setUploadType("image");
         } else {
           setUploadType("logo");
@@ -112,9 +119,9 @@ const BrandTab = () => {
         spacing="1u"
         key={"videoKey"}
       >
-        {videos.slice(0, 4).map((videoUrl, index) => {
+        {videoBrandKit.slice(0, 4).map((video, index) => {
           return (
-            <div>
+            <div style={{ maxHeight: "106px" }}>
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
@@ -123,11 +130,11 @@ const BrandTab = () => {
                 onClick={(e) => {
                   setUploadIndex(index);
                   setUploadType("video");
-                  handleUpload(videoUrl, "video");
+                  handleUpload(video?.Link, "video");
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={videoThumbnail}
-                videoPreviewUrl="https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4"
+                thumbnailUrl={video?.avatar || videoThumbnail}
+                videoPreviewUrl={video?.Link}
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
                 }
@@ -163,22 +170,24 @@ const BrandTab = () => {
         spacing="1u"
         key={"imageKey"}
       >
-        {images.slice(0, 4).map((image, index) => (
-          <ImageCard
-            alt="grass image"
-            ariaLabel="Add image to design"
-            borderRadius="standard"
-            onClick={() => {
-              setUploadIndex(index);
-              setUploadType("image");
-              handleUpload(image, "image");
-            }}
-            onDragStart={() => {}}
-            thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-            loading={
-              uploadIndex === index && uploadType == "image" ? true : false
-            }
-          />
+        {imageBrandKit.slice(0, 4).map((image, index) => (
+          <div style={{ maxHeight: "106px" }}>
+            <ImageCard
+              alt="grass image"
+              ariaLabel="Add image to design"
+              borderRadius="standard"
+              onClick={() => {
+                setUploadIndex(index);
+                setUploadType("image");
+                handleUpload(image?.Link, "image");
+              }}
+              onDragStart={() => {}}
+              thumbnailUrl={image?.Link}
+              loading={
+                uploadIndex === index && uploadType == "image" ? true : false
+              }
+            />
+          </div>
         ))}
       </Grid>
       {/* MUSIC */}
@@ -208,16 +217,16 @@ const BrandTab = () => {
         spacing="1u"
         key={"audioKey"}
       >
-        {audios.slice(0, 2).map((audio, index) => (
+        {audioBrandKit.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
             <AudioCard
               ariaLabel="Add audio to design"
-              audioPreviewUrl="https://www.canva.dev/example-assets/audio-import/audio.mp3"
-              durationInSeconds={86}
+              audioPreviewUrl={audio?.Link}
+              durationInSeconds={audio?.duration}
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("audio");
-                handleUpload(audio, "audio");
+                handleUpload(audio?.Link, "audio");
               }}
               onDragStart={() => {}}
               thumbnailUrl=""
@@ -256,22 +265,30 @@ const BrandTab = () => {
         spacing="1u"
         key={"logoKey"}
       >
-        {logos.slice(0, 4).map((logo, index) => (
-          <ImageCard
-            alt="grass image"
-            ariaLabel="Add image to design"
-            borderRadius="standard"
-            onClick={() => {
-              setUploadIndex(index);
-              setUploadType("logo");
-              handleUpload(logo, "logo");
+        {logoBrandKit.slice(0, 4).map((logo, index) => (
+          <div
+            style={{
+              maxHeight: "106px",
+              border: "1px solid #424858",
+              borderRadius: "8px",
             }}
-            onDragStart={() => {}}
-            thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-            loading={
-              uploadIndex === index && uploadType == "logo" ? true : false
-            }
-          />
+          >
+            <ImageCard
+              alt="grass image"
+              ariaLabel="Add image to design"
+              borderRadius="standard"
+              onClick={() => {
+                setUploadIndex(index);
+                setUploadType("logo");
+                handleUpload(logo?.Link, "logo");
+              }}
+              onDragStart={() => {}}
+              thumbnailUrl={logo?.Link}
+              loading={
+                uploadIndex === index && uploadType == "logo" ? true : false
+              }
+            />
+          </div>
         ))}
       </Grid>
     </div>
