@@ -249,7 +249,7 @@ const BrandTab = () => {
               }}
               onDragStart={() => {}}
               thumbnailUrl=""
-              title="Some audio track"
+              title={audio?.videoName}
               loading={
                 uploadIndex === index && uploadType == "audio" ? true : false
               }

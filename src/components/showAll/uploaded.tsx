@@ -321,7 +321,7 @@ const SeeAllMediaUploaded = () => {
                 }}
                 onDragStart={() => {}}
                 thumbnailUrl=""
-                title="Some audio track"
+                title={audio?.name}
                 loading={
                   uploadIndex === index && uploadType == "audio" ? true : false
                 }
