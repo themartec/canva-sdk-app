@@ -1,5 +1,5 @@
 // @ts-ignore
-import create from "zustand";
+import {create} from "zustand";
 // @ts-ignore
 import { devtools, persist } from "zustand/middleware";
 

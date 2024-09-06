@@ -1,6 +1,7 @@
 // useVideoData.ts
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
+import { BASE_API_URL } from "../config/common";
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -29,8 +30,9 @@ export interface StoryVideoData {
   last_name: string;
 }
 
+// Remove this line as it's no longer needed
 // const BASE_URL = process.env.REACT_APP_API_BASE_URL
-const BASE_URL = "https://studiodev-api.themartec.com/v1";
+// const BASE_URL = "http://localhost:5050/v1";
 
 // Custom hook to fetch video data
 export const useStoryVideos = (contentId: string) => {
@@ -58,7 +60,7 @@ export const useStoryVideos = (contentId: string) => {
 
   // Use SWR to fetch data
   const { data, error, isLoading } = useSWR<ApiResponse>(
-    token && contentId? `https://studiodev-api.themartec.com/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
+    token && contentId ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
     fetcher,
     {
       revalidateOnFocus: false, // Optional: Auto revalidate on focus

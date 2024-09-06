@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
+import { BASE_API_URL } from "../config/common";
 
 export interface StoriesDashboardItem {
   id: string;
@@ -35,7 +36,7 @@ export const useGetStoriesDashboard = () => {
   const token = useGetAuthToken();
   const { data, error, isLoading } = useSWR<StoriesDashboardResponse>(
     token
-      ? ["https://apidev.themartec.com/v1/canva/stories-dashboard", token]
+      ? [`${BASE_API_URL}/v1/video/stories-dashboard-for-canva`, token]
       : null,
     ([url, token]) => fetcher(url, token as string)
   );
