@@ -187,6 +187,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         {listVideos?.map((video, index) => {
           return (
             <Rows spacing="1u">
+              <div style={{ maxHeight: '106px'}}>
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
@@ -220,6 +221,7 @@ export const StoryVideos = ({ storyId }: Props) => {
                 >
                   {video?.question}
                 </p>
+              </div>
               </div>
             </Rows>
           );
