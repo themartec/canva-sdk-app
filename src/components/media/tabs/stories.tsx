@@ -1,40 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { videoThumbnail, videos } from "./mockData";
-import { Grid, VideoCard, Rows } from "@canva/app-ui-kit";
-import {
-  IconSearch,
-  IconTimes,
-  IconRecord,
-  IconArrowLeft,
-} from "src/assets/icons";
-import { addNativeElement, addPage } from "@canva/design";
-import { upload } from "@canva/asset";
-import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
-import { useStoryVideos } from "src/hooks/useVideoData";
+import { useState } from "react";
+import { Grid } from "@canva/app-ui-kit";
+import { IconSearch, IconTimes, IconRecord } from "src/assets/icons";
 import { useMediaStore } from "src/store";
-
-interface Props {}
+import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 
 const StoriesTab = () => {
-  const [listStories, setListStories] = useState(videos);
+  const { storiesDashboard } = useGetStoriesDashboard();
   const [searchVal, setSearchVal] = useState<string>("");
 
-  const { storiesMedia, setShowMediaDetail, setStorySelected } =
-    useMediaStore();
-  const getStories = useStoryVideos();
-
-  console.log("getStories: ", getStories);
+  const { setShowMediaDetail, setStorySelected } = useMediaStore();
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
     const listStories = [];
-    const result = listStories.filter((vd: any) => vd?.name === name);
-    setListStories(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListStories(videos);
   };
 
   const handleShowMediaByStory = (story?: any) => {
@@ -62,7 +44,7 @@ const StoriesTab = () => {
         </div>
         <input
           type="text"
-          placeholder="Search for any videos..."
+          placeholder="Search for any story..."
           style={{
             background: "#fff",
             color: "gray",
@@ -100,7 +82,7 @@ const StoriesTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {storiesMedia?.map((st: any) => (
+        {storiesDashboard?.map((st: any) => (
           <div
             style={{
               borderRadius: "8px",

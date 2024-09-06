@@ -1,6 +1,6 @@
 // useVideoData.ts
 import useSWR from 'swr';
-import { useGetDesignToken } from './useGetDesignToken';
+import { useGetAuthToken } from './useGetAuthToken';
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -29,20 +29,24 @@ export interface StoryVideoData {
   last_name: string;
 }
 
+interface Props {
+  contentId: string;
+}
+
 // Custom hook to fetch video data
-export const useStoryVideos = () => {
-  const designToken = useGetDesignToken();
+export const useStoryVideos = ({contentId}: Props) => {
+  const token = useGetAuthToken();
 
   // Ensure designToken is available before using fetcher
   const fetcher = async (url: string) => {
-    if (!designToken?.token) {
-      throw new Error('Design token is missing');
+    if (!token) {
+      throw new Error('Auth token is missing');
     }
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${designToken.token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -56,7 +60,7 @@ export const useStoryVideos = () => {
 
   // Use SWR to fetch data
   const { data, error, isLoading } = useSWR<ApiResponse>(
-    designToken ? 'http://localhost:5050/v1/video/platform-for-canva' : null, // Only fetch if designToken is available
+    token ? 'http://localhost:5050/v1/video/platform-for-canva?contentId=' + contentId : null, // Only fetch if designToken is available
     fetcher,
     {
       revalidateOnFocus: true, // Optional: Auto revalidate on focus

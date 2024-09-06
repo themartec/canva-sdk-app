@@ -1,9 +1,7 @@
-import { Button, ProgressBar, Rows, Text, Title } from "@canva/app-ui-kit";
+import { Button, Rows, Text } from "@canva/app-ui-kit";
 import { requestExport } from "@canva/design";
 import styles from "styles/components.css";
 import { useEffect, useState } from "react";
-import { getDesignToken } from "@canva/design";
-import { useGetDesignToken } from "./hooks/useGetDesignToken";
 import { useMediaStore } from "./store";
 import { IconGrid, IconExport } from "./assets/icons";
 import MediaView from "./components/media";
@@ -21,10 +19,9 @@ import {
   listStories,
   videosStory,
 } from "./constants/mockMedia";
-import { AssetGrid } from "./components/Assets/assets";
 import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
 import { auth } from "@canva/user";
-import { useGetAuthToken } from "./hooks/usegetAuthToken";
+import { useGetAuthToken } from "./hooks/useGetAuthToken";
 
 const _window = window as any;
 
@@ -52,6 +49,9 @@ export const App = () => {
   const token = useGetAuthToken();
 
   const authStatus = useGetAuthStatus({
+    onSuccess(data) {
+      console.log({ token, data });
+    },
     onError(error) {
       auth.requestAuthentication();
     },

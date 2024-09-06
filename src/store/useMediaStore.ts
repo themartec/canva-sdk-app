@@ -1,5 +1,8 @@
+// @ts-ignore
 import create from "zustand";
+// @ts-ignore
 import { devtools, persist } from "zustand/middleware";
+
 import type { MediaState } from "../types/store";
 
 export const useMediaStore = create<MediaState>()(

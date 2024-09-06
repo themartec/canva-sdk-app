@@ -1,7 +1,6 @@
 // useVideoData.ts
 import useSWR from "swr";
-import { useGetDesignToken } from "./useGetDesignToken";
-import { useMediaStore } from "src/store";
+import { useGetAuthToken } from "./useGetAuthToken";
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -34,21 +33,18 @@ export interface StoryVideoData {
 const BASE_URL = "https://studiodev-api.themartec.com/v1";
 
 // Custom hook to fetch video data
-export const useStoryVideos = () => {
-  const designToken = useGetDesignToken();
-
-  const { setStoriesMedia } = useMediaStore();
-
+export const useStoryVideos = (contentId: string) => {
+  const token = useGetAuthToken();
   // Ensure designToken is available before using fetcher
   const fetcher = async (url: string) => {
-    if (!designToken?.token) {
+    if (!token) {
       throw new Error("Design token is missing");
     }
 
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${designToken.token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -62,17 +58,12 @@ export const useStoryVideos = () => {
 
   // Use SWR to fetch data
   const { data, error, isLoading } = useSWR<ApiResponse>(
-    designToken ? `${BASE_URL}/video/platform-for-canva` : null, // Only fetch if designToken is available
+    token && contentId? `http://localhost:5050/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
     fetcher,
     {
-      revalidateOnFocus: true, // Optional: Auto revalidate on focus
+      revalidateOnFocus: false, // Optional: Auto revalidate on focus
     }
   );
-
-  // save data stories to store
-  if (data?.data) {
-    setStoriesMedia(data?.data);
-  }
 
   return {
     data: data?.data, // Access the actual video data

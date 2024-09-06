@@ -1,3 +1,5 @@
+import { link } from "fs";
+
 export const imagesBrandKit = [
   {
     Link: "https://cdndev.themartec.com/assets/bbfe02cf-7d1c-41fe-a774-b0f33ee08b3c/ntt-vertical-blue-line-lower-third-4e985651-195f-4220-9b11-ea1b89fcb453-6e34793d-363a-4100-922c-d247a374db34.png",
@@ -6,6 +8,14 @@ export const imagesBrandKit = [
     width: 22,
     height: 320,
     fileSize: 549,
+  },
+  {
+    // Link: "https://image.jimcdn.com/app/cms/image/transf/dimension=2080x10000:format=jpg/path/s2217cd0bb1220415/image/i97fe02c4f7d30c86/version/1688683802/chinese-dragon.jpg",
+    width: 22,
+    height: 320,
+    fileSize: 549,
+    videoName: 'hahahaha.png',
+    Link: 'https://cdndev.themartec.com/assets/content-recipes/3a274647-d74a-46e2-aff2-656500afcb9e.png'
   },
   {
     Link: "https://cdndev.themartec.com/assets/bbfe02cf-7d1c-41fe-a774-b0f33ee08b3c/screen-shot-2023-12-18-at-105929-am-ca8458f7-b6bc-4e7f-aa5b-53a1f8514065.png",

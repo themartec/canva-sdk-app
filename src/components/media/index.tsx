@@ -12,14 +12,17 @@ import StoriesTab from "./tabs/stories";
 import UploadedTab from "./tabs/uploaded";
 import SeeAllMediaBrand from "../showAll/brand";
 import SeeAllMediaUploaded from "../showAll/uploaded";
-import SeeAllMediaDetail from "../showAll/stories";
+import { StoryVideos } from "../showAll/storyVideos";
 import { useMediaStore } from "src/store";
-
-interface Props {}
+import { MediaState } from "src/types/store";
 
 const MediaView = () => {
-  const { isSeeAllMediaBrand, isSeeAllMediaUploaded, isShowMediaDetail } =
-    useMediaStore();
+  const {
+    isSeeAllMediaBrand,
+    isSeeAllMediaUploaded,
+    isShowMediaDetail,
+    storySelected,
+  } = useMediaStore() as MediaState;
 
   return (
     <div>
@@ -55,7 +58,11 @@ const MediaView = () => {
       </div>
       {isSeeAllMediaBrand && <SeeAllMediaBrand />}
       {isSeeAllMediaUploaded && <SeeAllMediaUploaded />}
-      {isShowMediaDetail && <SeeAllMediaDetail />}
+      {isShowMediaDetail && storySelected ? (
+        <StoryVideos storyId={storySelected?.id?.toString() || ""} />
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

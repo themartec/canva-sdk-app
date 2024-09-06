@@ -29,6 +29,20 @@ const BrandTab = () => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
 
+  function imageUrlToBase64(url) {
+    return new Promise((resolve, reject) => {
+      fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(reject);
+    });
+  }
+
   const handleUpload = async (url, type) => {
     try {
       if (type === "image" || type === "logo") {
@@ -37,14 +51,14 @@ const BrandTab = () => {
         } else {
           setUploadType("logo");
         }
+        const base64Image = await imageUrlToBase64(url) as string;
+
         const result = await upload({
           type: "IMAGE",
-          mimeType: "image/jpeg",
-          url,
-          thumbnailUrl: url,
+          mimeType: "image/png",
+          url: base64Image,
+          thumbnailUrl: base64Image,
         });
-
-        console.log(result);
 
         await addNativeElement({
           type: "IMAGE",
