@@ -12,6 +12,7 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
+import { useGetAllMedia } from "src/hooks/useGetAllMedia";
 
 interface Props {}
 
@@ -23,6 +24,11 @@ const UploadedTab = () => {
     imageUpload,
     audioUpload,
   } = useMediaStore();
+
+  const { videos, audios, images, isLoading, isError } = useGetAllMedia();
+
+  console.log({ videos, audios, images });
+
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
@@ -97,6 +103,9 @@ const UploadedTab = () => {
     }
   };
 
+  if (isLoading)
+    return <div style={{ textAlign: "center", margin: 20 }}>...Loading...</div>;
+
   return (
     <div>
       <div
@@ -115,7 +124,7 @@ const UploadedTab = () => {
             cursor: "pointer",
           }}
         >
-          {videos?.length > 4 ? "See all" : ""}
+          {videos?.length && videos?.length > 4 ? "See all" : ""}
         </p>
       </div>
       <Grid
@@ -125,7 +134,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {videoUpload.slice(0, 4).map((video, index) => {
+        {videos?.slice(1, 5).map((video, index) => {
           return (
             <div style={{ maxHeight: "106px" }}>
               <VideoCard
@@ -139,7 +148,7 @@ const UploadedTab = () => {
                   handleUpload(video?.filePath, "video", video?.avatar);
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={video?.avatar}
+                thumbnailUrl={video?.avatar || ""}
                 videoPreviewUrl={video?.filePath}
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
@@ -165,7 +174,7 @@ const UploadedTab = () => {
             cursor: "pointer",
           }}
         >
-          {images?.length > 4 ? "See all" : ""}
+          {images?.length && images?.length > 4 ? "See all" : ""}
         </p>
       </div>
       <Grid
@@ -175,7 +184,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="imageKey"
       >
-        {imageUpload.slice(0, 4).map((image, index) => (
+        {images?.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
             <ImageCard
               alt="grass image"
@@ -211,7 +220,7 @@ const UploadedTab = () => {
             cursor: "pointer",
           }}
         >
-          {audios?.length > 4 ? "See all" : ""}
+          {audios?.length && audios?.length > 4 ? "See all" : ""}
         </p>
       </div>
       <Grid
@@ -221,7 +230,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {audioUpload.slice(0, 2).map((audio, index) => (
+        {audios?.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
             <AudioCard
               ariaLabel="Add audio to design"
