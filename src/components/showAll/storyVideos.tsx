@@ -13,35 +13,37 @@ interface Props {
 }
 
 export const StoryVideos = ({ storyId }: Props) => {
+  const { data: stories, isLoading } = useStoryVideos(storyId);
   const { storySelected, setShowMediaDetail, storiesMediaDetail } =
     useMediaStore();
 
-  const [listVideos, setListVideos] = useState(storiesMediaDetail);
+  const [listVideos, setListVideos] = useState(stories);
   const [searchVal, setSearchVal] = useState<string>("");
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
 
   const currentVideos = useGetCurrentVideo();
-  const { data: stories, isLoading } = useStoryVideos(storyId);
 
   const handleSearchStory = (name: string) => {
-    console.log("storiesMediaDetail: ", storiesMediaDetail);
+    console.log("stories: ", stories);
 
     if (!name) {
       setSearchVal("");
-      setListVideos(storiesMediaDetail);
+      setListVideos(stories as any || []);
     } else {
       setSearchVal(name);
-      const result = storiesMediaDetail.filter((vd: any) =>
-        vd?.name?.toLowerCase().includes(name?.toLocaleLowerCase())
+      const result = stories?.filter((vd: any) =>
+        vd?.question?.toLowerCase().includes(name?.toLocaleLowerCase())
       );
-      setListVideos(result);
+      console.log('result: ', result);
+      
+      setListVideos(result as any || []);
     }
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListVideos(storiesMediaDetail);
+    setListVideos(stories);
   };
 
   const handleUpload = async (url, thumbnailImageUrl) => {
@@ -67,6 +69,10 @@ export const StoryVideos = ({ storyId }: Props) => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    setListVideos(stories)
+  }, [stories])
 
   if (isLoading)
     return (
@@ -178,7 +184,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         spacing="1u"
         key="videoKey"
       >
-        {stories?.map((video, index) => {
+        {listVideos?.map((video, index) => {
           return (
             <Rows spacing="1u">
               <VideoCard
@@ -212,7 +218,7 @@ export const StoryVideos = ({ storyId }: Props) => {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {video?.name}
+                  {video?.question}
                 </p>
               </div>
             </Rows>

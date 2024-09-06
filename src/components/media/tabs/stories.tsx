@@ -12,7 +12,7 @@ const StoriesTab = () => {
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    const listStories = [];
+    // const listStories = [];
   };
 
   const handleClearSearch = () => {
@@ -82,48 +82,64 @@ const StoriesTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {storiesDashboard?.map((st: any) => (
-          <div
-            style={{
-              borderRadius: "8px",
-              display: "flex",
-              marginTop: "4px",
-              border: "1px solid #424858",
-              padding: "4px",
-              height: "55px",
-              cursor: "pointer",
-            }}
-            onClick={() => handleShowMediaByStory(st)}
-          >
+        {storiesDashboard
+          ?.filter((el) =>
+            el?.audience_research?.headline
+              .toLocaleLowerCase()
+              .includes(searchVal.toLocaleLowerCase())
+          )
+          ?.map((st: any) => (
             <div
               style={{
-                margin: "16px 8px",
-                padding: "6px",
-                width: "12px",
-                height: "12px",
                 borderRadius: "8px",
-                background: "#98E0E5",
+                display: "flex",
+                marginTop: "4px",
+                border: "1px solid #424858",
+                padding: "4px",
+                height: "55px",
+                cursor: "pointer",
               }}
+              onClick={() => handleShowMediaByStory(st)}
             >
-              <IconRecord />
+              <div
+                style={{
+                  margin: "16px 8px",
+                  padding: "6px",
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "8px",
+                  background: "#98E0E5",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <IconRecord />
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  height: "42px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "14px",
+                    marginTop: "25px",
+                    // height: "100%",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 2,
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    wordWrap: "break-word",
+                  }}
+                >
+                  {st?.audience_research?.headline}
+                </p>
+              </div>
             </div>
-            <p
-              style={{
-                fontSize: "14px",
-                marginTop: "5px",
-                height: "42px",
-                display: "-webkit-box",
-                WebkitBoxOrient: "vertical",
-                WebkitLineClamp: 2,
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                wordWrap: "break-word",
-              }}
-            >
-              {st?.audience_research?.headline}
-            </p>
-          </div>
-        ))}
+          ))}
       </Grid>
     </div>
   );
