@@ -57,6 +57,7 @@ export interface VideoBrandKit {
 export interface AudioBrandKit {
   Link: string;
   videoName: string;
+  musicName: string;
   duration: number;
   fileSize: number;
   waveformImage: string;
