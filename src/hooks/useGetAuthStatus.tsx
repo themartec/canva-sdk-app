@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { useGetAuthToken } from "./usegetAuthToken";
+import { useGetAuthToken } from "./useGetAuthToken";
 
 const baseURL = 'http://localhost:3100/v1/canva';
 
