@@ -60,7 +60,7 @@ export const useStoryVideos = ({contentId}: Props) => {
 
   // Use SWR to fetch data
   const { data, error, isLoading } = useSWR<ApiResponse>(
-    token ? 'http://localhost:5050/v1/video/platform-for-canva?contentId=' + contentId : null, // Only fetch if designToken is available
+    token ? 'https://studiodev-api.themartec.com/v1/video/platform-for-canva?contentId=' + contentId : null, // Only fetch if designToken is available
     fetcher,
     {
       revalidateOnFocus: true, // Optional: Auto revalidate on focus

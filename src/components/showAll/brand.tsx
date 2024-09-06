@@ -20,6 +20,7 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useIndexedDBStore } from "use-indexeddb";
+import { imageUrlToBase64 } from "src/constants/convertImage";
 
 interface Props {}
 
@@ -42,7 +43,12 @@ const SeeAllMediaBrand = () => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
 
-  const handleUpload = async (url, type) => {
+  const handleUpload = async (
+    url,
+    type,
+    thumbnail?: string,
+    duration?: number
+  ) => {
     try {
       if (type === "image" || type === "logo") {
         if (type === "image") {
@@ -50,11 +56,14 @@ const SeeAllMediaBrand = () => {
         } else {
           setUploadType("logo");
         }
+
+        const base64Image = (await imageUrlToBase64(url)) as string;
+
         const result = await upload({
           type: "IMAGE",
           mimeType: "image/jpeg",
-          url,
-          thumbnailUrl: url,
+          url: base64Image,
+          thumbnailUrl: base64Image,
         });
 
         console.log(result);
@@ -70,8 +79,8 @@ const SeeAllMediaBrand = () => {
         const result = await upload({
           type: "VIDEO",
           mimeType: "video/mp4",
-          url: "https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4",
-          thumbnailImageUrl: videoThumbnail,
+          url,
+          thumbnailImageUrl: thumbnail || "",
         });
 
         if (currentVideos.count) await addPage();
@@ -87,8 +96,8 @@ const SeeAllMediaBrand = () => {
           type: "AUDIO",
           title: "Example audio",
           mimeType: "audio/mp3",
-          durationMs: 86047,
-          url: "https://www.canva.dev/example-assets/audio-import/audio.mp3",
+          durationMs: (duration as number) * 1000,
+          url: url,
         });
 
         await addAudioTrack({
@@ -267,7 +276,7 @@ const SeeAllMediaBrand = () => {
                     handleUpload(video?.Link, "video");
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={video?.avatar || videoThumbnail}
+                  thumbnailUrl={video?.avatar}
                   videoPreviewUrl={video?.Link}
                   loading={
                     uploadIndex === index && uploadType == "video"
@@ -297,10 +306,10 @@ const SeeAllMediaBrand = () => {
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("image");
-                  handleUpload(image, "image");
+                  handleUpload(image?.Link, "image");
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
+                thumbnailUrl={image?.Link}
                 loading={
                   uploadIndex === index && uploadType == "image" ? true : false
                 }
@@ -321,12 +330,12 @@ const SeeAllMediaBrand = () => {
             <AudioContextProvider>
               <AudioCard
                 ariaLabel="Add audio to design"
-                audioPreviewUrl="https://www.canva.dev/example-assets/audio-import/audio.mp3"
-                durationInSeconds={86}
+                audioPreviewUrl={audio?.Link}
+                durationInSeconds={audio?.duration}
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("audio");
-                  handleUpload(audio, "audio");
+                  handleUpload(audio?.Link, "audio");
                 }}
                 onDragStart={() => {}}
                 thumbnailUrl=""
@@ -362,10 +371,10 @@ const SeeAllMediaBrand = () => {
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("logo");
-                  handleUpload(logo, "logo");
+                  handleUpload(logo?.Link, "logo");
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
+                thumbnailUrl={logo?.Link}
                 loading={
                   uploadIndex === index && uploadType == "logo" ? true : false
                 }

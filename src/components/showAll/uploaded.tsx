@@ -13,6 +13,7 @@ import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { upload } from "@canva/asset";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useIndexedDBStore } from "use-indexeddb";
+import { imageUrlToBase64 } from "src/constants/convertImage";
 
 interface Props {}
 
@@ -35,7 +36,12 @@ const SeeAllMediaUploaded = () => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
 
-  const handleUpload = async (url, type) => {
+  const handleUpload = async (
+    url,
+    type,
+    thumbnail?: string,
+    duration?: number
+  ) => {
     try {
       if (type === "image" || type === "logo") {
         if (type === "image") {
@@ -43,11 +49,14 @@ const SeeAllMediaUploaded = () => {
         } else {
           setUploadType("logo");
         }
+
+        const base64Image = (await imageUrlToBase64(url)) as string;
+
         const result = await upload({
           type: "IMAGE",
           mimeType: "image/jpeg",
-          url,
-          thumbnailUrl: url,
+          url: base64Image,
+          thumbnailUrl: base64Image,
         });
 
         console.log(result);
@@ -63,8 +72,8 @@ const SeeAllMediaUploaded = () => {
         const result = await upload({
           type: "VIDEO",
           mimeType: "video/mp4",
-          url: "https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4",
-          thumbnailImageUrl: videoThumbnail,
+          url: url,
+          thumbnailImageUrl: thumbnail || "",
         });
 
         if (currentVideos.count) await addPage();
@@ -80,8 +89,8 @@ const SeeAllMediaUploaded = () => {
           type: "AUDIO",
           title: "Example audio",
           mimeType: "audio/mp3",
-          durationMs: 86047,
-          url: "https://www.canva.dev/example-assets/audio-import/audio.mp3",
+          durationMs: (duration as number) * 1000,
+          url: url,
         });
 
         await addAudioTrack({
@@ -241,15 +250,15 @@ const SeeAllMediaUploaded = () => {
                 <VideoCard
                   ariaLabel="Add video to design"
                   borderRadius="standard"
-                  durationInSeconds={8}
+                  durationInSeconds={video?.duration}
                   mimeType="video/mp4"
                   onClick={(e) => {
                     setUploadIndex(index);
                     setUploadType("video");
-                    handleUpload(video?.filePath, "video");
+                    handleUpload(video?.filePath, "video", video?.avatar);
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={video?.avatar || videoThumbnail}
+                  thumbnailUrl={video?.avatar}
                   videoPreviewUrl={video?.filePath}
                   loading={
                     uploadIndex === index && uploadType == "video"
@@ -303,12 +312,12 @@ const SeeAllMediaUploaded = () => {
             <AudioContextProvider>
               <AudioCard
                 ariaLabel="Add audio to design"
-                audioPreviewUrl="https://www.canva.dev/example-assets/audio-import/audio.mp3"
-                durationInSeconds={86}
+                audioPreviewUrl={audio?.filePath}
+                durationInSeconds={audio?.duration}
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("audio");
-                  handleUpload(audio, "audio");
+                  handleUpload(audio?.filePath, "audio", "", audio?.duration);
                 }}
                 onDragStart={() => {}}
                 thumbnailUrl=""
