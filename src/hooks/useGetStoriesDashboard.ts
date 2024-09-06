@@ -1,5 +1,5 @@
-import useSWR from 'swr';
-import { useGetAuthToken } from './useGetAuthToken';
+import useSWR from "swr";
+import { useGetAuthToken } from "./useGetAuthToken";
 
 export interface StoriesDashboardItem {
   id: string;
@@ -20,13 +20,13 @@ interface StoriesDashboardResponse {
 
 const fetcher = async (url: string, token: string) => {
   const response = await fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   });
   if (!response.ok) {
-    throw new Error('Failed to fetch data');
+    throw new Error("Failed to fetch data");
   }
   return response.json();
 };
@@ -34,7 +34,9 @@ const fetcher = async (url: string, token: string) => {
 export const useGetStoriesDashboard = () => {
   const token = useGetAuthToken();
   const { data, error, isLoading } = useSWR<StoriesDashboardResponse>(
-    token ? ['http://localhost:3100/v1/canva/stories-dashboard', token] : null,
+    token
+      ? ["https://apidev.themartec.com/v1/canva/stories-dashboard", token]
+      : null,
     ([url, token]) => fetcher(url, token as string)
   );
 

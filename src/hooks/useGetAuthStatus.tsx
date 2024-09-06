@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
 
-const baseURL = 'http://localhost:3100/v1/canva';
+const baseURL = "https://apidev.themartec.com/v1/canva";
 
 // Custom fetcher function using fetch API for PUT request
 const putFetcher = async (url, token) => {

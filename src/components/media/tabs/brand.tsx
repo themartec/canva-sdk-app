@@ -32,8 +32,8 @@ const BrandTab = () => {
   function imageUrlToBase64(url) {
     return new Promise((resolve, reject) => {
       fetch(url)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
           reader.onerror = reject;
@@ -43,7 +43,12 @@ const BrandTab = () => {
     });
   }
 
-  const handleUpload = async (url, type) => {
+  const handleUpload = async (
+    url,
+    type,
+    thumbnail?: string,
+    duration?: number
+  ) => {
     try {
       if (type === "image" || type === "logo") {
         if (type === "image") {
@@ -51,7 +56,7 @@ const BrandTab = () => {
         } else {
           setUploadType("logo");
         }
-        const base64Image = await imageUrlToBase64(url) as string;
+        const base64Image = (await imageUrlToBase64(url)) as string;
 
         const result = await upload({
           type: "IMAGE",
@@ -71,8 +76,8 @@ const BrandTab = () => {
         const result = await upload({
           type: "VIDEO",
           mimeType: "video/mp4",
-          url: "https://www.canva.dev/example-assets/video-import/beach-thumbnail-video.mp4",
-          thumbnailImageUrl: videoThumbnail,
+          url,
+          thumbnailImageUrl: thumbnail || "",
         });
 
         if (currentVideos.count) await addPage();
@@ -88,8 +93,8 @@ const BrandTab = () => {
           type: "AUDIO",
           title: "Example audio",
           mimeType: "audio/mp3",
-          durationMs: 86047,
-          url: "https://www.canva.dev/example-assets/audio-import/audio.mp3",
+          durationMs: (duration as number) * 1000,
+          url,
         });
 
         await addAudioTrack({
@@ -139,15 +144,15 @@ const BrandTab = () => {
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
-                durationInSeconds={8}
+                durationInSeconds={video?.duration}
                 mimeType="video/mp4"
                 onClick={(e) => {
                   setUploadIndex(index);
                   setUploadType("video");
-                  handleUpload(video?.Link, "video");
+                  handleUpload(video?.Link, "video", video?.avatar);
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={video?.avatar || videoThumbnail}
+                thumbnailUrl={video?.avatar}
                 videoPreviewUrl={video?.Link}
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
@@ -240,7 +245,7 @@ const BrandTab = () => {
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("audio");
-                handleUpload(audio?.Link, "audio");
+                handleUpload(audio?.Link, "audio", "", audio.duration);
               }}
               onDragStart={() => {}}
               thumbnailUrl=""
