@@ -62,7 +62,7 @@ export const StoryVideosGrid = ({ videos }: StoryVideosGridProps) => {
                 key={video.id}
                 ariaLabel="Add video to design"
                 borderRadius="none"
-                durationInSeconds={8}
+                // durationInSeconds={8}
                 mimeType="video/mp4"
                 onClick={(e) => {
                   setUploadIndex(index);

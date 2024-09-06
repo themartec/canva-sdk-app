@@ -96,8 +96,8 @@ const SeeAllMediaBrand = () => {
           type: "AUDIO",
           title: "Example audio",
           mimeType: "audio/mp3",
-          durationMs: (duration as number) * 1000,
-          url: url,
+          durationMs: (duration as number) * 1000, // miliseconds
+          url,
         });
 
         await addAudioTrack({
@@ -268,12 +268,12 @@ const SeeAllMediaBrand = () => {
                 <VideoCard
                   ariaLabel="Add video to design"
                   borderRadius="standard"
-                  durationInSeconds={8}
+                  durationInSeconds={video?.duration}
                   mimeType="video/mp4"
                   onClick={(e) => {
                     setUploadIndex(index);
                     setUploadType("video");
-                    handleUpload(video?.Link, "video");
+                    handleUpload(video?.Link, "video", video?.avatar);
                   }}
                   onDragStart={() => {}}
                   thumbnailUrl={video?.avatar}
@@ -335,7 +335,7 @@ const SeeAllMediaBrand = () => {
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("audio");
-                  handleUpload(audio?.Link, "audio");
+                  handleUpload(audio?.Link, "audio", "", audio?.duration);
                 }}
                 onDragStart={() => {}}
                 thumbnailUrl=""
