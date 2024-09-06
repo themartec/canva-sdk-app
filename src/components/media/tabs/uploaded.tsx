@@ -131,7 +131,7 @@ const UploadedTab = () => {
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
-                durationInSeconds={8}
+                durationInSeconds={video?.duration}
                 mimeType="video/mp4"
                 onClick={(e) => {
                   setUploadIndex(index);
@@ -226,7 +226,7 @@ const UploadedTab = () => {
             <AudioCard
               ariaLabel="Add audio to design"
               audioPreviewUrl={audio?.filePath}
-              durationInSeconds={86}
+              durationInSeconds={audio?.duration}
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("audio");
