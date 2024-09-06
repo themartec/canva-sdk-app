@@ -54,7 +54,7 @@ const SeeAllMediaUploaded = () => {
 
         const result = await upload({
           type: "IMAGE",
-          mimeType: "image/jpeg",
+          mimeType: "image/png",
           url: base64Image,
           thumbnailUrl: base64Image,
         });
