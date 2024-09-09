@@ -117,14 +117,14 @@ const SeeAllMediaBrand = () => {
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    const listStories = [];
-    const result = listStories.filter((vd: any) => vd?.name === name);
-    setListAssets(result);
+    // const listStories = [];
+    // const result = listStories.filter((vd: any) => vd?.name === name);
+    // setListAssets(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListAssets(videos);
+    // setListAssets(videos);
   };
 
   const renderMediaType = () => {
