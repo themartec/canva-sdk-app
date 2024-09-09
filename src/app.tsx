@@ -22,7 +22,7 @@ import {
 import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
 import { auth } from "@canva/user";
 import { useGetAuthToken } from "./hooks/useGetAuthToken";
-import { useGetAllMedia } from "./hooks/useGetAllMedia";
+import { useGetUploadedMedias } from "./hooks/useGetUploadedMedias";
 
 const _window = window as any;
 

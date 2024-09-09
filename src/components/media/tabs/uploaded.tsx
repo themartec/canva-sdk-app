@@ -12,7 +12,7 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
-import { useGetAllMedia } from "src/hooks/useGetAllMedia";
+import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 
 interface Props {}
 
@@ -25,7 +25,7 @@ const UploadedTab = () => {
     audioUpload,
   } = useMediaStore();
 
-  const { videos, audios, images, isLoading, isError } = useGetAllMedia();
+  const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
 
   console.log({ videos, audios, images });
 
