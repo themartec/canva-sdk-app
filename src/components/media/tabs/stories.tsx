@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { Grid } from "@canva/app-ui-kit";
+import { useEffect, useState } from "react";
+import { Grid, ProgressBar } from "@canva/app-ui-kit";
 import { IconSearch, IconTimes, IconRecord } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 
 const StoriesTab = () => {
-  const { storiesDashboard } = useGetStoriesDashboard();
+  const { storiesDashboard, isLoading } = useGetStoriesDashboard();
   const [searchVal, setSearchVal] = useState<string>("");
+  const [percent, setPercent] = useState<number>(0);
 
   const { setShowMediaDetail, setStorySelected } = useMediaStore();
 
@@ -24,57 +25,85 @@ const StoriesTab = () => {
     setStorySelected(story);
   };
 
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 45, delay: 400 },
+      { percent: 65, delay: 800 },
+      { percent: 75, delay: 1000 },
+      { percent: 90, delay: 1200 },
+    ];
+
+    if (isLoading) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else return;
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <div style={{ marginTop: "20px" }}>
+        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+      </div>
+    );
+  }
+
   return (
     <div style={{ marginTop: "12px" }}>
-      <div
-        style={{
-          display: "flex",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "8px",
-          marginBottom: "10px",
-        }}
-      >
+      {storiesDashboard?.length && (
         <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            background: "#fff",
+            borderRadius: "8px",
+            padding: "8px",
+            marginBottom: "10px",
           }}
         >
-          <IconSearch />
-        </div>
-        <input
-          type="text"
-          placeholder="Search for any story..."
-          style={{
-            background: "#fff",
-            color: "gray",
-            width: "90%",
-            outline: "none",
-            border: "none",
-            marginLeft: "4px",
-            marginRight: "4px",
-          }}
-          value={searchVal}
-          onChange={(e) => handleSearchStory(e.target.value)}
-        />
-        {searchVal && (
           <div
             style={{
-              width: "24px",
-              height: "22px",
-              background: "#f5f0f0",
-              borderRadius: "8px",
-              paddingTop: "3px",
-              paddingLeft: "3px",
               cursor: "pointer",
             }}
-            title="Clear"
-            onClick={handleClearSearch}
           >
-            <IconTimes />
+            <IconSearch />
           </div>
-        )}
-      </div>
+          <input
+            type="text"
+            placeholder="Search for any story..."
+            style={{
+              background: "#fff",
+              color: "gray",
+              width: "90%",
+              outline: "none",
+              border: "none",
+              marginLeft: "4px",
+              marginRight: "4px",
+            }}
+            value={searchVal}
+            onChange={(e) => handleSearchStory(e.target.value)}
+          />
+          {searchVal && (
+            <div
+              style={{
+                width: "24px",
+                height: "22px",
+                background: "#f5f0f0",
+                borderRadius: "8px",
+                paddingTop: "3px",
+                paddingLeft: "3px",
+                cursor: "pointer",
+              }}
+              title="Clear"
+              onClick={handleClearSearch}
+            >
+              <IconTimes />
+            </div>
+          )}
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -141,6 +170,11 @@ const StoriesTab = () => {
             </div>
           ))}
       </Grid>
+      {!storiesDashboard?.length && (
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
+          You don’t have any stories at the moment.
+        </p>
+      )}
     </div>
   );
 };

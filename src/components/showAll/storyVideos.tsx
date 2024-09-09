@@ -6,7 +6,7 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useStoryVideos } from "src/hooks/useVideoData";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
-import { Grid, Rows, VideoCard } from "@canva/app-ui-kit";
+import { Grid, ProgressBar, Rows, VideoCard, Text } from "@canva/app-ui-kit";
 
 interface Props {
   storyId: string;
@@ -21,23 +21,20 @@ export const StoryVideos = ({ storyId }: Props) => {
   const [searchVal, setSearchVal] = useState<string>("");
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
+  const [percent, setPercent] = useState<number>(0);
 
   const currentVideos = useGetCurrentVideo();
 
   const handleSearchStory = (name: string) => {
-    console.log("stories: ", stories);
-
     if (!name) {
       setSearchVal("");
-      setListVideos(stories as any || []);
+      setListVideos((stories as any) || []);
     } else {
       setSearchVal(name);
       const result = stories?.filter((vd: any) =>
         vd?.question?.toLowerCase().includes(name?.toLocaleLowerCase())
       );
-      console.log('result: ', result);
-      
-      setListVideos(result as any || []);
+      setListVideos((result as any) || []);
     }
   };
 
@@ -71,20 +68,36 @@ export const StoryVideos = ({ storyId }: Props) => {
   };
 
   useEffect(() => {
-    setListVideos(stories)
-  }, [stories])
+    setListVideos(stories);
+  }, [stories]);
 
-  if (isLoading)
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 35, delay: 400 },
+      { percent: 45, delay: 800 },
+      { percent: 55, delay: 1000 },
+      { percent: 65, delay: 1200 },
+      { percent: 85, delay: 2000 },
+      { percent: 90, delay: 2400 },
+    ];
+
+    if (isLoading) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else return;
+  }, [isLoading]);
+
+  if (isLoading) {
     return (
-      <div
-        style={{
-          margin: 20,
-          textAlign: "center",
-        }}
-      >
-        Loading...
+      <div style={{ marginTop: "20px" }}>
+        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
       </div>
     );
+  }
 
   return (
     <div style={{ marginTop: "12px" }}>
@@ -134,7 +147,7 @@ export const StoryVideos = ({ storyId }: Props) => {
           background: "#fff",
           borderRadius: "8px",
           padding: "8px",
-          marginBottom: "10px",
+          marginBottom: "-2px",
         }}
       >
         <div
@@ -177,6 +190,11 @@ export const StoryVideos = ({ storyId }: Props) => {
           </div>
         )}
       </div>
+      {!listVideos?.length && (
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
+          There are no videos for this story.
+        </p>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -187,41 +205,43 @@ export const StoryVideos = ({ storyId }: Props) => {
         {listVideos?.map((video, index) => {
           return (
             <Rows spacing="1u">
-              <div style={{ maxHeight: '106px'}}>
-              <VideoCard
-                ariaLabel="Add video to design"
-                borderRadius="standard"
-                mimeType="video/mp4"
-                onClick={(e) => {
-                  setUploadIndex(index);
-                  setUploadType("video");
-                  handleUpload(video?.video_link, video.thumbnail_image);
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl={video?.thumbnail_image}
-                videoPreviewUrl={video?.video_link}
-                loading={
-                  uploadIndex === index && uploadType == "video" ? true : false
-                }
-              />
-              <div
-                style={{
-                  marginTop: "-17px",
-                }}
-              >
-                <p
+              <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+                <VideoCard
+                  ariaLabel="Add video to design"
+                  borderRadius="standard"
+                  mimeType="video/mp4"
+                  onClick={(e) => {
+                    setUploadIndex(index);
+                    setUploadType("video");
+                    handleUpload(video?.video_link, video.thumbnail_image);
+                  }}
+                  onDragStart={() => {}}
+                  thumbnailUrl={video?.thumbnail_image}
+                  videoPreviewUrl={video?.video_link}
+                  loading={
+                    uploadIndex === index && uploadType == "video"
+                      ? true
+                      : false
+                  }
+                />
+                <div
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    width: "100%",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
+                    marginTop: "-14px",
                   }}
                 >
-                  {video?.question}
-                </p>
-              </div>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      width: "100%",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {video?.question}
+                  </p>
+                </div>
               </div>
             </Rows>
           );

@@ -8,7 +8,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
-import { audios, images, videoThumbnail, videos } from "../media/tabs/mockData";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { upload } from "@canva/asset";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
@@ -26,9 +25,11 @@ const SeeAllMediaUploaded = () => {
     imageUpload,
     audioUpload,
   } = useMediaStore();
-  const { add, getAll } = useIndexedDBStore("uploaded-videos");
+  const { getAll } = useIndexedDBStore("uploaded-videos");
+  const { getAll: getImage } = useIndexedDBStore("uploaded-images");
+  const { getAll: getAudio } = useIndexedDBStore("uploaded-audio");
 
-  const [listAssets, setListAssets] = useState<any>(videos);
+  const [listAssets, setListAssets] = useState<any>([]);
   const [searchVal, setSearchVal] = useState<string>("");
 
   const currentVideos = useGetCurrentVideo();
@@ -107,14 +108,14 @@ const SeeAllMediaUploaded = () => {
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    const listStories = [];
-    const result = listStories.filter((vd: any) => vd?.name === name);
-    setListAssets(result);
+    // const listStories = [];
+    // const result = listStories.filter((vd: any) => vd?.name === name);
+    // setListAssets(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListAssets(videos);
+    // setListAssets(videos);
   };
 
   const renderMediaType = () => {
@@ -131,16 +132,37 @@ const SeeAllMediaUploaded = () => {
   useEffect(() => {
     switch (typeMedia) {
       case "videos":
-        setListAssets(videoUpload);
+        getAll()
+          .then((result) => {
+            // console.log("All assets:", result);
+            setListAssets(result);
+          })
+          .catch((err) => {
+            console.error("Error fetching videos:", err);
+          });
         break;
       case "images":
-        setListAssets(imageUpload);
+        getImage()
+          .then((result) => {
+            // console.log("All assets:", result);
+            setListAssets(result);
+          })
+          .catch((err) => {
+            console.error("Error fetching videos:", err);
+          });
         break;
       default:
-        setListAssets(audioUpload);
+        getAudio()
+          .then((result) => {
+            // console.log("All assets:", result);
+            setListAssets(result);
+          })
+          .catch((err) => {
+            console.error("Error fetching videos:", err);
+          });
         break;
     }
-  }, []);
+  }, [getAll]);
 
   useEffect(() => {
     getAll()
@@ -192,7 +214,7 @@ const SeeAllMediaUploaded = () => {
           background: "#fff",
           borderRadius: "8px",
           padding: "8px",
-          marginBottom: "10px",
+          marginBottom: "-2px",
         }}
       >
         <div
@@ -244,31 +266,55 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key="videoKey"
         >
-          {listAssets.map((video, index) => {
-            return (
-              <div style={{ maxHeight: "106px" }}>
-                <VideoCard
-                  ariaLabel="Add video to design"
-                  borderRadius="standard"
-                  durationInSeconds={video?.duration}
-                  mimeType="video/mp4"
-                  onClick={(e) => {
-                    setUploadIndex(index);
-                    setUploadType("video");
-                    handleUpload(video?.filePath, "video", video?.avatar);
-                  }}
-                  onDragStart={() => {}}
-                  thumbnailUrl={video?.avatar}
-                  videoPreviewUrl={video?.filePath}
-                  loading={
-                    uploadIndex === index && uploadType == "video"
-                      ? true
-                      : false
-                  }
-                />
-              </div>
-            );
-          })}
+          {listAssets
+            ?.filter((el) =>
+              el?.name
+                .toLocaleLowerCase()
+                .includes(searchVal.toLocaleLowerCase())
+            )
+            .map((video, index) => {
+              return (
+                <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+                  <VideoCard
+                    ariaLabel="Add video to design"
+                    borderRadius="standard"
+                    durationInSeconds={video?.duration}
+                    mimeType="video/mp4"
+                    onClick={(e) => {
+                      setUploadIndex(index);
+                      setUploadType("video");
+                      handleUpload(video?.filePath, "video", video?.avatar);
+                    }}
+                    onDragStart={() => {}}
+                    thumbnailUrl={video?.avatar}
+                    videoPreviewUrl={video?.filePath}
+                    loading={
+                      uploadIndex === index && uploadType == "video"
+                        ? true
+                        : false
+                    }
+                  />
+                  <div
+                    style={{
+                      marginTop: "-14px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        width: "100%",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {video?.name}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
         </Grid>
       )}
       {typeMedia === "images" && (
@@ -279,25 +325,51 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key="imageKey"
         >
-          {listAssets.map((image, index) => (
-            <div style={{ maxHeight: "106px" }}>
-              <ImageCard
-                alt="grass image"
-                ariaLabel="Add image to design"
-                borderRadius="standard"
-                onClick={() => {
-                  setUploadIndex(index);
-                  setUploadType("image");
-                  handleUpload(image?.filePath, "image");
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl={image?.filePath}
-                loading={
-                  uploadIndex === index && uploadType == "image" ? true : false
-                }
-              />
-            </div>
-          ))}
+          {listAssets
+            ?.filter((el) =>
+              el?.name
+                .toLocaleLowerCase()
+                .includes(searchVal.toLocaleLowerCase())
+            )
+            .map((image, index) => (
+              <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+                <ImageCard
+                  alt="grass image"
+                  ariaLabel="Add image to design"
+                  borderRadius="standard"
+                  onClick={() => {
+                    setUploadIndex(index);
+                    setUploadType("image");
+                    handleUpload(image?.filePath, "image");
+                  }}
+                  onDragStart={() => {}}
+                  thumbnailUrl={image?.filePath}
+                  loading={
+                    uploadIndex === index && uploadType == "image"
+                      ? true
+                      : false
+                  }
+                />
+                <div
+                  style={{
+                    marginTop: "-14px",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      width: "100%",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {image?.name}
+                  </p>
+                </div>
+              </div>
+            ))}
         </Grid>
       )}
       {typeMedia === "audios" && (
@@ -308,26 +380,34 @@ const SeeAllMediaUploaded = () => {
           spacing="1u"
           key="audioKey"
         >
-          {listAssets.map((audio, index) => (
-            <AudioContextProvider>
-              <AudioCard
-                ariaLabel="Add audio to design"
-                audioPreviewUrl={audio?.filePath}
-                durationInSeconds={audio?.duration}
-                onClick={() => {
-                  setUploadIndex(index);
-                  setUploadType("audio");
-                  handleUpload(audio?.filePath, "audio", "", audio?.duration);
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl=""
-                title={audio?.name}
-                loading={
-                  uploadIndex === index && uploadType == "audio" ? true : false
-                }
-              />
-            </AudioContextProvider>
-          ))}
+          {listAssets
+            ?.filter((el) =>
+              el?.name
+                .toLocaleLowerCase()
+                .includes(searchVal.toLocaleLowerCase())
+            )
+            .map((audio, index) => (
+              <AudioContextProvider>
+                <AudioCard
+                  ariaLabel="Add audio to design"
+                  audioPreviewUrl={audio?.filePath}
+                  durationInSeconds={audio?.duration}
+                  onClick={() => {
+                    setUploadIndex(index);
+                    setUploadType("audio");
+                    handleUpload(audio?.filePath, "audio", "", audio?.duration);
+                  }}
+                  onDragStart={() => {}}
+                  thumbnailUrl=""
+                  title={audio?.name}
+                  loading={
+                    uploadIndex === index && uploadType == "audio"
+                      ? true
+                      : false
+                  }
+                />
+              </AudioContextProvider>
+            ))}
         </Grid>
       )}
     </div>

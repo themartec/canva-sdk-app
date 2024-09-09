@@ -1,21 +1,29 @@
-import React, { useState } from "react";
-import { videos, audios, images, logos, videoThumbnail } from "./mockData";
+import React, { useEffect, useState } from "react";
+// import { videos, audios, images, logos, videoThumbnail } from "./mockData";
 import {
   AudioCard,
   AudioContextProvider,
   Box,
   Grid,
   ImageCard,
+  ProgressBar,
   VideoCard,
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
+import { useGetBrandKits } from "src/hooks/useGetBrandKit";
+import { useIndexedDBStore } from "use-indexeddb";
 
 interface Props {}
 
 const BrandTab = () => {
+  const { add } = useIndexedDBStore("brand-videos");
+  const { add: addImage } = useIndexedDBStore("brand-images");
+  const { add: addAudio } = useIndexedDBStore("brand-audio");
+  const { add: addLogo } = useIndexedDBStore("brand-logos");
+
   const {
     setSeeAllMediaBrand,
     setTypeMedia,
@@ -28,6 +36,10 @@ const BrandTab = () => {
 
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
+  const [percent, setPercent] = useState<number>(0);
+
+  const { videos, musics, images, logos, isLoading, isError } =
+    useGetBrandKits();
 
   function imageUrlToBase64(url) {
     return new Promise((resolve, reject) => {
@@ -109,28 +121,143 @@ const BrandTab = () => {
     }
   };
 
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 35, delay: 800 },
+      { percent: 45, delay: 1400 },
+      { percent: 55, delay: 1900 },
+      { percent: 65, delay: 2500 },
+      { percent: 75, delay: 3100 },
+      { percent: 80, delay: 3600 },
+      { percent: 85, delay: 4100 },
+      { percent: 90, delay: 4900 },
+    ];
+
+    if (isLoading) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else return;
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (videos?.length) {
+      videos?.forEach((vd) => {
+        add({
+          Link: vd.Link,
+          videoName: vd.videoName,
+          width: vd.width,
+          height: vd.height,
+          fileSize: vd.fileSize,
+          duration: vd.duration,
+          avatar: vd.avatar,
+          thumbnails: vd.thumbnails,
+          blurImage: vd.blurImage,
+          waveformImage: vd.waveformImage,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [videos]);
+
+  useEffect(() => {
+    if (images?.length) {
+      images?.forEach((img) => {
+        addImage({
+          Link: img.Link,
+          imageName: img.imageName,
+          fileSize: img.fileSize,
+          duration: img.duration,
+          waveformImage: img.waveformImage,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [images]);
+
+  useEffect(() => {
+    if (musics?.length) {
+      musics?.forEach((img) => {
+        addAudio({
+          Link: img.Link,
+          musicName: img.musicName,
+          videoName: img.videoName,
+          fileSize: img.fileSize,
+          duration: img.duration,
+          waveformImage: img.waveformImage,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [musics]);
+
+  useEffect(() => {
+    if (logos?.length) {
+      logos?.forEach((img) => {
+        addLogo({
+          Link: img.Link,
+          logoName: img.logoName,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [logos]);
+
+  if (isLoading) {
+    return (
+      <div style={{ marginTop: "20px" }}>
+        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* VIDEOS */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Videos</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaBrand(true);
-            setTypeMedia("videos");
-          }}
+      {videos?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {videos?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Videos</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaBrand(true);
+              setTypeMedia("videos");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {videos?.length && videos?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -138,7 +265,7 @@ const BrandTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {videoBrandKit.slice(0, 4).map((video, index) => {
+        {videos?.slice(0, 4).map((video, index) => {
           return (
             <div style={{ maxHeight: "106px" }}>
               <VideoCard
@@ -163,25 +290,27 @@ const BrandTab = () => {
         })}
       </Grid>
       {/* IMAGES */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Images</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaBrand(true);
-            setTypeMedia("images");
-          }}
+      {images?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {images?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Images</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaBrand(true);
+              setTypeMedia("images");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {images?.length && images?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -189,7 +318,7 @@ const BrandTab = () => {
         spacing="1u"
         key="imageKey"
       >
-        {imageBrandKit.slice(0, 4).map((image, index) => (
+        {images?.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
             <ImageCard
               alt="grass image"
@@ -210,25 +339,27 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* MUSIC */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Music</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaBrand(true);
-            setTypeMedia("audios");
-          }}
+      {musics?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {audios?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Music</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaBrand(true);
+              setTypeMedia("audios");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {musics?.length && musics?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -236,7 +367,7 @@ const BrandTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {audioBrandKit.slice(0, 2).map((audio, index) => (
+        {musics?.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
             <AudioCard
               ariaLabel="Add audio to design"
@@ -258,25 +389,27 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* LOGO - IMAGES */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Logos</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaBrand(true);
-            setTypeMedia("logos");
-          }}
+      {logos?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {logos?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Logos</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaBrand(true);
+              setTypeMedia("logos");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {logos?.length && logos?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -284,7 +417,7 @@ const BrandTab = () => {
         spacing="1u"
         key="logoKey"
       >
-        {logoBrandKit.slice(0, 4).map((logo, index) => (
+        {logos?.slice(0, 4).map((logo, index) => (
           <div
             style={{
               maxHeight: "106px",
@@ -310,6 +443,14 @@ const BrandTab = () => {
           </div>
         ))}
       </Grid>
+      {!videos?.length &&
+        !images?.length &&
+        !musics?.length &&
+        !logos?.length && (
+          <p style={{ marginTop: "20px", textAlign: "center" }}>
+            You haven’t uploaded any media files yet.
+          </p>
+        )}
     </div>
   );
 };

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { audios, images, videoThumbnail, videos } from "./mockData";
+import React, { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
   Grid,
   ImageCard,
+  ProgressBar,
   VideoCard,
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
@@ -13,10 +13,14 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
+import { useIndexedDBStore } from "use-indexeddb";
 
 interface Props {}
 
 const UploadedTab = () => {
+  const { add } = useIndexedDBStore("uploaded-videos");
+  const { add: addImage } = useIndexedDBStore("uploaded-images");
+  const { add: addAudio } = useIndexedDBStore("uploaded-audio");
   const {
     setSeeAllMediaUploaded,
     setTypeMedia,
@@ -24,10 +28,11 @@ const UploadedTab = () => {
     imageUpload,
     audioUpload,
   } = useMediaStore();
+  const [percent, setPercent] = useState<number>(0);
 
   const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
 
-  console.log({ videos, audios, images });
+  // console.log({ videos, audios, images });
 
   const currentVideos = useGetCurrentVideo();
 
@@ -103,30 +108,164 @@ const UploadedTab = () => {
     }
   };
 
-  if (isLoading)
-    return <div style={{ textAlign: "center", margin: 20 }}>...Loading...</div>;
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 35, delay: 400 },
+      { percent: 45, delay: 800 },
+      { percent: 55, delay: 1000 },
+      { percent: 65, delay: 1200 },
+      { percent: 85, delay: 2000 },
+      { percent: 90, delay: 2400 },
+    ];
+
+    if (isLoading) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else return;
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (videos?.length) {
+      videos?.forEach((vd) => {
+        add({
+          id: vd.id,
+          type: vd.type,
+          name: vd.name,
+          videoId: vd.videoId,
+          companyId: vd.companyId,
+          userId: vd.userId,
+          contentId: vd.contentId,
+          contentType: vd.contentType,
+          createdAt: vd.createdAt,
+          updatedAt: vd.updatedAt,
+          filePath: vd.filePath,
+          fileSize: vd.fileSize,
+          duration: vd.duration,
+          isAudio: vd.isAudio,
+          avatar: vd.avatar,
+          blurImage: vd.blurImage,
+          waveformImage: vd.waveformImage,
+          thumbnails: vd.thumbnails,
+          width: vd.width,
+          height: vd.height,
+          subtitles: vd.subtitles,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [videos]);
+
+  useEffect(() => {
+    if (images?.length) {
+      images?.forEach((img) => {
+        addImage({
+          id: img.id,
+          type: img.type,
+          name: img.name,
+          companyId: img.companyId,
+          userId: img.userId,
+          contentId: img.contentId,
+          contentType: img.contentType,
+          createdAt: img.createdAt,
+          updatedAt: img.updatedAt,
+          filePath: img.filePath,
+          fileSize: img.fileSize,
+          duration: img.duration,
+          isAudio: img.isAudio,
+          avatar: img.avatar,
+          blurImage: img.blurImage,
+          waveformImage: img.waveformImage,
+          thumbnails: img.thumbnails,
+          width: img.width,
+          height: img.height,
+          subtitles: img.subtitles,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [images]);
+
+  useEffect(() => {
+    if (audios?.length) {
+      audios?.forEach((aud) => {
+        addAudio({
+          id: aud.id,
+          type: aud.type,
+          name: aud.name,
+          title: aud.title,
+          companyId: aud.companyId,
+          userId: aud.userId,
+          contentId: aud.contentId,
+          contentType: aud.contentType,
+          createdAt: aud.createdAt,
+          updatedAt: aud.updatedAt,
+          filePath: aud.filePath,
+          fileSize: aud.fileSize,
+          duration: aud.duration,
+          isAudio: aud.isAudio,
+          avatar: aud.avatar,
+          blurImage: aud.blurImage,
+          waveformImage: aud.waveformImage,
+          thumbnails: aud.thumbnails,
+          width: aud.width,
+          height: aud.height,
+          subtitles: aud.subtitles,
+        })
+          .then(() => {
+            // console.log('Image added to IndexedDB');
+          })
+          .catch((err) => {
+            console.error("Failed to add image:", err);
+          });
+      });
+    }
+  }, [audios]);
+
+  if (isLoading) {
+    return (
+      <div style={{ marginTop: "20px" }}>
+        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Videos</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaUploaded(true);
-            setTypeMedia("videos");
-          }}
+      {videos?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {videos?.length && videos?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Videos</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaUploaded(true);
+              setTypeMedia("videos");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {videos?.length && videos?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -158,25 +297,27 @@ const UploadedTab = () => {
           );
         })}
       </Grid>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Images</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaUploaded(true);
-            setTypeMedia("images");
-          }}
+      {images?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {images?.length && images?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Images</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaUploaded(true);
+              setTypeMedia("images");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {images?.length && images?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -204,25 +345,27 @@ const UploadedTab = () => {
           </div>
         ))}
       </Grid>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <p style={{ fontWeight: 700 }}>Music</p>
-        <p
-          onClick={() => {
-            setSeeAllMediaUploaded(true);
-            setTypeMedia("audios");
-          }}
+      {audios?.length && (
+        <div
           style={{
-            cursor: "pointer",
+            display: "flex",
+            justifyContent: "space-between",
           }}
         >
-          {audios?.length && audios?.length > 4 ? "See all" : ""}
-        </p>
-      </div>
+          <p style={{ fontWeight: 700 }}>Music</p>
+          <p
+            onClick={() => {
+              setSeeAllMediaUploaded(true);
+              setTypeMedia("audios");
+            }}
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            {audios?.length && audios?.length > 4 ? "See all" : ""}
+          </p>
+        </div>
+      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -251,6 +394,11 @@ const UploadedTab = () => {
           </AudioContextProvider>
         ))}
       </Grid>
+      {!videos?.length && !images?.length && !audios?.length && (
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
+          You haven’t uploaded any media files yet.
+        </p>
+      )}
     </div>
   );
 };

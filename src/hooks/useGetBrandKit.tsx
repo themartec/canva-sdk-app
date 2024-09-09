@@ -7,6 +7,14 @@ interface Logo {
   logoName: string;
 }
 
+interface Image {
+  Link: string;
+  imageName: string;
+  duration: number;
+  fileSize: number;
+  waveformImage: string;
+}
+
 interface Font {
   Link: string;
   fontName: string;
@@ -28,6 +36,7 @@ interface Video {
 interface Music {
   Link: string;
   musicName: string;
+  videoName: string;
   duration: number;
   fileSize: number;
   waveformImage: string;
@@ -41,6 +50,7 @@ interface APIResponse {
     fonts: Font[];
     videos: Video[];
     musics: Music[];
+    images: Image[];
   };
 }
 
@@ -62,7 +72,7 @@ export const useGetBrandKits = () => {
   const token = useGetAuthToken();
 
   const { data, error, isLoading } = useSWR<Partial<APIResponse>>(
-    token ? [`${BASE_API_URL}/v1/media/canva-media`, token] : null,
+    token ? [`${BASE_API_URL}/v1/brand-kit/canva-brand-kit`, token] : null,
     ([url, token]) => fetcher(url, token?.toString() || "")
   );
 
@@ -71,6 +81,7 @@ export const useGetBrandKits = () => {
     fonts: data?.data?.fonts,
     videos: data?.data?.videos,
     musics: data?.data?.musics,
+    images: data?.data?.images,
     isLoading,
     isError: error,
   };

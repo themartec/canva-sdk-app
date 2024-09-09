@@ -64,7 +64,7 @@ export const useGetUploadedMedias = () => {
   const token = useGetAuthToken();
 
   const { data, error, isLoading } = useSWR<Partial<APIResponse>>(
-    token ? [`${BASE_API_URL}/v1/brand-kit/canva-brand-kit`, token] : null,
+    token ? [`${BASE_API_URL}/v1/media/canva-media`, token] : null,
     ([url, token]) => fetcher(url, token?.toString() || "")
   );
 

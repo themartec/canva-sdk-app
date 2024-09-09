@@ -1,4 +1,4 @@
-import { Button, Rows, Text } from "@canva/app-ui-kit";
+import { Button, ProgressBar, Rows, Text } from "@canva/app-ui-kit";
 import { requestExport } from "@canva/design";
 import styles from "styles/components.css";
 import { useEffect, useState } from "react";
@@ -111,6 +111,24 @@ export const App = () => {
       .catch((e) => console.error("error / unsupported", e));
   }, []);
 
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 45, delay: 400 },
+      { percent: 65, delay: 800 },
+      { percent: 75, delay: 1000 },
+      { percent: 90, delay: 1200 },
+    ];
+
+    if (!authStatus.data) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else return;
+  }, [authStatus.data]);
+
   if (!authStatus.data)
     return (
       <div
@@ -122,7 +140,16 @@ export const App = () => {
           height: "100%",
         }}
       >
-        <Text size="large"> Authenticating.... </Text>
+        <div
+          style={{
+            width: "90%",
+          }}
+        >
+          <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+          <div style={{ textAlign: "center", width: "100%" }}>
+            <p> Connecting.... </p>
+          </div>
+        </div>
       </div>
     );
 
