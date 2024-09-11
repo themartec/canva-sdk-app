@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
 import { BASE_API_URL } from "../config/common";
+import { useState } from "react";
 
 export interface StoriesDashboardItem {
   id: string;
@@ -34,16 +35,25 @@ const fetcher = async (url: string, token: string) => {
 
 export const useGetStoriesDashboard = () => {
   const token = useGetAuthToken();
-  const { data, error, isLoading } = useSWR<StoriesDashboardResponse>(
+  const { data, error, isLoading, mutate } = useSWR<StoriesDashboardResponse>(
     token
       ? [`${BASE_API_URL}/v1/video/stories-dashboard-for-canva`, token]
       : null,
     ([url, token]) => fetcher(url, token as string)
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshStoriesDashboard = async () => {
+    setIsRefreshing(true); // Set loading to true during refresh
+    await mutate(); // Revalidate the data
+    setIsRefreshing(false); // Set loading to false after refresh
+  };
+
   return {
     storiesDashboard: data?.data || [],
-    isLoading,
+    isLoading: isLoading || isRefreshing,
     isError: error,
+    refresh: refreshStoriesDashboard,
   };
 };

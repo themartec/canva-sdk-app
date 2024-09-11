@@ -1,51 +1,41 @@
-import { Button, ProgressBar, Rows, Text } from "@canva/app-ui-kit";
-import { requestExport } from "@canva/design";
+import { Button, ProgressBar, ReloadIcon, Rows } from "@canva/app-ui-kit";
 import styles from "styles/components.css";
 import { useEffect, useState } from "react";
 import { useMediaStore } from "./store";
-import { IconGrid, IconExport } from "./assets/icons";
+// import { IconGrid, IconExport } from "./assets/icons";
 import MediaView from "./components/media";
-import ExportView from "./components/export";
-import setupIndexedDB from "use-indexeddb";
+// import ExportView from "./components/export";
+import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 import { idbConfig } from "./constants/configIndexDb";
-import {
-  videosBrandKit,
-  imagesBrandKit,
-  audioBrandKit,
-  logosBrandKit,
-  videosUploaded,
-  audioUploaded,
-  imagesUploaed,
-  listStories,
-  videosStory,
-} from "./constants/mockMedia";
 import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
 import { auth } from "@canva/user";
 import { useGetAuthToken } from "./hooks/useGetAuthToken";
 import { useGetUploadedMedias } from "./hooks/useGetUploadedMedias";
+import { useGetBrandKits } from "./hooks/useGetBrandKit";
+import { useGetStoriesDashboard } from "./hooks/useGetStoriesDashboard";
 
 const _window = window as any;
 
 export const App = () => {
-  const [loading, setIsLoading] = useState(false);
-  const [state, setState] = useState("");
   const [percent, setPercent] = useState(0);
-  const [isMediaView, setIsMediaView] = useState<boolean>(true);
+  // const [isMediaView, setIsMediaView] = useState<boolean>(true);
 
-  const {
-    setVideoBrandKit,
-    setImageBrandKit,
-    setAudioBrandKit,
-    setLogoBrandKit,
-    setVideoUploaded,
-    setAudioUploaded,
-    setImageUploaded,
-    setStoriesMedia,
-    setStoriesMediaDetail,
-    isSeeAllMediaBrand,
-    isSeeAllMediaUploaded,
-    isShowMediaDetail,
-  } = useMediaStore();
+  const { deleteAll: deleteAllVideo } = useIndexedDBStore("brand-videos");
+  const { deleteAll: deleteAllImage } = useIndexedDBStore("brand-images");
+  const { deleteAll: deleteAllAudio } = useIndexedDBStore("brand-audio");
+  const { deleteAll: deleteAllLogo } = useIndexedDBStore("brand-logos");
+  const { deleteAll: deleteAllVideoUpload } =
+    useIndexedDBStore("uploaded-videos");
+  const { deleteAll: deleteAllImageUpload } =
+    useIndexedDBStore("uploaded-images");
+  const { deleteAll: deleteAllAudioUpload } =
+    useIndexedDBStore("uploaded-audio");
+
+  const { refresh: refreshBrand } = useGetBrandKits();
+  const { refresh: refreshUploaded } = useGetUploadedMedias();
+  const { refresh: refreshStories } = useGetStoriesDashboard();
+
+  const { setIsRefreshing, tabView } = useMediaStore();
 
   const token = useGetAuthToken();
 
@@ -58,56 +48,42 @@ export const App = () => {
     },
   });
 
-  const downloadFile = (url, filename) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank";
-    link.download = filename; // Optional: specify the file name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleRefreshMedia = async () => {
+    await setIsRefreshing(true);
+    if (tabView === "stories") {
+      await refreshStories();
+      await setIsRefreshing(false);
+    } else if (tabView === "uploaded") {
+      await deleteAllVideoUpload();
+      await deleteAllImageUpload();
+      await deleteAllAudioUpload();
+
+      await refreshUploaded();
+      await setIsRefreshing(false);
+    } else {
+      await deleteAllVideo();
+      await deleteAllImage();
+      await deleteAllAudio();
+      await deleteAllLogo();
+
+      await refreshBrand();
+      await setIsRefreshing(false);
+    }
   };
-
-  const onClick = async () => {
-    setIsLoading(true);
-    setState("Exporting...");
-    setPercent(20);
-    const result: any = await requestExport({
-      acceptedFileTypes: ["VIDEO"],
-    });
-
-    console.log({ result });
-
-    setPercent(60);
-    setState("Downloading...");
-    downloadFile(result?.exportBlobs?.[0]?.url, "story_title.mp4");
-    setTimeout(() => {
-      setState("Synced to Themartec!");
-      setPercent(100);
-      setTimeout(() => {
-        setState("");
-        setIsLoading(false);
-        setPercent(0);
-      }, 2000);
-    }, 3000);
-  };
-
-  useEffect(() => {
-    if (!authStatus.data) return;
-    setVideoBrandKit(videosBrandKit);
-    setImageBrandKit(imagesBrandKit);
-    setAudioBrandKit(audioBrandKit);
-    setLogoBrandKit(logosBrandKit);
-    setVideoUploaded(videosUploaded);
-    setAudioUploaded(audioUploaded);
-    setImageUploaded(imagesUploaed);
-    setStoriesMedia(listStories);
-    setStoriesMediaDetail(videosStory);
-  }, [authStatus.data]);
 
   useEffect(() => {
     setupIndexedDB(idbConfig)
-      .then(() => console.log("init indexeddb success"))
+      .then(() => {
+        console.log("init indexeddb success");
+        // delete DB
+        deleteAllVideo();
+        deleteAllImage();
+        deleteAllAudio();
+        deleteAllLogo();
+        deleteAllVideoUpload();
+        deleteAllImageUpload();
+        deleteAllAudioUpload();
+      })
       .catch((e) => console.error("error / unsupported", e));
   }, []);
 
@@ -156,39 +132,18 @@ export const App = () => {
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        {/* <Text>
-          To make changes to this app, edit the <code>src/app.tsx</code> file,
-          then close and reopen the app in the editor to preview the changes.
-          <a href="google.com" target="_blank">
-            Google
-          </a>
-        </Text>
-        {loading ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <Title size="xsmall">{state}</Title>
-            <div
-              style={{
-                width: "100%",
-              }}
-            >
-              <ProgressBar size="medium" value={percent} />
-            </div>
-          </div>
-        ) : (
-          <Button variant="primary" onClick={onClick} stretch>
-            Sync & Save your video
-          </Button>
-        )} */}
-        <div
+        <Button
+          alignment="center"
+          icon={() => {
+            return <ReloadIcon />;
+          }}
+          onClick={handleRefreshMedia}
+          variant="secondary"
+          stretch={true}
+        >
+          Refresh content
+        </Button>
+        {/* <div
           style={{
             display: `${
               isSeeAllMediaBrand || isSeeAllMediaUploaded || isShowMediaDetail
@@ -224,15 +179,9 @@ export const App = () => {
               Export
             </Button>
           </div>
-        </div>
-        {isMediaView ? <MediaView /> : <ExportView />}
-        {/* <h1>Count: {count}</h1>
-        <Button variant="primary" onClick={increase}>
-          Increase
-        </Button>
-        <Button variant="secondary" onClick={reset}>
-          Reset
-        </Button> */}
+        </div> */}
+        {/* {isMediaView ? <MediaView /> : <ExportView />} */}
+        <MediaView />
       </Rows>
     </div>
   );

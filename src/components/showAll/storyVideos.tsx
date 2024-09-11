@@ -14,8 +14,7 @@ interface Props {
 
 export const StoryVideos = ({ storyId }: Props) => {
   const { data: stories, isLoading } = useStoryVideos(storyId);
-  const { storySelected, setShowMediaDetail, storiesMediaDetail } =
-    useMediaStore();
+  const { storySelected, setShowMediaDetail } = useMediaStore();
 
   const [listVideos, setListVideos] = useState(stories);
   const [searchVal, setSearchVal] = useState<string>("");

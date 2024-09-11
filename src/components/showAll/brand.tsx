@@ -8,32 +8,17 @@ import {
 import React, { useEffect, useState } from "react";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
-import {
-  audios,
-  images,
-  logos,
-  videoThumbnail,
-  videos,
-} from "../media/tabs/mockData";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { useIndexedDBStore } from "use-indexeddb";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 
 interface Props {}
 
 const SeeAllMediaBrand = () => {
-  const {
-    typeMedia,
-    setSeeAllMediaBrand,
-    setSeeAllMediaUploaded,
-    videoBrandKit,
-    imageBrandKit,
-    audioBrandKit,
-    logoBrandKit,
-  } = useMediaStore();
+  const { typeMedia, setSeeAllMediaBrand, setSeeAllMediaUploaded } =
+    useMediaStore();
   const { getAll } = useIndexedDBStore("brand-videos");
   const { getAll: getImage } = useIndexedDBStore("brand-images");
   const { getAll: getAudio } = useIndexedDBStore("brand-audio");
@@ -117,14 +102,10 @@ const SeeAllMediaBrand = () => {
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    // const listStories = [];
-    // const result = listStories.filter((vd: any) => vd?.name === name);
-    // setListAssets(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    // setListAssets(videos);
   };
 
   const renderMediaType = () => {
@@ -137,6 +118,19 @@ const SeeAllMediaBrand = () => {
         return "Music";
       default:
         return "Logos";
+    }
+  };
+
+  const renderMediaTypeSearch = () => {
+    switch (typeMedia) {
+      case "videos":
+        return "videos";
+      case "images":
+        return "images";
+      case "audios":
+        return "music";
+      default:
+        return "logos";
     }
   };
 
@@ -241,7 +235,7 @@ const SeeAllMediaBrand = () => {
         </div>
         <input
           type="text"
-          placeholder="Search for any videos..."
+          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
           style={{
             background: "#fff",
             color: "gray",

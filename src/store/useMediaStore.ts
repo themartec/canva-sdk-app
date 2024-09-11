@@ -1,5 +1,5 @@
 // @ts-ignore
-import {create} from "zustand";
+import { create } from "zustand";
 // @ts-ignore
 import { devtools, persist } from "zustand/middleware";
 
@@ -28,6 +28,8 @@ export const useMediaStore = create<MediaState>()(
         isShowMediaDetail: false,
         storySelected: {},
         storiesMediaDetail: [],
+        tabView: "brand",
+        isRefreshing: false,
         // end intial state
         // ------ //
         // start region actions
@@ -47,6 +49,8 @@ export const useMediaStore = create<MediaState>()(
         setShowMediaDetail: (data) => set({ isShowMediaDetail: data }),
         setStorySelected: (data) => set({ storySelected: data }),
         setStoriesMediaDetail: (data) => set({ storiesMediaDetail: data }),
+        setTabView: (data) => set({ tabView: data }),
+        setIsRefreshing: (data) => set({ isRefreshing: data }),
 
         updateBrandKitMedia: (data) =>
           set((state) => ({

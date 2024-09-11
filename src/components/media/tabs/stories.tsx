@@ -5,11 +5,11 @@ import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 
 const StoriesTab = () => {
-  const { storiesDashboard, isLoading } = useGetStoriesDashboard();
+  const { storiesDashboard, isLoading, refresh } = useGetStoriesDashboard();
   const [searchVal, setSearchVal] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
 
-  const { setShowMediaDetail, setStorySelected } = useMediaStore();
+  const { setShowMediaDetail, setStorySelected, isRefreshing } = useMediaStore();
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
@@ -34,16 +34,18 @@ const StoriesTab = () => {
       { percent: 90, delay: 1200 },
     ];
 
-    if (isLoading) {
+    if (isLoading || isRefreshing) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
         }, delay);
       });
-    } else return;
-  }, [isLoading]);
+    } else {
+      setPercent(0);
+    }
+  }, [isLoading, isRefreshing]);
 
-  if (isLoading) {
+  if (isLoading || isRefreshing) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
@@ -72,7 +74,7 @@ const StoriesTab = () => {
           </div>
           <input
             type="text"
-            placeholder="Search for any story..."
+            placeholder="Search for any stories..."
             style={{
               background: "#fff",
               color: "gray",

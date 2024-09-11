@@ -22,6 +22,7 @@ const MediaView = () => {
     isSeeAllMediaUploaded,
     isShowMediaDetail,
     storySelected,
+    setTabView,
   } = useMediaStore() as MediaState;
 
   return (
@@ -38,9 +39,15 @@ const MediaView = () => {
         <Tabs>
           <Rows spacing="1u">
             <TabList>
-              <Tab id="brand">Brand</Tab>
-              <Tab id="stories">Stories</Tab>
-              <Tab id="uploaded">Uploaded</Tab>
+              <Tab id="brand" onClick={() => setTabView("brand")}>
+                Brand
+              </Tab>
+              <Tab id="stories" onClick={() => setTabView("stories")}>
+                Stories
+              </Tab>
+              <Tab id="uploaded" onClick={() => setTabView("uploaded")}>
+                Uploaded
+              </Tab>
             </TabList>
             <TabPanels>
               <TabPanel id="brand">

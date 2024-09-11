@@ -21,18 +21,11 @@ const UploadedTab = () => {
   const { add } = useIndexedDBStore("uploaded-videos");
   const { add: addImage } = useIndexedDBStore("uploaded-images");
   const { add: addAudio } = useIndexedDBStore("uploaded-audio");
-  const {
-    setSeeAllMediaUploaded,
-    setTypeMedia,
-    videoUpload,
-    imageUpload,
-    audioUpload,
-  } = useMediaStore();
+  const { setSeeAllMediaUploaded, setTypeMedia, isRefreshing } =
+    useMediaStore();
   const [percent, setPercent] = useState<number>(0);
 
   const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
-
-  // console.log({ videos, audios, images });
 
   const currentVideos = useGetCurrentVideo();
 
@@ -119,17 +112,19 @@ const UploadedTab = () => {
       { percent: 90, delay: 2400 },
     ];
 
-    if (isLoading) {
+    if (isLoading || isRefreshing) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
         }, delay);
       });
-    } else return;
-  }, [isLoading]);
+    } else {
+      setPercent(0);
+    }
+  }, [isLoading, isRefreshing]);
 
   useEffect(() => {
-    if (videos?.length) {
+    if (videos?.length && !isRefreshing) {
       videos?.forEach((vd) => {
         add({
           id: vd.id,
@@ -162,10 +157,10 @@ const UploadedTab = () => {
           });
       });
     }
-  }, [videos]);
+  }, [videos, isRefreshing]);
 
   useEffect(() => {
-    if (images?.length) {
+    if (images?.length && !isRefreshing) {
       images?.forEach((img) => {
         addImage({
           id: img.id,
@@ -197,10 +192,10 @@ const UploadedTab = () => {
           });
       });
     }
-  }, [images]);
+  }, [images, isRefreshing]);
 
   useEffect(() => {
-    if (audios?.length) {
+    if (audios?.length && !isRefreshing) {
       audios?.forEach((aud) => {
         addAudio({
           id: aud.id,
@@ -233,9 +228,9 @@ const UploadedTab = () => {
           });
       });
     }
-  }, [audios]);
+  }, [audios, isRefreshing]);
 
-  if (isLoading) {
+  if (isLoading || isRefreshing) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />

@@ -18,6 +18,8 @@ export interface MediaState {
   typeMedia: string;
   storySelected: any;
   storiesMediaDetail: StoryMedia[];
+  tabView: string;
+  isRefreshing: boolean;
   // actions
   increase: () => void;
   reset: () => void;
@@ -39,6 +41,8 @@ export interface MediaState {
   setShowMediaDetail: (data: boolean) => void;
   setStorySelected: (data: any) => void;
   setTypeMedia: (data: string) => void;
+  setTabView: (data: string) => void;
+  setIsRefreshing: (data: boolean) => void;
 }
 
 export interface VideoBrandKit {

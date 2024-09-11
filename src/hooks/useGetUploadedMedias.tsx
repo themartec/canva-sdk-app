@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
 import { BASE_API_URL } from "../config/common";
+import { useState } from "react";
 
 export interface Media {
   id: string;
@@ -44,7 +45,7 @@ interface APIResponse {
     images: Image[];
     videos: Video[];
     audios: Audio[];
-  }
+  };
 }
 
 const fetcher = async (url: string, token: string) => {
@@ -63,16 +64,25 @@ const fetcher = async (url: string, token: string) => {
 export const useGetUploadedMedias = () => {
   const token = useGetAuthToken();
 
-  const { data, error, isLoading } = useSWR<Partial<APIResponse>>(
+  const { data, error, isLoading, mutate } = useSWR<Partial<APIResponse>>(
     token ? [`${BASE_API_URL}/v1/media/canva-media`, token] : null,
     ([url, token]) => fetcher(url, token?.toString() || "")
   );
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshMediaBrandKit = async () => {
+    setIsRefreshing(true); // Set loading to true during refresh
+    await mutate(); // Revalidate the data
+    setIsRefreshing(false); // Set loading to false after refresh
+  };
 
   return {
     videos: data?.data?.videos,
     audios: data?.data?.audios,
     images: data?.data?.images,
-    isLoading,
+    isLoading: isLoading || isRefreshing,
     isError: error,
+    refresh: refreshMediaBrandKit,
   };
 };

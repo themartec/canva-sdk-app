@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
-  Box,
   Grid,
   ImageCard,
   ProgressBar,
@@ -24,21 +23,14 @@ const BrandTab = () => {
   const { add: addAudio } = useIndexedDBStore("brand-audio");
   const { add: addLogo } = useIndexedDBStore("brand-logos");
 
-  const {
-    setSeeAllMediaBrand,
-    setTypeMedia,
-    videoBrandKit,
-    audioBrandKit,
-    imageBrandKit,
-    logoBrandKit,
-  } = useMediaStore();
+  const { setSeeAllMediaBrand, setTypeMedia, isRefreshing } = useMediaStore();
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
 
-  const { videos, musics, images, logos, isLoading, isError } =
+  const { videos, musics, images, logos, isLoading, isError, refresh } =
     useGetBrandKits();
 
   function imageUrlToBase64(url) {
@@ -134,17 +126,19 @@ const BrandTab = () => {
       { percent: 90, delay: 4900 },
     ];
 
-    if (isLoading) {
+    if (isLoading || isRefreshing) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
         }, delay);
       });
-    } else return;
-  }, [isLoading]);
+    } else {
+      setPercent(0);
+    }
+  }, [isLoading, isRefreshing]);
 
   useEffect(() => {
-    if (videos?.length) {
+    if (videos?.length && !isRefreshing) {
       videos?.forEach((vd) => {
         add({
           Link: vd.Link,
@@ -166,10 +160,10 @@ const BrandTab = () => {
           });
       });
     }
-  }, [videos]);
+  }, [videos, isRefreshing]);
 
   useEffect(() => {
-    if (images?.length) {
+    if (images?.length && !isRefreshing) {
       images?.forEach((img) => {
         addImage({
           Link: img.Link,
@@ -186,18 +180,18 @@ const BrandTab = () => {
           });
       });
     }
-  }, [images]);
+  }, [images, isRefreshing]);
 
   useEffect(() => {
-    if (musics?.length) {
-      musics?.forEach((img) => {
+    if (musics?.length && !isRefreshing) {
+      musics?.forEach((mus) => {
         addAudio({
-          Link: img.Link,
-          musicName: img.musicName,
-          videoName: img.videoName,
-          fileSize: img.fileSize,
-          duration: img.duration,
-          waveformImage: img.waveformImage,
+          Link: mus.Link,
+          musicName: mus.musicName,
+          videoName: mus.videoName,
+          fileSize: mus.fileSize,
+          duration: mus.duration,
+          waveformImage: mus.waveformImage,
         })
           .then(() => {
             // console.log('Image added to IndexedDB');
@@ -207,10 +201,10 @@ const BrandTab = () => {
           });
       });
     }
-  }, [musics]);
+  }, [musics, isRefreshing]);
 
   useEffect(() => {
-    if (logos?.length) {
+    if (logos?.length && !isRefreshing) {
       logos?.forEach((img) => {
         addLogo({
           Link: img.Link,
@@ -224,9 +218,9 @@ const BrandTab = () => {
           });
       });
     }
-  }, [logos]);
+  }, [logos, isRefreshing]);
 
-  if (isLoading) {
+  if (isLoading || isRefreshing) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />

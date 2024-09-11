@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
@@ -5,7 +6,6 @@ import {
   ImageCard,
   VideoCard,
 } from "@canva/app-ui-kit";
-import React, { useEffect, useState } from "react";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
@@ -17,14 +17,8 @@ import { imageUrlToBase64 } from "src/constants/convertImage";
 interface Props {}
 
 const SeeAllMediaUploaded = () => {
-  const {
-    typeMedia,
-    setSeeAllMediaBrand,
-    setSeeAllMediaUploaded,
-    videoUpload,
-    imageUpload,
-    audioUpload,
-  } = useMediaStore();
+  const { typeMedia, setSeeAllMediaBrand, setSeeAllMediaUploaded } =
+    useMediaStore();
   const { getAll } = useIndexedDBStore("uploaded-videos");
   const { getAll: getImage } = useIndexedDBStore("uploaded-images");
   const { getAll: getAudio } = useIndexedDBStore("uploaded-audio");
@@ -108,14 +102,10 @@ const SeeAllMediaUploaded = () => {
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    // const listStories = [];
-    // const result = listStories.filter((vd: any) => vd?.name === name);
-    // setListAssets(result);
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    // setListAssets(videos);
   };
 
   const renderMediaType = () => {
@@ -126,6 +116,17 @@ const SeeAllMediaUploaded = () => {
         return "Images";
       default:
         return "Music";
+    }
+  };
+
+  const renderMediaTypeSearch = () => {
+    switch (typeMedia) {
+      case "videos":
+        return "videos";
+      case "images":
+        return "images";
+      default:
+        return "music";
     }
   };
 
@@ -226,7 +227,7 @@ const SeeAllMediaUploaded = () => {
         </div>
         <input
           type="text"
-          placeholder="Search for any videos..."
+          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
           style={{
             background: "#fff",
             color: "gray",
