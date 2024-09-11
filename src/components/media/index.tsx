@@ -50,13 +50,13 @@ const MediaView = () => {
               </Tab>
             </TabList>
             <TabPanels>
-              <TabPanel id="brand">
+              <TabPanel id="brand" key={"brand"}>
                 <BrandTab />
               </TabPanel>
-              <TabPanel id="stories">
+              <TabPanel id="stories" key={"stories"}>
                 <StoriesTab />
               </TabPanel>
-              <TabPanel id="uploaded">
+              <TabPanel id="uploaded" key={"uploaded"}>
                 <UploadedTab />
               </TabPanel>
             </TabPanels>

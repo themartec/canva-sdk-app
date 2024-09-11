@@ -41,7 +41,7 @@ export const App = () => {
 
   const authStatus = useGetAuthStatus({
     onSuccess(data) {
-      console.log({ token, data });
+      // console.log({ token, data });
     },
     onError(error) {
       auth.requestAuthentication();

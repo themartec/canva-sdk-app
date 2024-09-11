@@ -2,6 +2,7 @@ import { Box, Grid, Title, VideoCard } from "@canva/app-ui-kit";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
 import { useState } from "react";
+import { DEFAULT_THUMBNAIL } from "src/config/common";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { StoryVideoData } from "src/hooks/useStoryVideos";
 
@@ -70,7 +71,7 @@ export const StoryVideosGrid = ({ videos }: StoryVideosGridProps) => {
                   handleUpload(video);
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={video?.thumbnail_image}
+                thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}
                 videoPreviewUrl={video?.video_link}
                 loading={uploadIndex === index && uploadType === "video"}
               />

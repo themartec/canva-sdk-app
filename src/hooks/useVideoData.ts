@@ -30,10 +30,6 @@ export interface StoryVideoData {
   last_name: string;
 }
 
-// Remove this line as it's no longer needed
-// const BASE_URL = process.env.REACT_APP_API_BASE_URL
-// const BASE_URL = "http://localhost:5050/v1";
-
 // Custom hook to fetch video data
 export const useStoryVideos = (contentId: string) => {
   const token = useGetAuthToken();

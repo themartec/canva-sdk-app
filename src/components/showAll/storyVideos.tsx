@@ -7,6 +7,7 @@ import { useStoryVideos } from "src/hooks/useVideoData";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
 import { Grid, ProgressBar, Rows, VideoCard, Text } from "@canva/app-ui-kit";
+import { DEFAULT_THUMBNAIL } from "src/config/common";
 
 interface Props {
   storyId: string;
@@ -215,7 +216,7 @@ export const StoryVideos = ({ storyId }: Props) => {
                     handleUpload(video?.video_link, video.thumbnail_image);
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={video?.thumbnail_image}
+                  thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}
                   videoPreviewUrl={video?.video_link}
                   loading={
                     uploadIndex === index && uploadType == "video"

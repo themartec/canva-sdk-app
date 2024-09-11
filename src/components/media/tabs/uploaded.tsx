@@ -238,6 +238,8 @@ const UploadedTab = () => {
     );
   }
 
+  console.log(audios);
+
   return (
     <div>
       {videos?.length && (
@@ -368,26 +370,29 @@ const UploadedTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {audios?.slice(0, 2).map((audio, index) => (
-          <AudioContextProvider>
-            <AudioCard
-              ariaLabel="Add audio to design"
-              audioPreviewUrl={audio?.filePath}
-              durationInSeconds={audio?.duration}
-              onClick={() => {
-                setUploadIndex(index);
-                setUploadType("audio");
-                handleUpload(audio?.filePath, "audio", "", audio?.duration);
-              }}
-              onDragStart={() => {}}
-              thumbnailUrl=""
-              title={audio?.name}
-              loading={
-                uploadIndex === index && uploadType == "audio" ? true : false
-              }
-            />
-          </AudioContextProvider>
-        ))}
+        {audios
+          ?.filter((e) => e.fileSize <= 49 * 1024 * 1024)
+          ?.slice(0, 2)
+          .map((audio, index) => (
+            <AudioContextProvider>
+              <AudioCard
+                ariaLabel="Add audio to design"
+                audioPreviewUrl={audio?.filePath}
+                durationInSeconds={audio?.duration}
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("audio");
+                  handleUpload(audio?.filePath, "audio", "", audio?.duration);
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl=""
+                title={audio?.name}
+                loading={
+                  uploadIndex === index && uploadType == "audio" ? true : false
+                }
+              />
+            </AudioContextProvider>
+          ))}
       </Grid>
       {!videos?.length && !images?.length && !audios?.length && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>
