@@ -2,6 +2,7 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
 import { BASE_API_URL } from "../config/common";
+import { useState } from "react";
 
 // Define the TypeScript types for the response
 interface ApiResponse {
@@ -55,7 +56,7 @@ export const useStoryVideos = (contentId: string) => {
   };
 
   // Use SWR to fetch data
-  const { data, error, isLoading } = useSWR<ApiResponse>(
+  const { data, error, isLoading, mutate } = useSWR<ApiResponse>(
     token && contentId ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
     fetcher,
     {
@@ -63,9 +64,18 @@ export const useStoryVideos = (contentId: string) => {
     }
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshVideos = async () => {
+    setIsRefreshing(true); // Set loading to true during refresh
+    await mutate(); // Revalidate the data
+    setIsRefreshing(false); // Set loading to false after refresh
+  };
+
   return {
     data: data?.data, // Access the actual video data
-    isLoading, // Loading state
+    isLoading: isLoading || isRefreshing, // Loading state
     isError: error, // Error state
+    refresh: refreshVideos
   };
 };

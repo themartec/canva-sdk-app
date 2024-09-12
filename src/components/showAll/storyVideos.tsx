@@ -6,15 +6,23 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useStoryVideos } from "src/hooks/useVideoData";
 import { upload } from "@canva/asset";
 import { addNativeElement, addPage } from "@canva/design";
-import { Grid, ProgressBar, Rows, VideoCard, Text } from "@canva/app-ui-kit";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
+import {
+  Grid,
+  ProgressBar,
+  Rows,
+  VideoCard,
+  Text,
+  Button,
+  ReloadIcon,
+} from "@canva/app-ui-kit";
 
 interface Props {
   storyId: string;
 }
 
 export const StoryVideos = ({ storyId }: Props) => {
-  const { data: stories, isLoading } = useStoryVideos(storyId);
+  const { data: stories, isLoading, refresh } = useStoryVideos(storyId);
   const { storySelected, setShowMediaDetail } = useMediaStore();
 
   const [listVideos, setListVideos] = useState(stories);
@@ -88,7 +96,9 @@ export const StoryVideos = ({ storyId }: Props) => {
           setPercent(percent);
         }, delay);
       });
-    } else return;
+    } else {
+      setPercent(0);
+    };
   }, [isLoading]);
 
   if (isLoading) {
@@ -105,7 +115,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         style={{
           display: "flex",
           cursor: "pointer",
-          height: "30px",
+          height: "19px",
           width: "100%",
         }}
         onClick={() => {
@@ -115,14 +125,14 @@ export const StoryVideos = ({ storyId }: Props) => {
         <div
           style={{
             marginRight: "8px",
-            marginTop: "-5px",
+            marginTop: "-15px",
           }}
         >
           <IconArrowLeft />
         </div>
         <p
           style={{
-            marginTop: "-5px",
+            marginTop: "-15px",
             fontSize: "14px",
             width: "90%",
             overflow: "hidden",
@@ -141,6 +151,17 @@ export const StoryVideos = ({ storyId }: Props) => {
           marginBottom: "10px",
         }}
       />
+      <Button
+        alignment="center"
+        icon={() => {
+          return <ReloadIcon />;
+        }}
+        onClick={refresh}
+        variant="secondary"
+        stretch={true}
+      >
+        Refresh content
+      </Button>
       <div
         style={{
           display: "flex",
@@ -148,6 +169,7 @@ export const StoryVideos = ({ storyId }: Props) => {
           borderRadius: "8px",
           padding: "8px",
           marginBottom: "-2px",
+          marginTop: "8px",
         }}
       >
         <div

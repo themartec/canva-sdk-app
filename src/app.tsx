@@ -13,12 +13,16 @@ import { useGetAuthToken } from "./hooks/useGetAuthToken";
 import { useGetUploadedMedias } from "./hooks/useGetUploadedMedias";
 import { useGetBrandKits } from "./hooks/useGetBrandKit";
 import { useGetStoriesDashboard } from "./hooks/useGetStoriesDashboard";
+import { MediaState } from "./types/store";
 
 const _window = window as any;
 
 export const App = () => {
   const [percent, setPercent] = useState(0);
   // const [isMediaView, setIsMediaView] = useState<boolean>(true);
+
+  const { isSeeAllMediaBrand, isSeeAllMediaUploaded, isShowMediaDetail } =
+    useMediaStore() as MediaState;
 
   const { deleteAll: deleteAllVideo } = useIndexedDBStore("brand-videos");
   const { deleteAll: deleteAllImage } = useIndexedDBStore("brand-images");
@@ -132,17 +136,21 @@ export const App = () => {
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        <Button
-          alignment="center"
-          icon={() => {
-            return <ReloadIcon />;
-          }}
-          onClick={handleRefreshMedia}
-          variant="secondary"
-          stretch={true}
-        >
-          Refresh content
-        </Button>
+        {!isSeeAllMediaBrand &&
+          !isSeeAllMediaUploaded &&
+          !isShowMediaDetail && (
+            <Button
+              alignment="center"
+              icon={() => {
+                return <ReloadIcon />;
+              }}
+              onClick={handleRefreshMedia}
+              variant="secondary"
+              stretch={true}
+            >
+              Refresh content
+            </Button>
+          )}
         {/* <div
           style={{
             display: `${

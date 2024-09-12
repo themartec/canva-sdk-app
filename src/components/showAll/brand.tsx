@@ -1,8 +1,11 @@
 import {
   AudioCard,
   AudioContextProvider,
+  Button,
   Grid,
   ImageCard,
+  ProgressBar,
+  ReloadIcon,
   VideoCard,
 } from "@canva/app-ui-kit";
 import React, { useEffect, useState } from "react";
@@ -13,20 +16,35 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { useIndexedDBStore } from "use-indexeddb";
 import { imageUrlToBase64 } from "src/constants/convertImage";
+import { useGetBrandKits } from "src/hooks/useGetBrandKit";
+import { useRefreshMediaBrand } from "./refreshBrandFunc";
 
 interface Props {}
 
 const SeeAllMediaBrand = () => {
-  const { typeMedia, setSeeAllMediaBrand, setSeeAllMediaUploaded } =
-    useMediaStore();
+  const {
+    refreshVideosBrand,
+    refreshImagesBrand,
+    refreshAudioBrand,
+    refreshLogosBrand,
+  } = useRefreshMediaBrand();
+  const {
+    typeMedia,
+    setSeeAllMediaBrand,
+    setSeeAllMediaUploaded,
+    isRefreshing,
+  } = useMediaStore();
   const { getAll } = useIndexedDBStore("brand-videos");
   const { getAll: getImage } = useIndexedDBStore("brand-images");
   const { getAll: getAudio } = useIndexedDBStore("brand-audio");
   const { getAll: getLogo } = useIndexedDBStore("brand-logos");
 
+  const { videos, musics, images, logos, isLoading } = useGetBrandKits();
+
   const [listAssets, setListAssets] = useState<any[]>([]);
   const [searchVal, setSearchVal] = useState<string>("");
   const currentVideos = useGetCurrentVideo();
+  const [percent, setPercent] = useState<number>(0);
 
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
@@ -134,6 +152,23 @@ const SeeAllMediaBrand = () => {
     }
   };
 
+  const handleRefreshMedia = () => {
+    switch (typeMedia) {
+      case "videos":
+        refreshVideosBrand();
+        break;
+      case "images":
+        refreshImagesBrand();
+        break;
+      case "audios":
+        refreshAudioBrand();
+        break;
+      default:
+        refreshLogosBrand();
+        break;
+    }
+  };
+
   const fetchMoreData = () => {
     console.log("fetch more");
   };
@@ -181,7 +216,39 @@ const SeeAllMediaBrand = () => {
           });
         break;
     }
-  }, [getAll]);
+  }, [getAll, videos, musics, images, logos]);
+
+  useEffect(() => {
+    const increments = [
+      { percent: 15, delay: 0 },
+      { percent: 35, delay: 800 },
+      { percent: 45, delay: 1400 },
+      { percent: 55, delay: 1900 },
+      { percent: 65, delay: 2500 },
+      { percent: 75, delay: 3100 },
+      { percent: 80, delay: 3600 },
+      { percent: 85, delay: 4100 },
+      { percent: 90, delay: 4900 },
+    ];
+
+    if (isLoading || isRefreshing) {
+      increments.forEach(({ percent, delay }) => {
+        setTimeout(() => {
+          setPercent(percent);
+        }, delay);
+      });
+    } else {
+      setPercent(0);
+    }
+  }, [isLoading, isRefreshing]);
+
+  if (isLoading || isRefreshing) {
+    return (
+      <div style={{ marginTop: "20px" }}>
+        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -217,6 +284,17 @@ const SeeAllMediaBrand = () => {
           marginBottom: "10px",
         }}
       />
+      <Button
+        alignment="center"
+        icon={() => {
+          return <ReloadIcon />;
+        }}
+        onClick={handleRefreshMedia}
+        variant="secondary"
+        stretch={true}
+      >
+        Refresh content
+      </Button>
       <div
         style={{
           display: "flex",
@@ -224,6 +302,7 @@ const SeeAllMediaBrand = () => {
           borderRadius: "8px",
           padding: "8px",
           marginBottom: "-2px",
+          marginTop: "8px",
         }}
       >
         <div
