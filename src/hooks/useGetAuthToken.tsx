@@ -6,6 +6,7 @@ export const useGetAuthToken = () => {
   useEffect(() => {
     auth.getCanvaUserToken().then((d) => {
       setAuthToken(d);
+      console.log(d)
     });
   }, []);
 

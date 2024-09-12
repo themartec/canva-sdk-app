@@ -33,13 +33,13 @@ const fetcher = async (url: string, token: string) => {
   return response.json();
 };
 
-export const useGetStoriesDashboard = () => {
+export const useGetStoriesDashboard = (enable = true) => {
   const token = useGetAuthToken();
   const { data, error, isLoading, mutate } = useSWR<StoriesDashboardResponse>(
     token
       ? [`${BASE_API_URL}/v1/video/stories-dashboard-for-canva`, token]
       : null,
-    ([url, token]) => fetcher(url, token as string)
+    ([url, token]) => (enable ? fetcher(url, token as string) : {} as any)
   );
 
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -59,9 +59,6 @@ export const useStoryVideos = (contentId: string) => {
   const { data, error, isLoading, mutate } = useSWR<ApiResponse>(
     token && contentId ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
     fetcher,
-    {
-      revalidateOnFocus: false, // Optional: Auto revalidate on focus
-    }
   );
 
   const [isRefreshing, setIsRefreshing] = useState(false);

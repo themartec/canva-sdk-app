@@ -235,7 +235,10 @@ export const StoryVideos = ({ storyId }: Props) => {
                   onClick={(e) => {
                     setUploadIndex(index);
                     setUploadType("video");
-                    handleUpload(video?.video_link, video.thumbnail_image);
+                    handleUpload(
+                      video?.video_link,
+                      video.thumbnail_image || DEFAULT_THUMBNAIL
+                    );
                   }}
                   onDragStart={() => {}}
                   thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}

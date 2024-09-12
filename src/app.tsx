@@ -19,6 +19,7 @@ const _window = window as any;
 
 export const App = () => {
   const [percent, setPercent] = useState(0);
+  const [authState, setAuthState] = useState(false);
   // const [isMediaView, setIsMediaView] = useState<boolean>(true);
 
   const { isSeeAllMediaBrand, isSeeAllMediaUploaded, isShowMediaDetail } =
@@ -35,9 +36,9 @@ export const App = () => {
   const { deleteAll: deleteAllAudioUpload } =
     useIndexedDBStore("uploaded-audio");
 
-  const { refresh: refreshBrand } = useGetBrandKits();
-  const { refresh: refreshUploaded } = useGetUploadedMedias();
-  const { refresh: refreshStories } = useGetStoriesDashboard();
+  const { refresh: refreshBrand } = useGetBrandKits(true);
+  const { refresh: refreshUploaded } = useGetUploadedMedias(true);
+  const { refresh: refreshStories } = useGetStoriesDashboard(true);
 
   const { setIsRefreshing, tabView } = useMediaStore();
 
@@ -45,7 +46,8 @@ export const App = () => {
 
   const authStatus = useGetAuthStatus({
     onSuccess(data) {
-      // console.log({ token, data });
+      console.log({ token, data });
+      setAuthState(true);
     },
     onError(error) {
       auth.requestAuthentication();

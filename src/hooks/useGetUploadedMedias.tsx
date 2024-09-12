@@ -61,12 +61,12 @@ const fetcher = async (url: string, token: string) => {
   return response.json();
 };
 
-export const useGetUploadedMedias = () => {
+export const useGetUploadedMedias = (enable = true) => {
   const token = useGetAuthToken();
 
   const { data, error, isLoading, mutate } = useSWR<Partial<APIResponse>>(
     token ? [`${BASE_API_URL}/v1/media/canva-media`, token] : null,
-    ([url, token]) => fetcher(url, token?.toString() || "")
+    ([url, token]) => (enable ? fetcher(url, token?.toString() || "") : {})
   );
 
   const [isRefreshing, setIsRefreshing] = useState(false);

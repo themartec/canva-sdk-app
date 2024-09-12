@@ -63,9 +63,6 @@ export const useStoryVideos = ({contentId}: Props) => {
   const { data, error, isLoading } = useSWR<ApiResponse>(
     token ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}` : null,
     fetcher,
-    {
-      revalidateOnFocus: true, // Optional: Auto revalidate on focus
-    }
   );
 
   return {

@@ -18,6 +18,7 @@ import { useIndexedDBStore } from "use-indexeddb";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useRefreshMediaUploaded } from "./refreshUploadedFunc";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
+import { DEFAULT_THUMBNAIL } from "src/config/common";
 
 interface Props {}
 
@@ -297,6 +298,7 @@ const SeeAllMediaUploaded = () => {
             border: "none",
             marginLeft: "4px",
             marginRight: "4px",
+            marginBottom: "4px",
           }}
           value={searchVal}
           onChange={(e) => handleSearchStory(e.target.value)}
@@ -345,10 +347,14 @@ const SeeAllMediaUploaded = () => {
                     onClick={(e) => {
                       setUploadIndex(index);
                       setUploadType("video");
-                      handleUpload(video?.filePath, "video", video?.avatar);
+                      handleUpload(
+                        video?.filePath,
+                        "video",
+                        video?.avatar || DEFAULT_THUMBNAIL
+                      );
                     }}
                     onDragStart={() => {}}
-                    thumbnailUrl={video?.avatar}
+                    thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
                     videoPreviewUrl={video?.filePath}
                     loading={
                       uploadIndex === index && uploadType == "video"

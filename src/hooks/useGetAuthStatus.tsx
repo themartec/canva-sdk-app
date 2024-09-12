@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { useGetAuthToken } from "./useGetAuthToken";
+import { BASE_API_URL } from "src/config/common";
 
 const baseURL = "https://apidev.themartec.com/v1/canva";
 
@@ -30,12 +31,11 @@ interface Props {
 export const useGetAuthStatus = ({ onError, onSuccess }: Props) => {
   const token = useGetAuthToken();
   const { data, error, mutate, isLoading } = useSWR(
-    token ? [baseURL + "/auth-status", token] : null,
+    token ? [BASE_API_URL + '/v1/canva-auth-status', token] : null,
     ([url, token]) => putFetcher(url, token),
     {
       onError: (error) => onError?.(error),
       onSuccess: (data) => onSuccess?.(data),
-      revalidateOnFocus: true,
     }
   );
 

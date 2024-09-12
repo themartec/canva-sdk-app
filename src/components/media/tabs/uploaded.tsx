@@ -14,6 +14,7 @@ import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { useIndexedDBStore } from "use-indexeddb";
+import { DEFAULT_THUMBNAIL } from "src/config/common";
 
 interface Props {}
 
@@ -281,10 +282,14 @@ const UploadedTab = () => {
                 onClick={(e) => {
                   setUploadIndex(index);
                   setUploadType("video");
-                  handleUpload(video?.filePath, "video", video?.avatar);
+                  handleUpload(
+                    video?.filePath,
+                    "video",
+                    video?.avatar || DEFAULT_THUMBNAIL
+                  );
                 }}
                 onDragStart={() => {}}
-                thumbnailUrl={video?.avatar || ""}
+                thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
                 videoPreviewUrl={video?.filePath}
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
@@ -349,7 +354,7 @@ const UploadedTab = () => {
             justifyContent: "space-between",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Music</p>
+          <p style={{ fontWeight: 700 }}>Audios</p>
           <p
             onClick={() => {
               setSeeAllMediaUploaded(true);
@@ -371,7 +376,7 @@ const UploadedTab = () => {
         key="audioKey"
       >
         {audios
-          ?.filter((e) => e.fileSize <= 49 * 1024 * 1024)
+          // ?.filter((e) => e.fileSize <= 49 * 1024 * 1024)
           ?.slice(0, 2)
           .map((audio, index) => (
             <AudioContextProvider>

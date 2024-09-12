@@ -340,7 +340,7 @@ const BrandTab = () => {
             justifyContent: "space-between",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Music</p>
+          <p style={{ fontWeight: 700 }}>Audios</p>
           <p
             onClick={() => {
               setSeeAllMediaBrand(true);
@@ -350,7 +350,7 @@ const BrandTab = () => {
               cursor: "pointer",
             }}
           >
-            {musics?.length && musics?.length > 4 ? "See all" : ""}
+            {musics?.length && musics?.length > 2 ? "See all" : ""}
           </p>
         </div>
       )}

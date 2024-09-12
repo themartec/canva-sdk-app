@@ -68,11 +68,11 @@ const fetcher = async (url: string, token: string) => {
   return response.json();
 };
 
-export const useGetBrandKits = () => {
+export const useGetBrandKits = (enable = true) => {
   const token = useGetAuthToken();
   const { data, error, isLoading, mutate } = useSWR<Partial<APIResponse>>(
     token ? [`${BASE_API_URL}/v1/brand-kit/canva-brand-kit`, token] : null,
-    ([url, token]) => fetcher(url, token as string)
+    ([url, token]) => (enable ? fetcher(url, token as string) : {})
   );
 
   const [isRefreshing, setIsRefreshing] = useState(false);
