@@ -18,6 +18,8 @@ import { useIndexedDBStore } from "use-indexeddb";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 import { useRefreshMediaBrand } from "./refreshBrandFunc";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "src/db";
 
 interface Props {}
 
@@ -38,6 +40,11 @@ const SeeAllMediaBrand = () => {
   const { getAll: getImage } = useIndexedDBStore("brand-images");
   const { getAll: getAudio } = useIndexedDBStore("brand-audio");
   const { getAll: getLogo } = useIndexedDBStore("brand-logos");
+
+  const brandImage = useLiveQuery(() => db.brandImage.toArray());
+  const brandLogo = useLiveQuery(() => db.brandLogo.toArray());
+  const brandAudio = useLiveQuery(() => db.brandAudio.toArray());
+  const brandVideo = useLiveQuery(() => db.brandVideo.toArray());
 
   const { videos, musics, images, logos, isLoading } = useGetBrandKits();
 
@@ -173,50 +180,50 @@ const SeeAllMediaBrand = () => {
     console.log("fetch more");
   };
 
-  useEffect(() => {
-    switch (typeMedia) {
-      case "videos":
-        getAll()
-          .then((result) => {
-            // console.log("All assets:", result);
-            setListAssets(result);
-          })
-          .catch((err) => {
-            console.error("Error fetching videos:", err);
-          });
-        break;
-      case "images":
-        getImage()
-          .then((result) => {
-            // console.log("All assets:", result);
-            setListAssets(result);
-          })
-          .catch((err) => {
-            console.error("Error fetching videos:", err);
-          });
-        break;
-      case "audios":
-        getAudio()
-          .then((result) => {
-            // console.log("All assets:", result);
-            setListAssets(result);
-          })
-          .catch((err) => {
-            console.error("Error fetching videos:", err);
-          });
-        break;
-      default:
-        getLogo()
-          .then((result) => {
-            // console.log("All assets:", result);
-            setListAssets(result);
-          })
-          .catch((err) => {
-            console.error("Error fetching videos:", err);
-          });
-        break;
-    }
-  }, [getAll, videos, musics, images, logos]);
+  // useEffect(() => {
+  //   switch (typeMedia) {
+  //     case "videos":
+  //       getAll()
+  //         .then((result) => {
+  //           // console.log("All assets:", result);
+  //           setListAssets(result);
+  //         })
+  //         .catch((err) => {
+  //           console.error("Error fetching videos:", err);
+  //         });
+  //       break;
+  //     case "images":
+  //       getImage()
+  //         .then((result) => {
+  //           // console.log("All assets:", result);
+  //           setListAssets(result);
+  //         })
+  //         .catch((err) => {
+  //           console.error("Error fetching videos:", err);
+  //         });
+  //       break;
+  //     case "audios":
+  //       getAudio()
+  //         .then((result) => {
+  //           // console.log("All assets:", result);
+  //           setListAssets(result);
+  //         })
+  //         .catch((err) => {
+  //           console.error("Error fetching videos:", err);
+  //         });
+  //       break;
+  //     default:
+  //       getLogo()
+  //         .then((result) => {
+  //           // console.log("All assets:", result);
+  //           setListAssets(result);
+  //         })
+  //         .catch((err) => {
+  //           console.error("Error fetching videos:", err);
+  //         });
+  //       break;
+  //   }
+  // }, [getAll, videos, musics, images, logos]);
 
   useEffect(() => {
     const increments = [
@@ -354,7 +361,7 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="videoKey"
         >
-          {listAssets
+          {brandVideo
             ?.filter((el) =>
               el?.videoName
                 ?.toLocaleLowerCase()
@@ -413,7 +420,7 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="imageKey"
         >
-          {listAssets
+          {brandImage
             ?.filter((el) =>
               el?.imageName
                 ?.toLocaleLowerCase()
@@ -468,7 +475,7 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="audioKey"
         >
-          {listAssets
+          {brandAudio
             ?.filter((el) =>
               el?.musicName
                 ?.toLocaleLowerCase()
@@ -506,7 +513,7 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="logoKey"
         >
-          {listAssets
+          {brandLogo
             ?.filter((el) =>
               el?.logoName
                 ?.toLocaleLowerCase()

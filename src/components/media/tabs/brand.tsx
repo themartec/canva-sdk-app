@@ -14,6 +14,7 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 import { useIndexedDBStore } from "use-indexeddb";
+import { LogoBrand, db } from "src/db";
 
 interface Props {}
 
@@ -139,86 +140,38 @@ const BrandTab = () => {
 
   useEffect(() => {
     if (videos?.length && !isRefreshing) {
-      videos?.forEach((vd) => {
-        add({
-          Link: vd.Link,
-          videoName: vd.videoName,
-          width: vd.width,
-          height: vd.height,
-          fileSize: vd.fileSize,
-          duration: vd.duration,
-          avatar: vd.avatar,
-          thumbnails: vd.thumbnails,
-          blurImage: vd.blurImage,
-          waveformImage: vd.waveformImage,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB('brandVideo', videos)
     }
   }, [videos, isRefreshing]);
 
   useEffect(() => {
     if (images?.length && !isRefreshing) {
-      images?.forEach((img) => {
-        addImage({
-          Link: img.Link,
-          imageName: img.imageName,
-          fileSize: img.fileSize,
-          duration: img.duration,
-          waveformImage: img.waveformImage,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB('brandImage', images)
     }
   }, [images, isRefreshing]);
 
   useEffect(() => {
     if (musics?.length && !isRefreshing) {
-      musics?.forEach((mus) => {
-        addAudio({
-          Link: mus.Link,
-          musicName: mus.musicName,
-          videoName: mus.videoName,
-          fileSize: mus.fileSize,
-          duration: mus.duration,
-          waveformImage: mus.waveformImage,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB('brandAudio', musics)
     }
   }, [musics, isRefreshing]);
 
   useEffect(() => {
     if (logos?.length && !isRefreshing) {
-      logos?.forEach((img) => {
-        addLogo({
-          Link: img.Link,
-          logoName: img.logoName,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB('brandLogo', logos)
     }
   }, [logos, isRefreshing]);
+
+  // add list to DB dexie
+  const addListMediaToDB = async (tableName: string, items: any[] = []) => {
+    try {
+      // Add multiple entries using bulkAdd to the specified table
+      await db.table(tableName).bulkAdd(items);
+      console.log(`Successfully added items to ${tableName}!`);
+    } catch (error) {
+      console.error(`Error adding items to ${tableName}:`, error);
+    }
+  };
 
   if (isLoading || isRefreshing) {
     return (

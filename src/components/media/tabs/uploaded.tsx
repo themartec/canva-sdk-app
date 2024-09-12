@@ -15,6 +15,7 @@ import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { useIndexedDBStore } from "use-indexeddb";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
+import { db } from "src/db";
 
 interface Props {}
 
@@ -126,110 +127,32 @@ const UploadedTab = () => {
 
   useEffect(() => {
     if (videos?.length && !isRefreshing) {
-      videos?.forEach((vd) => {
-        add({
-          id: vd.id,
-          type: vd.type,
-          name: vd.name,
-          videoId: vd.videoId,
-          companyId: vd.companyId,
-          userId: vd.userId,
-          contentId: vd.contentId,
-          contentType: vd.contentType,
-          createdAt: vd.createdAt,
-          updatedAt: vd.updatedAt,
-          filePath: vd.filePath,
-          fileSize: vd.fileSize,
-          duration: vd.duration,
-          isAudio: vd.isAudio,
-          avatar: vd.avatar,
-          blurImage: vd.blurImage,
-          waveformImage: vd.waveformImage,
-          thumbnails: vd.thumbnails,
-          width: vd.width,
-          height: vd.height,
-          subtitles: vd.subtitles,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB("uploadVideo", videos);
     }
   }, [videos, isRefreshing]);
 
   useEffect(() => {
     if (images?.length && !isRefreshing) {
-      images?.forEach((img) => {
-        addImage({
-          id: img.id,
-          type: img.type,
-          name: img.name,
-          companyId: img.companyId,
-          userId: img.userId,
-          contentId: img.contentId,
-          contentType: img.contentType,
-          createdAt: img.createdAt,
-          updatedAt: img.updatedAt,
-          filePath: img.filePath,
-          fileSize: img.fileSize,
-          duration: img.duration,
-          isAudio: img.isAudio,
-          avatar: img.avatar,
-          blurImage: img.blurImage,
-          waveformImage: img.waveformImage,
-          thumbnails: img.thumbnails,
-          width: img.width,
-          height: img.height,
-          subtitles: img.subtitles,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB("uploadImage", images);
     }
   }, [images, isRefreshing]);
 
   useEffect(() => {
     if (audios?.length && !isRefreshing) {
-      audios?.forEach((aud) => {
-        addAudio({
-          id: aud.id,
-          type: aud.type,
-          name: aud.name,
-          title: aud.title,
-          companyId: aud.companyId,
-          userId: aud.userId,
-          contentId: aud.contentId,
-          contentType: aud.contentType,
-          createdAt: aud.createdAt,
-          updatedAt: aud.updatedAt,
-          filePath: aud.filePath,
-          fileSize: aud.fileSize,
-          duration: aud.duration,
-          isAudio: aud.isAudio,
-          avatar: aud.avatar,
-          blurImage: aud.blurImage,
-          waveformImage: aud.waveformImage,
-          thumbnails: aud.thumbnails,
-          width: aud.width,
-          height: aud.height,
-          subtitles: aud.subtitles,
-        })
-          .then(() => {
-            // console.log('Image added to IndexedDB');
-          })
-          .catch((err) => {
-            console.error("Failed to add image:", err);
-          });
-      });
+      addListMediaToDB("uploadAudio", audios);
     }
   }, [audios, isRefreshing]);
+
+  // add list to DB dexie
+  const addListMediaToDB = async (tableName: string, items: any[] = []) => {
+    try {
+      // Add multiple entries using bulkAdd to the specified table
+      await db.table(tableName).bulkAdd(items);
+      console.log(`Successfully added items to ${tableName}!`);
+    } catch (error) {
+      console.error(`Error adding items to ${tableName}:`, error);
+    }
+  };
 
   if (isLoading || isRefreshing) {
     return (
@@ -238,8 +161,6 @@ const UploadedTab = () => {
       </div>
     );
   }
-
-  console.log(audios);
 
   return (
     <div>

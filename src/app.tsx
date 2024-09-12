@@ -14,6 +14,7 @@ import { useGetUploadedMedias } from "./hooks/useGetUploadedMedias";
 import { useGetBrandKits } from "./hooks/useGetBrandKit";
 import { useGetStoriesDashboard } from "./hooks/useGetStoriesDashboard";
 import { MediaState } from "./types/store";
+import { db } from "./db";
 
 const _window = window as any;
 
@@ -78,6 +79,14 @@ export const App = () => {
   };
 
   useEffect(() => {
+    // clear all tables
+    db.table("brandLogo").clear();
+    db.table("brandImage").clear();
+    db.table("brandVideo").clear();
+    db.table("brandAudio").clear();
+    db.table("uploadVideo").clear();
+    db.table("uploadImage").clear();
+    db.table("uploadAudio").clear();
     setupIndexedDB(idbConfig)
       .then(() => {
         console.log("init indexeddb success");

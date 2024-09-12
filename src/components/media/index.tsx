@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Rows,
   Tab,
@@ -15,6 +15,8 @@ import SeeAllMediaUploaded from "../showAll/uploaded";
 import { StoryVideos } from "../showAll/storyVideos";
 import { useMediaStore } from "src/store";
 import { MediaState } from "src/types/store";
+import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
+import { db } from "src/db";
 
 const MediaView = () => {
   const {
@@ -22,8 +24,40 @@ const MediaView = () => {
     isSeeAllMediaUploaded,
     isShowMediaDetail,
     storySelected,
+    isRefreshing,
     setTabView,
   } = useMediaStore() as MediaState;
+
+  const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
+
+  // add list to DB dexie
+  const addListMediaToDB = async (tableName: string, items: any[] = []) => {
+    try {
+      // Add multiple entries using bulkAdd to the specified table
+      await db.table(tableName).bulkAdd(items);
+      console.log(`Successfully added items to ${tableName}!`);
+    } catch (error) {
+      console.error(`Error adding items to ${tableName}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    if (videos?.length && !isRefreshing) {
+      addListMediaToDB("uploadVideo", videos);
+    }
+  }, [videos, isRefreshing]);
+
+  useEffect(() => {
+    if (images?.length && !isRefreshing) {
+      addListMediaToDB("uploadImage", images);
+    }
+  }, [images, isRefreshing]);
+
+  useEffect(() => {
+    if (audios?.length && !isRefreshing) {
+      addListMediaToDB("uploadAudio", audios);
+    }
+  }, [audios, isRefreshing]);
 
   return (
     <div>
