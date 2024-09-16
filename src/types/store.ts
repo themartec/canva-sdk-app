@@ -19,7 +19,9 @@ export interface MediaState {
   storySelected: any;
   storiesMediaDetail: StoryMedia[];
   tabView: string;
-  isRefreshing: boolean;
+  isRefreshingBrand: boolean;
+  isRefreshingStory: boolean;
+  isRefreshingUpload: boolean;
   // actions
   increase: () => void;
   reset: () => void;
@@ -42,7 +44,9 @@ export interface MediaState {
   setStorySelected: (data: any) => void;
   setTypeMedia: (data: string) => void;
   setTabView: (data: string) => void;
-  setIsRefreshing: (data: boolean) => void;
+  setIsRefreshingBrand: (data: boolean) => void;
+  setIsRefreshingStory: (data: boolean) => void;
+  setIsRefreshingUpload: (data: boolean) => void;
 }
 
 export interface VideoBrandKit {

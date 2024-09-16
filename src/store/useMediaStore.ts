@@ -29,7 +29,9 @@ export const useMediaStore = create<MediaState>()(
         storySelected: {},
         storiesMediaDetail: [],
         tabView: "brand",
-        isRefreshing: false,
+        isRefreshingBrand: false,
+        isRefreshingStory: false,
+        isRefreshingUpload: false,
         // end intial state
         // ------ //
         // start region actions
@@ -50,7 +52,9 @@ export const useMediaStore = create<MediaState>()(
         setStorySelected: (data) => set({ storySelected: data }),
         setStoriesMediaDetail: (data) => set({ storiesMediaDetail: data }),
         setTabView: (data) => set({ tabView: data }),
-        setIsRefreshing: (data) => set({ isRefreshing: data }),
+        setIsRefreshingBrand: (data) => set({ isRefreshingBrand: data }),
+        setIsRefreshingStory: (data) => set({ isRefreshingStory: data }),
+        setIsRefreshingUpload: (data) => set({ isRefreshingUpload: data }),
 
         updateBrandKitMedia: (data) =>
           set((state) => ({

@@ -5,8 +5,6 @@ import { useMediaStore } from "./store";
 // import { IconGrid, IconExport } from "./assets/icons";
 import MediaView from "./components/media";
 // import ExportView from "./components/export";
-import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
-import { idbConfig } from "./constants/configIndexDb";
 import { useGetAuthStatus } from "./hooks/useGetAuthStatus";
 import { auth } from "@canva/user";
 import { useGetAuthToken } from "./hooks/useGetAuthToken";
@@ -26,28 +24,22 @@ export const App = () => {
   const { isSeeAllMediaBrand, isSeeAllMediaUploaded, isShowMediaDetail } =
     useMediaStore() as MediaState;
 
-  const { deleteAll: deleteAllVideo } = useIndexedDBStore("brand-videos");
-  const { deleteAll: deleteAllImage } = useIndexedDBStore("brand-images");
-  const { deleteAll: deleteAllAudio } = useIndexedDBStore("brand-audio");
-  const { deleteAll: deleteAllLogo } = useIndexedDBStore("brand-logos");
-  const { deleteAll: deleteAllVideoUpload } =
-    useIndexedDBStore("uploaded-videos");
-  const { deleteAll: deleteAllImageUpload } =
-    useIndexedDBStore("uploaded-images");
-  const { deleteAll: deleteAllAudioUpload } =
-    useIndexedDBStore("uploaded-audio");
-
   const { refresh: refreshBrand } = useGetBrandKits(true);
   const { refresh: refreshUploaded } = useGetUploadedMedias(true);
   const { refresh: refreshStories } = useGetStoriesDashboard(true);
 
-  const { setIsRefreshing, tabView } = useMediaStore();
+  const {
+    setIsRefreshingBrand,
+    setIsRefreshingStory,
+    setIsRefreshingUpload,
+    tabView,
+  } = useMediaStore();
 
   const token = useGetAuthToken();
 
   const authStatus = useGetAuthStatus({
     onSuccess(data) {
-      console.log({ token, data });
+      // console.log({ token, data });
       setAuthState(true);
     },
     onError(error) {
@@ -56,25 +48,32 @@ export const App = () => {
   });
 
   const handleRefreshMedia = async () => {
-    await setIsRefreshing(true);
     if (tabView === "stories") {
+      await setIsRefreshingStory(true);
+
+      await db.table("storyDashboard").clear();
+
       await refreshStories();
-      await setIsRefreshing(false);
+      await setIsRefreshingStory(false);
     } else if (tabView === "uploaded") {
-      await deleteAllVideoUpload();
-      await deleteAllImageUpload();
-      await deleteAllAudioUpload();
+      await setIsRefreshingUpload(true);
+
+      await db.table("uploadVideo").clear();
+      await db.table("uploadImage").clear();
+      await db.table("uploadAudio").clear();
 
       await refreshUploaded();
-      await setIsRefreshing(false);
+      await setIsRefreshingUpload(false);
     } else {
-      await deleteAllVideo();
-      await deleteAllImage();
-      await deleteAllAudio();
-      await deleteAllLogo();
+      await setIsRefreshingBrand(true);
+
+      await db.table("brandLogo").clear();
+      await db.table("brandImage").clear();
+      await db.table("brandVideo").clear();
+      await db.table("brandAudio").clear();
 
       await refreshBrand();
-      await setIsRefreshing(false);
+      await setIsRefreshingBrand(false);
     }
   };
 
@@ -87,19 +86,7 @@ export const App = () => {
     db.table("uploadVideo").clear();
     db.table("uploadImage").clear();
     db.table("uploadAudio").clear();
-    setupIndexedDB(idbConfig)
-      .then(() => {
-        console.log("init indexeddb success");
-        // delete DB
-        deleteAllVideo();
-        deleteAllImage();
-        deleteAllAudio();
-        deleteAllLogo();
-        deleteAllVideoUpload();
-        deleteAllImageUpload();
-        deleteAllAudioUpload();
-      })
-      .catch((e) => console.error("error / unsupported", e));
+    db.table("storyDashboard").clear();
   }, []);
 
   useEffect(() => {

@@ -61,17 +61,17 @@ export const useStoryVideos = (contentId: string) => {
     fetcher,
   );
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshingBrand, setIsRefreshingBrand] = useState(false);
 
   const refreshVideos = async () => {
-    setIsRefreshing(true); // Set loading to true during refresh
+    setIsRefreshingBrand(true); // Set loading to true during refresh
     await mutate(); // Revalidate the data
-    setIsRefreshing(false); // Set loading to false after refresh
+    setIsRefreshingBrand(false); // Set loading to false after refresh
   };
 
   return {
     data: data?.data, // Access the actual video data
-    isLoading: isLoading || isRefreshing, // Loading state
+    isLoading: isLoading || isRefreshingBrand, // Loading state
     isError: error, // Error state
     refresh: refreshVideos
   };

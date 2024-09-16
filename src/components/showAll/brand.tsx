@@ -8,45 +8,36 @@ import {
   ReloadIcon,
   VideoCard,
 } from "@canva/app-ui-kit";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
-import { useIndexedDBStore } from "use-indexeddb";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 import { useRefreshMediaBrand } from "./refreshBrandFunc";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "src/db";
+import Fuse from "fuse.js";
 
 interface Props {}
 
 const SeeAllMediaBrand = () => {
-  const {
-    refreshVideosBrand,
-    refreshImagesBrand,
-    refreshAudioBrand,
-    refreshLogosBrand,
-  } = useRefreshMediaBrand();
+  const { refreshMediaBrand } = useRefreshMediaBrand();
   const {
     typeMedia,
     setSeeAllMediaBrand,
     setSeeAllMediaUploaded,
-    isRefreshing,
+    isRefreshingBrand,
   } = useMediaStore();
-  const { getAll } = useIndexedDBStore("brand-videos");
-  const { getAll: getImage } = useIndexedDBStore("brand-images");
-  const { getAll: getAudio } = useIndexedDBStore("brand-audio");
-  const { getAll: getLogo } = useIndexedDBStore("brand-logos");
 
   const brandImage = useLiveQuery(() => db.brandImage.toArray());
   const brandLogo = useLiveQuery(() => db.brandLogo.toArray());
   const brandAudio = useLiveQuery(() => db.brandAudio.toArray());
   const brandVideo = useLiveQuery(() => db.brandVideo.toArray());
 
-  const { videos, musics, images, logos, isLoading } = useGetBrandKits();
+  const { isLoading } = useGetBrandKits();
 
   const [listAssets, setListAssets] = useState<any[]>([]);
   const [searchVal, setSearchVal] = useState<string>("");
@@ -79,7 +70,7 @@ const SeeAllMediaBrand = () => {
           thumbnailUrl: base64Image,
         });
 
-        console.log(result);
+        // console.log(result);
 
         await addNativeElement({
           type: "IMAGE",
@@ -125,12 +116,44 @@ const SeeAllMediaBrand = () => {
     }
   };
 
-  const handleSearchStory = (name: string) => {
-    setSearchVal(name);
+  const handleSearchMedia = (name: string) => {
+    if (name) {
+      setSearchVal(name);
+      switch (typeMedia) {
+        case "videos":
+          fuzzySearchMediaName(name, "brandVideo", "videoName");
+          break;
+        case "images":
+          fuzzySearchMediaName(name, "brandImage", "imageName");
+          break;
+        case "audios":
+          fuzzySearchMediaName(name, "brandAudio", "musicName");
+          break;
+        default:
+          fuzzySearchMediaName(name, "brandLogo", "logoName");
+          break;
+      }
+    } else {
+      handleClearSearch();
+    }
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
+    switch (typeMedia) {
+      case "videos":
+        setListAssets(brandVideo || []);
+        break;
+      case "images":
+        setListAssets(brandImage || []);
+        break;
+      case "audios":
+        setListAssets(brandAudio || []);
+        break;
+      default:
+        setListAssets(brandLogo || []);
+        break;
+    }
   };
 
   const renderMediaType = () => {
@@ -159,71 +182,53 @@ const SeeAllMediaBrand = () => {
     }
   };
 
-  const handleRefreshMedia = () => {
-    switch (typeMedia) {
-      case "videos":
-        refreshVideosBrand();
-        break;
-      case "images":
-        refreshImagesBrand();
-        break;
-      case "audios":
-        refreshAudioBrand();
-        break;
-      default:
-        refreshLogosBrand();
-        break;
+  const fuzzySearchMediaName = async (
+    searchString: string,
+    bdName: string,
+    keyName: string
+  ) => {
+    try {
+      // Retrieve all the video records from IndexedDB
+      const images = await db.table(bdName).toArray();
+
+      // Configure Fuse.js for fuzzy searching
+      const fuse = new Fuse(images, {
+        keys: [keyName], // Search by 'name' field
+        threshold: 0.3, // Adjust this for more strict/loose matching
+      });
+
+      // Perform the search with Fuse.js
+      const results = fuse.search(searchString);
+
+      // Return the matched items (results is an array of objects with "item" field)
+      setListAssets(results.map((result) => result.item));
+      // return results.map((result) => result.item);
+    } catch (error) {
+      console.error("Error during fuzzy search:", error);
+      return [];
     }
   };
 
-  const fetchMoreData = () => {
-    console.log("fetch more");
+  const handleRefreshMedia = async () => {
+    refreshMediaBrand();
   };
 
-  // useEffect(() => {
-  //   switch (typeMedia) {
-  //     case "videos":
-  //       getAll()
-  //         .then((result) => {
-  //           // console.log("All assets:", result);
-  //           setListAssets(result);
-  //         })
-  //         .catch((err) => {
-  //           console.error("Error fetching videos:", err);
-  //         });
-  //       break;
-  //     case "images":
-  //       getImage()
-  //         .then((result) => {
-  //           // console.log("All assets:", result);
-  //           setListAssets(result);
-  //         })
-  //         .catch((err) => {
-  //           console.error("Error fetching videos:", err);
-  //         });
-  //       break;
-  //     case "audios":
-  //       getAudio()
-  //         .then((result) => {
-  //           // console.log("All assets:", result);
-  //           setListAssets(result);
-  //         })
-  //         .catch((err) => {
-  //           console.error("Error fetching videos:", err);
-  //         });
-  //       break;
-  //     default:
-  //       getLogo()
-  //         .then((result) => {
-  //           // console.log("All assets:", result);
-  //           setListAssets(result);
-  //         })
-  //         .catch((err) => {
-  //           console.error("Error fetching videos:", err);
-  //         });
-  //       break;
-  //   }
-  // }, [getAll, videos, musics, images, logos]);
+  useEffect(() => {
+    switch (typeMedia) {
+      case "videos":
+        setListAssets(brandVideo || []);
+        break;
+      case "images":
+        setListAssets(brandImage || []);
+        break;
+      case "audios":
+        setListAssets(brandAudio || []);
+        break;
+      default:
+        setListAssets(brandLogo || []);
+        break;
+    }
+  }, [brandVideo, brandImage, brandAudio, brandLogo]);
 
   useEffect(() => {
     const increments = [
@@ -238,7 +243,7 @@ const SeeAllMediaBrand = () => {
       { percent: 90, delay: 4900 },
     ];
 
-    if (isLoading || isRefreshing) {
+    if (isLoading || isRefreshingBrand) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
@@ -247,9 +252,9 @@ const SeeAllMediaBrand = () => {
     } else {
       setPercent(0);
     }
-  }, [isLoading, isRefreshing]);
+  }, [isLoading, isRefreshingBrand]);
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || isRefreshingBrand) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
@@ -332,7 +337,7 @@ const SeeAllMediaBrand = () => {
             marginRight: "4px",
           }}
           value={searchVal}
-          onChange={(e) => handleSearchStory(e.target.value)}
+          onChange={(e) => handleSearchMedia(e.target.value)}
         />
         {searchVal && (
           <div
@@ -361,86 +366,24 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="videoKey"
         >
-          {brandVideo
-            ?.filter((el) =>
-              el?.videoName
-                ?.toLocaleLowerCase()
-                .includes(searchVal?.toLocaleLowerCase())
-            )
-            .map((video, index) => {
-              return (
-                <div style={{ maxHeight: "106px", marginTop: "16px" }}>
-                  <VideoCard
-                    ariaLabel="Add video to design"
-                    borderRadius="standard"
-                    durationInSeconds={video?.duration}
-                    mimeType="video/mp4"
-                    onClick={(e) => {
-                      setUploadIndex(index);
-                      setUploadType("video");
-                      handleUpload(video?.Link, "video", video?.avatar);
-                    }}
-                    onDragStart={() => {}}
-                    thumbnailUrl={video?.avatar}
-                    videoPreviewUrl={video?.Link}
-                    loading={
-                      uploadIndex === index && uploadType == "video"
-                        ? true
-                        : false
-                    }
-                  />
-                  <div
-                    style={{
-                      marginTop: "-14px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        width: "100%",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {video?.videoName}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-        </Grid>
-      )}
-      {typeMedia === "images" && (
-        <Grid
-          alignX="stretch"
-          alignY="stretch"
-          columns={2}
-          spacing="1u"
-          key="imageKey"
-        >
-          {brandImage
-            ?.filter((el) =>
-              el?.imageName
-                ?.toLocaleLowerCase()
-                .includes(searchVal?.toLocaleLowerCase())
-            )
-            .map((image, index) => (
+          {listAssets?.map((video, index) => {
+            return (
               <div style={{ maxHeight: "106px", marginTop: "16px" }}>
-                <ImageCard
-                  alt="grass image"
-                  ariaLabel="Add image to design"
+                <VideoCard
+                  ariaLabel="Add video to design"
                   borderRadius="standard"
-                  onClick={() => {
+                  durationInSeconds={video?.duration}
+                  mimeType="video/mp4"
+                  onClick={(e) => {
                     setUploadIndex(index);
-                    setUploadType("image");
-                    handleUpload(image?.Link, "image");
+                    setUploadType("video");
+                    handleUpload(video?.Link, "video", video?.avatar);
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={image?.Link}
+                  thumbnailUrl={video?.avatar}
+                  videoPreviewUrl={video?.Link}
                   loading={
-                    uploadIndex === index && uploadType == "image"
+                    uploadIndex === index && uploadType == "video"
                       ? true
                       : false
                   }
@@ -460,28 +403,71 @@ const SeeAllMediaBrand = () => {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {image?.imageName}
+                    {video?.videoName}
                   </p>
                 </div>
               </div>
-            ))}
+            );
+          })}
         </Grid>
       )}
-      {typeMedia === "audios" && (
+      {typeMedia === "images" && (
         <Grid
           alignX="stretch"
           alignY="stretch"
-          columns={1}
+          columns={2}
           spacing="1u"
-          key="audioKey"
+          key="imageKey"
         >
-          {brandAudio
-            ?.filter((el) =>
-              el?.musicName
-                ?.toLocaleLowerCase()
-                .includes(searchVal?.toLocaleLowerCase())
-            )
-            .map((audio, index) => (
+          {listAssets?.map((image, index) => (
+            <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+              <ImageCard
+                alt="grass image"
+                ariaLabel="Add image to design"
+                borderRadius="standard"
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("image");
+                  handleUpload(image?.Link, "image");
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl={image?.Link}
+                loading={
+                  uploadIndex === index && uploadType == "image" ? true : false
+                }
+              />
+              <div
+                style={{
+                  marginTop: "-14px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    width: "100%",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {image?.imageName}
+                </p>
+              </div>
+            </div>
+          ))}
+        </Grid>
+      )}
+      {typeMedia === "audios" && (
+        <div style={{ marginTop: 16 }}>
+          <Grid
+            alignX="stretch"
+            alignY="stretch"
+            columns={1}
+            spacing="1u"
+            key="audioKey"
+          >
+            {listAssets?.map((audio, index) => (
               <AudioContextProvider>
                 <AudioCard
                   ariaLabel="Add audio to design"
@@ -503,7 +489,8 @@ const SeeAllMediaBrand = () => {
                 />
               </AudioContextProvider>
             ))}
-        </Grid>
+          </Grid>
+        </div>
       )}
       {typeMedia === "logos" && (
         <Grid
@@ -513,56 +500,50 @@ const SeeAllMediaBrand = () => {
           spacing="1u"
           key="logoKey"
         >
-          {brandLogo
-            ?.filter((el) =>
-              el?.logoName
-                ?.toLocaleLowerCase()
-                .includes(searchVal?.toLocaleLowerCase())
-            )
-            .map((logo, index) => (
+          {listAssets?.map((logo, index) => (
+            <div
+              style={{
+                maxHeight: "106px",
+                border: "1px solid #424858",
+                borderRadius: "8px",
+                marginTop: "16px",
+              }}
+            >
+              <ImageCard
+                alt="grass image"
+                ariaLabel="Add image to design"
+                borderRadius="standard"
+                onClick={() => {
+                  setUploadIndex(index);
+                  setUploadType("logo");
+                  handleUpload(logo?.Link, "logo");
+                }}
+                onDragStart={() => {}}
+                thumbnailUrl={logo?.Link}
+                loading={
+                  uploadIndex === index && uploadType == "logo" ? true : false
+                }
+              />
               <div
                 style={{
-                  maxHeight: "106px",
-                  border: "1px solid #424858",
-                  borderRadius: "8px",
-                  marginTop: "16px",
+                  marginTop: "-14px",
                 }}
               >
-                <ImageCard
-                  alt="grass image"
-                  ariaLabel="Add image to design"
-                  borderRadius="standard"
-                  onClick={() => {
-                    setUploadIndex(index);
-                    setUploadType("logo");
-                    handleUpload(logo?.Link, "logo");
-                  }}
-                  onDragStart={() => {}}
-                  thumbnailUrl={logo?.Link}
-                  loading={
-                    uploadIndex === index && uploadType == "logo" ? true : false
-                  }
-                />
-                <div
+                <p
                   style={{
-                    marginTop: "-14px",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    width: "100%",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      width: "100%",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {logo?.logoName}
-                  </p>
-                </div>
+                  {logo?.logoName}
+                </p>
               </div>
-            ))}
+            </div>
+          ))}
         </Grid>
         //   <div  style={{ height: 'calc(100vh - 130px)', overflow: 'auto'}}>
         //   <InfiniteScroll

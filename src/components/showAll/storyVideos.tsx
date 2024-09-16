@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
-import { videoThumbnail } from "../media/tabs/mockData";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useStoryVideos } from "src/hooks/useVideoData";
@@ -12,7 +11,6 @@ import {
   ProgressBar,
   Rows,
   VideoCard,
-  Text,
   Button,
   ReloadIcon,
 } from "@canva/app-ui-kit";
@@ -25,7 +23,7 @@ export const StoryVideos = ({ storyId }: Props) => {
   const { data: stories, isLoading, refresh } = useStoryVideos(storyId);
   const { storySelected, setShowMediaDetail } = useMediaStore();
 
-  const [listVideos, setListVideos] = useState(stories);
+  const [listStories, setListStories] = useState(stories);
   const [searchVal, setSearchVal] = useState<string>("");
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
@@ -36,19 +34,19 @@ export const StoryVideos = ({ storyId }: Props) => {
   const handleSearchStory = (name: string) => {
     if (!name) {
       setSearchVal("");
-      setListVideos((stories as any) || []);
+      setListStories((stories as any) || []);
     } else {
       setSearchVal(name);
       const result = stories?.filter((vd: any) =>
         vd?.question?.toLowerCase().includes(name?.toLocaleLowerCase())
       );
-      setListVideos((result as any) || []);
+      setListStories((result as any) || []);
     }
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
-    setListVideos(stories);
+    setListStories(stories);
   };
 
   const handleUpload = async (url, thumbnailImageUrl) => {
@@ -76,7 +74,7 @@ export const StoryVideos = ({ storyId }: Props) => {
   };
 
   useEffect(() => {
-    setListVideos(stories);
+    setListStories(stories);
   }, [stories]);
 
   useEffect(() => {
@@ -98,7 +96,7 @@ export const StoryVideos = ({ storyId }: Props) => {
       });
     } else {
       setPercent(0);
-    };
+    }
   }, [isLoading]);
 
   if (isLoading) {
@@ -212,7 +210,7 @@ export const StoryVideos = ({ storyId }: Props) => {
           </div>
         )}
       </div>
-      {!listVideos?.length && (
+      {!listStories?.length && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>
           There are no videos for this story.
         </p>
@@ -224,7 +222,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         spacing="1u"
         key="videoKey"
       >
-        {listVideos?.map((video, index) => {
+        {listStories?.map((video, index) => {
           return (
             <Rows spacing="1u">
               <div style={{ maxHeight: "106px", marginTop: "16px" }}>

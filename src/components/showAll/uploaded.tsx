@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
@@ -25,20 +25,19 @@ import Fuse from "fuse.js";
 interface Props {}
 
 const SeeAllMediaUploaded = () => {
-  const { refreshVideosBrand, refreshImagesBrand, refreshAudioBrand } =
-    useRefreshMediaUploaded();
+  const { refreshMediaload } = useRefreshMediaUploaded();
   const {
     typeMedia,
     setSeeAllMediaBrand,
     setSeeAllMediaUploaded,
-    isRefreshing,
+    isRefreshingUpload,
   } = useMediaStore();
 
   const uploadVideo = useLiveQuery(() => db.uploadVideo.toArray());
   const uploadAudio = useLiveQuery(() => db.uploadAudio.toArray());
   const uploadImage = useLiveQuery(() => db.uploadImage.toArray());
 
-  const { videos, audios, images, isLoading } = useGetUploadedMedias();
+  const { isLoading } = useGetUploadedMedias();
 
   const [listAssets, setListAssets] = useState<any>([]);
   const [searchVal, setSearchVal] = useState<string>("");
@@ -72,7 +71,7 @@ const SeeAllMediaUploaded = () => {
           thumbnailUrl: base64Image,
         });
 
-        console.log(result);
+        // console.log(result);
 
         await addNativeElement({
           type: "IMAGE",
@@ -118,7 +117,7 @@ const SeeAllMediaUploaded = () => {
     }
   };
 
-  const handleSearchStory = async (name: string) => {
+  const handleSearchMedia = async (name: string) => {
     if (name) {
       setSearchVal(name);
       switch (typeMedia) {
@@ -198,17 +197,7 @@ const SeeAllMediaUploaded = () => {
   };
 
   const handleRefreshMedia = () => {
-    switch (typeMedia) {
-      case "videos":
-        refreshVideosBrand();
-        break;
-      case "images":
-        refreshImagesBrand();
-        break;
-      default:
-        refreshAudioBrand();
-        break;
-    }
+    refreshMediaload();
   };
 
   useEffect(() => {
@@ -236,7 +225,7 @@ const SeeAllMediaUploaded = () => {
       { percent: 90, delay: 3400 },
     ];
 
-    if (isLoading || isRefreshing) {
+    if (isLoading || isRefreshingUpload) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
@@ -245,11 +234,12 @@ const SeeAllMediaUploaded = () => {
     } else {
       setPercent(0);
     }
-  }, [isLoading, isRefreshing]);
+  }, [isLoading, isRefreshingUpload]);
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || isRefreshingUpload) {
     return (
       <div style={{ marginTop: "20px" }}>
+        <p>loading upload</p>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
       </div>
     );
@@ -331,7 +321,7 @@ const SeeAllMediaUploaded = () => {
             marginBottom: "4px",
           }}
           value={searchVal}
-          onChange={(e) => handleSearchStory(e.target.value)}
+          onChange={(e) => handleSearchMedia(e.target.value)}
         />
         {searchVal && (
           <div

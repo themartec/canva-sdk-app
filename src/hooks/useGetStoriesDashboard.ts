@@ -42,17 +42,17 @@ export const useGetStoriesDashboard = (enable = true) => {
     ([url, token]) => (enable ? fetcher(url, token as string) : {} as any)
   );
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshingBrand, setIsRefreshingBrand] = useState(false);
 
   const refreshStoriesDashboard = async () => {
-    setIsRefreshing(true); // Set loading to true during refresh
+    setIsRefreshingBrand(true); // Set loading to true during refresh
     await mutate(); // Revalidate the data
-    setIsRefreshing(false); // Set loading to false after refresh
+    setIsRefreshingBrand(false); // Set loading to false after refresh
   };
 
   return {
     storiesDashboard: data?.data || [],
-    isLoading: isLoading || isRefreshing,
+    isLoading: isLoading || isRefreshingBrand,
     isError: error,
     refresh: refreshStoriesDashboard,
   };

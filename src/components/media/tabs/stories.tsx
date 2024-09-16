@@ -3,13 +3,14 @@ import { Grid, ProgressBar } from "@canva/app-ui-kit";
 import { IconSearch, IconTimes, IconRecord } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
+import { db } from "src/db";
 
 const StoriesTab = () => {
-  const { storiesDashboard, isLoading, refresh } = useGetStoriesDashboard();
+  const { storiesDashboard, isLoading } = useGetStoriesDashboard();
   const [searchVal, setSearchVal] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
 
-  const { setShowMediaDetail, setStorySelected, isRefreshing } = useMediaStore();
+  const { setShowMediaDetail, setStorySelected, isRefreshingStory } = useMediaStore();
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
@@ -25,6 +26,23 @@ const StoriesTab = () => {
     setStorySelected(story);
   };
 
+  // add list to DB dexie
+  const addListMediaToDB = async (tableName: string, items: any[] = []) => {
+    try {
+      // Add multiple entries using bulkAdd to the specified table
+      await db.table(tableName).bulkAdd(items);
+      console.log(`Successfully added items to ${tableName}!`);
+    } catch (error) {
+      console.error(`Error adding items to ${tableName}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    if (storiesDashboard?.length && !isRefreshingStory) {
+      addListMediaToDB("storyDashboard", storiesDashboard);
+    }
+  }, [storiesDashboard, isRefreshingStory]);
+
   useEffect(() => {
     const increments = [
       { percent: 15, delay: 0 },
@@ -34,7 +52,7 @@ const StoriesTab = () => {
       { percent: 90, delay: 1200 },
     ];
 
-    if (isLoading || isRefreshing) {
+    if (isLoading || isRefreshingStory) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
@@ -43,9 +61,9 @@ const StoriesTab = () => {
     } else {
       setPercent(0);
     }
-  }, [isLoading, isRefreshing]);
+  }, [isLoading, isRefreshingStory]);
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || isRefreshingStory) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
@@ -182,3 +200,7 @@ const StoriesTab = () => {
 };
 
 export default StoriesTab;
+function setListStories(arg0: any[]) {
+  throw new Error("Function not implemented.");
+}
+

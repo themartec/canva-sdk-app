@@ -69,19 +69,19 @@ export const useGetUploadedMedias = (enable = true) => {
     ([url, token]) => (enable ? fetcher(url, token?.toString() || "") : {})
   );
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshingBrand, setIsRefreshingBrand] = useState(false);
 
   const refreshMediaBrandKit = async () => {
-    setIsRefreshing(true); // Set loading to true during refresh
+    setIsRefreshingBrand(true); // Set loading to true during refresh
     await mutate(); // Revalidate the data
-    setIsRefreshing(false); // Set loading to false after refresh
+    setIsRefreshingBrand(false); // Set loading to false after refresh
   };
 
   return {
     videos: data?.data?.videos,
     audios: data?.data?.audios,
     images: data?.data?.images,
-    isLoading: isLoading || isRefreshing,
+    isLoading: isLoading || isRefreshingBrand,
     isError: error,
     refresh: refreshMediaBrandKit,
   };

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-// import { videos, audios, images, logos, videoThumbnail } from "./mockData";
+import { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
@@ -13,40 +12,20 @@ import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
-import { useIndexedDBStore } from "use-indexeddb";
-import { LogoBrand, db } from "src/db";
+import { db } from "src/db";
+import { imageUrlToBase64 } from "src/constants/convertImage";
 
 interface Props {}
 
 const BrandTab = () => {
-  const { add } = useIndexedDBStore("brand-videos");
-  const { add: addImage } = useIndexedDBStore("brand-images");
-  const { add: addAudio } = useIndexedDBStore("brand-audio");
-  const { add: addLogo } = useIndexedDBStore("brand-logos");
-
-  const { setSeeAllMediaBrand, setTypeMedia, isRefreshing } = useMediaStore();
+  const { setSeeAllMediaBrand, setTypeMedia, isRefreshingBrand } = useMediaStore();
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
 
-  const { videos, musics, images, logos, isLoading, isError, refresh } =
-    useGetBrandKits();
-
-  function imageUrlToBase64(url) {
-    return new Promise((resolve, reject) => {
-      fetch(url)
-        .then((response) => response.blob())
-        .then((blob) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        })
-        .catch(reject);
-    });
-  }
+  const { videos, musics, images, logos, isLoading } = useGetBrandKits();
 
   const handleUpload = async (
     url,
@@ -117,7 +96,7 @@ const BrandTab = () => {
   useEffect(() => {
     const increments = [
       { percent: 15, delay: 0 },
-      { percent: 35, delay: 800 },
+      { percent: 35, delay: 400 },
       { percent: 45, delay: 1400 },
       { percent: 55, delay: 1900 },
       { percent: 65, delay: 2500 },
@@ -127,7 +106,7 @@ const BrandTab = () => {
       { percent: 90, delay: 4900 },
     ];
 
-    if (isLoading || isRefreshing) {
+    if (isLoading || isRefreshingBrand) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
@@ -136,31 +115,31 @@ const BrandTab = () => {
     } else {
       setPercent(0);
     }
-  }, [isLoading, isRefreshing]);
+  }, [isLoading, isRefreshingBrand]);
 
   useEffect(() => {
-    if (videos?.length && !isRefreshing) {
-      addListMediaToDB('brandVideo', videos)
+    if (videos?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandVideo", videos);
     }
-  }, [videos, isRefreshing]);
+  }, [videos, isRefreshingBrand]);
 
   useEffect(() => {
-    if (images?.length && !isRefreshing) {
-      addListMediaToDB('brandImage', images)
+    if (images?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandImage", images);
     }
-  }, [images, isRefreshing]);
+  }, [images, isRefreshingBrand]);
 
   useEffect(() => {
-    if (musics?.length && !isRefreshing) {
-      addListMediaToDB('brandAudio', musics)
+    if (musics?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandAudio", musics);
     }
-  }, [musics, isRefreshing]);
+  }, [musics, isRefreshingBrand]);
 
   useEffect(() => {
-    if (logos?.length && !isRefreshing) {
-      addListMediaToDB('brandLogo', logos)
+    if (logos?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandLogo", logos);
     }
-  }, [logos, isRefreshing]);
+  }, [logos, isRefreshingBrand]);
 
   // add list to DB dexie
   const addListMediaToDB = async (tableName: string, items: any[] = []) => {
@@ -173,7 +152,7 @@ const BrandTab = () => {
     }
   };
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || isRefreshingBrand) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
@@ -303,7 +282,7 @@ const BrandTab = () => {
               cursor: "pointer",
             }}
           >
-            {musics?.length && musics?.length > 2 ? "See all" : ""}
+            {musics?.length && musics?.length > 1 ? "See all" : ""}
           </p>
         </div>
       )}

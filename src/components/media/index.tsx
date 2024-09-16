@@ -24,7 +24,7 @@ const MediaView = () => {
     isSeeAllMediaUploaded,
     isShowMediaDetail,
     storySelected,
-    isRefreshing,
+    isRefreshingUpload,
     setTabView,
   } = useMediaStore() as MediaState;
 
@@ -42,22 +42,22 @@ const MediaView = () => {
   };
 
   useEffect(() => {
-    if (videos?.length && !isRefreshing) {
+    if (videos?.length && !isRefreshingUpload) {
       addListMediaToDB("uploadVideo", videos);
     }
-  }, [videos, isRefreshing]);
+  }, [videos, isRefreshingUpload]);
 
   useEffect(() => {
-    if (images?.length && !isRefreshing) {
+    if (images?.length && !isRefreshingUpload) {
       addListMediaToDB("uploadImage", images);
     }
-  }, [images, isRefreshing]);
+  }, [images, isRefreshingUpload]);
 
   useEffect(() => {
-    if (audios?.length && !isRefreshing) {
+    if (audios?.length && !isRefreshingUpload) {
       addListMediaToDB("uploadAudio", audios);
     }
-  }, [audios, isRefreshing]);
+  }, [audios, isRefreshingUpload]);
 
   return (
     <div>

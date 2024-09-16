@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AudioCard,
   AudioContextProvider,
@@ -13,21 +13,17 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
-import { useIndexedDBStore } from "use-indexeddb";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
-import { db } from "src/db";
+// import { db } from "src/db";
 
 interface Props {}
 
 const UploadedTab = () => {
-  const { add } = useIndexedDBStore("uploaded-videos");
-  const { add: addImage } = useIndexedDBStore("uploaded-images");
-  const { add: addAudio } = useIndexedDBStore("uploaded-audio");
-  const { setSeeAllMediaUploaded, setTypeMedia, isRefreshing } =
+  const { setSeeAllMediaUploaded, setTypeMedia, isRefreshingUpload } =
     useMediaStore();
   const [percent, setPercent] = useState<number>(0);
 
-  const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
+  const { videos, audios, images, isLoading } = useGetUploadedMedias();
 
   const currentVideos = useGetCurrentVideo();
 
@@ -57,7 +53,7 @@ const UploadedTab = () => {
           thumbnailUrl: base64Image,
         });
 
-        console.log(result);
+        // console.log(result);
 
         await addNativeElement({
           type: "IMAGE",
@@ -114,7 +110,7 @@ const UploadedTab = () => {
       { percent: 90, delay: 2400 },
     ];
 
-    if (isLoading || isRefreshing) {
+    if (isLoading || isRefreshingUpload) {
       increments.forEach(({ percent, delay }) => {
         setTimeout(() => {
           setPercent(percent);
@@ -123,38 +119,38 @@ const UploadedTab = () => {
     } else {
       setPercent(0);
     }
-  }, [isLoading, isRefreshing]);
+  }, [isLoading, isRefreshingUpload]);
 
-  useEffect(() => {
-    if (videos?.length && !isRefreshing) {
-      addListMediaToDB("uploadVideo", videos);
-    }
-  }, [videos, isRefreshing]);
+  // useEffect(() => {
+  //   if (videos?.length && !isRefreshingUpload) {
+  //     addListMediaToDB("uploadVideo", videos);
+  //   }
+  // }, [videos, isRefreshingUpload]);
 
-  useEffect(() => {
-    if (images?.length && !isRefreshing) {
-      addListMediaToDB("uploadImage", images);
-    }
-  }, [images, isRefreshing]);
+  // useEffect(() => {
+  //   if (images?.length && !isRefreshingUpload) {
+  //     addListMediaToDB("uploadImage", images);
+  //   }
+  // }, [images, isRefreshingUpload]);
 
-  useEffect(() => {
-    if (audios?.length && !isRefreshing) {
-      addListMediaToDB("uploadAudio", audios);
-    }
-  }, [audios, isRefreshing]);
+  // useEffect(() => {
+  //   if (audios?.length && !isRefreshingUpload) {
+  //     addListMediaToDB("uploadAudio", audios);
+  //   }
+  // }, [audios, isRefreshingUpload]);
 
   // add list to DB dexie
-  const addListMediaToDB = async (tableName: string, items: any[] = []) => {
-    try {
-      // Add multiple entries using bulkAdd to the specified table
-      await db.table(tableName).bulkAdd(items);
-      console.log(`Successfully added items to ${tableName}!`);
-    } catch (error) {
-      console.error(`Error adding items to ${tableName}:`, error);
-    }
-  };
+  // const addListMediaToDB = async (tableName: string, items: any[] = []) => {
+  //   try {
+  //     // Add multiple entries using bulkAdd to the specified table
+  //     await db.table(tableName).bulkAdd(items);
+  //     console.log(`Successfully added items to ${tableName}!`);
+  //   } catch (error) {
+  //     console.error(`Error adding items to ${tableName}:`, error);
+  //   }
+  // };
 
-  if (isLoading || isRefreshing) {
+  if (isLoading || isRefreshingUpload) {
     return (
       <div style={{ marginTop: "20px" }}>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
