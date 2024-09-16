@@ -21,6 +21,7 @@ import { DEFAULT_THUMBNAIL } from "src/config/common";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "src/db";
 import Fuse from "fuse.js";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 interface Props {}
 
@@ -42,6 +43,9 @@ const SeeAllMediaUploaded = () => {
   const [listAssets, setListAssets] = useState<any>([]);
   const [searchVal, setSearchVal] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
+  const [itemSize, setItemSize] = useState<number>(20);
+  const [listVideosImages, setListVideosImages] = useState<any>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
   const currentVideos = useGetCurrentVideo();
 
@@ -141,9 +145,11 @@ const SeeAllMediaUploaded = () => {
     switch (typeMedia) {
       case "videos":
         setListAssets(uploadVideo);
+        setListVideosImages(uploadVideo?.slice(0, 20));
         break;
       case "images":
         setListAssets(uploadImage);
+        setListVideosImages(uploadImage?.slice(0, 20));
         break;
       default:
         setListAssets(uploadAudio);
@@ -166,7 +172,9 @@ const SeeAllMediaUploaded = () => {
       const results = fuse.search(searchString);
 
       // Return the matched items (results is an array of objects with "item" field)
-      setListAssets(results.map((result) => result.item));
+      const finalResult = results.map((result) => result.item);
+      setListAssets(finalResult);
+      setListVideosImages(finalResult?.slice(0, 20));
       // return results.map((result) => result.item);
     } catch (error) {
       console.error("Error during fuzzy search:", error);
@@ -200,13 +208,37 @@ const SeeAllMediaUploaded = () => {
     refreshMediaload();
   };
 
+  const handleFetchMoreMedia = () => {
+    setItemSize((prevItemSize) => {
+      // Check if the next batch will exceed the total items, stop fetching if needed
+      if (prevItemSize + 20 >= listAssets?.length) {
+        setHasMore(false);
+      }
+
+      // Calculate the new items to add
+      const moreMedia = listAssets?.slice(prevItemSize, prevItemSize + 20);
+
+      setTimeout(() => {
+        setListVideosImages((prevListVideosImages) => [
+          ...prevListVideosImages,
+          ...moreMedia,
+        ]);
+      }, 500);
+
+      // Return the updated item size for the next fetch
+      return prevItemSize + 20;
+    });
+  };
+
   useEffect(() => {
     switch (typeMedia) {
       case "videos":
         setListAssets(uploadVideo);
+        setListVideosImages(uploadVideo?.slice(0, 20));
         break;
       case "images":
         setListAssets(uploadImage);
+        setListVideosImages(uploadImage?.slice(0, 20));
         break;
       default:
         setListAssets(uploadAudio);
@@ -239,7 +271,6 @@ const SeeAllMediaUploaded = () => {
   if (isLoading || isRefreshingUpload) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <p>loading upload</p>
         <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
       </div>
     );
@@ -247,131 +278,197 @@ const SeeAllMediaUploaded = () => {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          cursor: "pointer",
-          height: "30px",
-          width: "80px",
-        }}
-        onClick={() => {
-          setSeeAllMediaBrand(false);
-          setSeeAllMediaUploaded(false);
-        }}
+      <InfiniteScroll
+        dataLength={listVideosImages?.length}
+        next={handleFetchMoreMedia}
+        hasMore={typeMedia !== "audios" ? hasMore : false}
+        loader={
+          <p style={{ textAlign: "center" }}>
+            <b>Loading...</b>
+          </p>
+        }
+        height={`calc(100vh - 30px)`}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>You have seen it all</b>
+          </p>
+        }
       >
         <div
           style={{
-            marginRight: "8px",
-          }}
-        >
-          <IconArrowLeft />
-        </div>
-        <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
-          {renderMediaType()}
-        </p>
-      </div>
-      <div
-        style={{
-          borderTop: "0.75px solid #424858",
-          height: "4px",
-          width: "100%",
-          marginTop: "2px",
-          marginBottom: "10px",
-        }}
-      />
-      <Button
-        alignment="center"
-        icon={() => {
-          return <ReloadIcon />;
-        }}
-        onClick={handleRefreshMedia}
-        variant="secondary"
-        stretch={true}
-      >
-        Refresh content
-      </Button>
-      <div
-        style={{
-          display: "flex",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "8px",
-          marginBottom: "-2px",
-          marginTop: "8px",
-        }}
-      >
-        <div
-          style={{
+            display: "flex",
             cursor: "pointer",
+            height: "30px",
+            width: "80px",
+          }}
+          onClick={() => {
+            setSeeAllMediaBrand(false);
+            setSeeAllMediaUploaded(false);
           }}
         >
-          <IconSearch />
-        </div>
-        <input
-          type="text"
-          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
-          style={{
-            background: "#fff",
-            color: "gray",
-            width: "90%",
-            outline: "none",
-            border: "none",
-            marginLeft: "4px",
-            marginRight: "4px",
-            marginBottom: "4px",
-          }}
-          value={searchVal}
-          onChange={(e) => handleSearchMedia(e.target.value)}
-        />
-        {searchVal && (
           <div
             style={{
-              width: "24px",
-              height: "22px",
-              background: "#f5f0f0",
-              borderRadius: "8px",
-              paddingTop: "3px",
-              paddingLeft: "3px",
-              cursor: "pointer",
-              boxShadow: "0.5px 0.5px 10px #bdbfc4",
+              marginRight: "8px",
             }}
-            title="Clear"
-            onClick={handleClearSearch}
           >
-            <IconTimes />
+            <IconArrowLeft />
           </div>
-        )}
-      </div>
-      {typeMedia === "videos" && (
-        <Grid
-          alignX="stretch"
-          alignY="stretch"
-          columns={2}
-          spacing="1u"
-          key="videoKey"
+          <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
+            {renderMediaType()}
+          </p>
+        </div>
+        <div
+          style={{
+            borderTop: "0.75px solid #424858",
+            height: "4px",
+            width: "100%",
+            marginTop: "2px",
+            marginBottom: "10px",
+          }}
+        />
+        <Button
+          alignment="center"
+          icon={() => {
+            return <ReloadIcon />;
+          }}
+          onClick={handleRefreshMedia}
+          variant="secondary"
+          stretch={true}
         >
-          {listAssets?.map((video, index) => {
-            return (
+          Refresh content
+        </Button>
+        <div
+          style={{
+            display: "flex",
+            background: "#fff",
+            borderRadius: "8px",
+            padding: "8px",
+            marginBottom: "-2px",
+            marginTop: "8px",
+          }}
+        >
+          <div
+            style={{
+              cursor: "pointer",
+            }}
+          >
+            <IconSearch />
+          </div>
+          <input
+            type="text"
+            placeholder={`Search for any ${renderMediaTypeSearch()}...`}
+            style={{
+              background: "#fff",
+              color: "gray",
+              width: "90%",
+              outline: "none",
+              border: "none",
+              marginLeft: "4px",
+              marginRight: "4px",
+              marginBottom: "4px",
+            }}
+            value={searchVal}
+            onChange={(e) => handleSearchMedia(e.target.value)}
+          />
+          {searchVal && (
+            <div
+              style={{
+                width: "24px",
+                height: "22px",
+                background: "#f5f0f0",
+                borderRadius: "8px",
+                paddingTop: "3px",
+                paddingLeft: "3px",
+                cursor: "pointer",
+                boxShadow: "0.5px 0.5px 10px #bdbfc4",
+              }}
+              title="Clear"
+              onClick={handleClearSearch}
+            >
+              <IconTimes />
+            </div>
+          )}
+        </div>
+        {typeMedia === "videos" && (
+          <Grid
+            alignX="stretch"
+            alignY="stretch"
+            columns={2}
+            spacing="1u"
+            key="videoKey"
+          >
+            {listVideosImages?.map((video, index) => {
+              return (
+                <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+                  <VideoCard
+                    ariaLabel="Add video to design"
+                    borderRadius="standard"
+                    durationInSeconds={video?.duration}
+                    mimeType="video/mp4"
+                    onClick={(e) => {
+                      setUploadIndex(index);
+                      setUploadType("video");
+                      handleUpload(
+                        video?.filePath,
+                        "video",
+                        video?.avatar || DEFAULT_THUMBNAIL
+                      );
+                    }}
+                    onDragStart={() => {}}
+                    thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
+                    videoPreviewUrl={video?.filePath}
+                    loading={
+                      uploadIndex === index && uploadType == "video"
+                        ? true
+                        : false
+                    }
+                  />
+                  <div
+                    style={{
+                      marginTop: "-14px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        width: "100%",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {video?.name}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </Grid>
+        )}
+        {typeMedia === "images" && (
+          <Grid
+            alignX="stretch"
+            alignY="stretch"
+            columns={2}
+            spacing="1u"
+            key="imageKey"
+          >
+            {listVideosImages?.map((image, index) => (
               <div style={{ maxHeight: "106px", marginTop: "16px" }}>
-                <VideoCard
-                  ariaLabel="Add video to design"
+                <ImageCard
+                  alt="grass image"
+                  ariaLabel="Add image to design"
                   borderRadius="standard"
-                  durationInSeconds={video?.duration}
-                  mimeType="video/mp4"
-                  onClick={(e) => {
+                  onClick={() => {
                     setUploadIndex(index);
-                    setUploadType("video");
-                    handleUpload(
-                      video?.filePath,
-                      "video",
-                      video?.avatar || DEFAULT_THUMBNAIL
-                    );
+                    setUploadType("image");
+                    handleUpload(image?.filePath, "image");
                   }}
                   onDragStart={() => {}}
-                  thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
-                  videoPreviewUrl={video?.filePath}
+                  thumbnailUrl={image?.filePath}
                   loading={
-                    uploadIndex === index && uploadType == "video"
+                    uploadIndex === index && uploadType == "image"
                       ? true
                       : false
                   }
@@ -391,96 +488,71 @@ const SeeAllMediaUploaded = () => {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {video?.name}
+                    {image?.name}
                   </p>
                 </div>
               </div>
-            );
-          })}
-        </Grid>
-      )}
-      {typeMedia === "images" && (
-        <Grid
-          alignX="stretch"
-          alignY="stretch"
-          columns={2}
-          spacing="1u"
-          key="imageKey"
-        >
-          {listAssets?.map((image, index) => (
-            <div style={{ maxHeight: "106px", marginTop: "16px" }}>
-              <ImageCard
-                alt="grass image"
-                ariaLabel="Add image to design"
-                borderRadius="standard"
-                onClick={() => {
-                  setUploadIndex(index);
-                  setUploadType("image");
-                  handleUpload(image?.filePath, "image");
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl={image?.filePath}
-                loading={
-                  uploadIndex === index && uploadType == "image" ? true : false
-                }
-              />
-              <div
-                style={{
-                  marginTop: "-14px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    width: "100%",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
+            ))}
+          </Grid>
+        )}
+        {typeMedia === "audios" && (
+          <Grid
+            alignX="stretch"
+            alignY="stretch"
+            columns={1}
+            spacing="1u"
+            key="audioKey"
+          >
+            {listAssets?.map((audio, index) => (
+              <AudioContextProvider>
+                <AudioCard
+                  ariaLabel="Add audio to design"
+                  audioPreviewUrl={audio?.filePath}
+                  durationInSeconds={audio?.duration}
+                  onClick={() => {
+                    setUploadIndex(index);
+                    setUploadType("audio");
+                    handleUpload(audio?.filePath, "audio", "", audio?.duration);
                   }}
-                >
-                  {image?.name}
-                </p>
-              </div>
-            </div>
-          ))}
-        </Grid>
-      )}
-      {typeMedia === "audios" && (
-        <Grid
-          alignX="stretch"
-          alignY="stretch"
-          columns={1}
-          spacing="1u"
-          key="audioKey"
-        >
-          {listAssets?.map((audio, index) => (
-            <AudioContextProvider>
-              <AudioCard
-                ariaLabel="Add audio to design"
-                audioPreviewUrl={audio?.filePath}
-                durationInSeconds={audio?.duration}
-                onClick={() => {
-                  setUploadIndex(index);
-                  setUploadType("audio");
-                  handleUpload(audio?.filePath, "audio", "", audio?.duration);
-                }}
-                onDragStart={() => {}}
-                thumbnailUrl=""
-                title={audio?.name}
-                loading={
-                  uploadIndex === index && uploadType == "audio" ? true : false
-                }
-              />
-            </AudioContextProvider>
-          ))}
-        </Grid>
-      )}
-      {!listAssets?.length && (
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
-          You haven’t uploaded any media files yet.
-        </p>
-      )}
+                  onDragStart={() => {}}
+                  thumbnailUrl=""
+                  title={audio?.name}
+                  loading={
+                    uploadIndex === index && uploadType == "audio"
+                      ? true
+                      : false
+                  }
+                />
+              </AudioContextProvider>
+            ))}
+          </Grid>
+        )}
+        {!listAssets?.length && (
+          <p style={{ marginTop: "20px", textAlign: "center" }}>
+            You haven’t uploaded any media files yet.
+          </p>
+        )}
+      </InfiniteScroll>
+      {/* <InfiniteScroll
+        dataLength={listAssets?.length}
+        next={handleFetchMoreMedia}
+        hasMore={typeMedia !== "audios" ? hasMore : false}
+        loader={
+          <p style={{ textAlign: "center" }}>
+            <b>Loading...</b>
+          </p>
+        }
+        height={`calc(100vh - 30px)`}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>You have seen it all</b>
+          </p>
+        }
+      >
+        {listVideosImages?.map((image, index) => (
+          <p>{image?.name}</p>
+        ))}
+      </InfiniteScroll> */}
     </div>
   );
 };
