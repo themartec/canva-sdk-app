@@ -73,7 +73,7 @@ const StoriesTab = () => {
 
   return (
     <div style={{ marginTop: "12px" }}>
-      {storiesDashboard?.length && (
+      {storiesDashboard?.length ? (
         <div
           style={{
             display: "flex",
@@ -123,7 +123,7 @@ const StoriesTab = () => {
             </div>
           )}
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"

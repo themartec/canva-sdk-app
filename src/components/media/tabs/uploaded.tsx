@@ -168,7 +168,7 @@ const UploadedTab = () => {
 
   return (
     <div>
-      {videos?.length && (
+      {videos?.length ? (
         <div
           style={{
             display: "flex",
@@ -188,7 +188,7 @@ const UploadedTab = () => {
             {videos?.length && videos?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -224,7 +224,7 @@ const UploadedTab = () => {
           );
         })}
       </Grid>
-      {images?.length && (
+      {images?.length ? (
         <div
           style={{
             display: "flex",
@@ -244,7 +244,7 @@ const UploadedTab = () => {
             {images?.length && images?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -272,7 +272,7 @@ const UploadedTab = () => {
           </div>
         ))}
       </Grid>
-      {audios?.length && (
+      {audios?.length ? (
         <div
           style={{
             display: "flex",
@@ -292,7 +292,7 @@ const UploadedTab = () => {
             {audios?.length && audios?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"

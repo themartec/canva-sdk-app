@@ -19,7 +19,8 @@ import { LIMIT } from "src/constants/fileSize";
 interface Props {}
 
 const BrandTab = () => {
-  const { setSeeAllMediaBrand, setTypeMedia, isRefreshingBrand } = useMediaStore();
+  const { setSeeAllMediaBrand, setTypeMedia, isRefreshingBrand } =
+    useMediaStore();
   const currentVideos = useGetCurrentVideo();
 
   const [uploadIndex, setUploadIndex] = useState(-1);
@@ -29,7 +30,13 @@ const BrandTab = () => {
   const [musics, setMusics] = useState<any>([]);
   const [images, setImages] = useState<any>([]);
 
-  const { videos: vdBrand, musics: msBrand, images: imgBrand, logos, isLoading } = useGetBrandKits();
+  const {
+    videos: vdBrand,
+    musics: msBrand,
+    images: imgBrand,
+    logos,
+    isLoading,
+  } = useGetBrandKits();
 
   const handleUpload = async (
     url,
@@ -161,7 +168,7 @@ const BrandTab = () => {
   return (
     <div>
       {/* VIDEOS */}
-      {videos?.length && (
+      {videos?.length ? (
         <div
           style={{
             display: "flex",
@@ -181,7 +188,7 @@ const BrandTab = () => {
             {videos?.length && videos?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -214,7 +221,7 @@ const BrandTab = () => {
         })}
       </Grid>
       {/* IMAGES */}
-      {images?.length && (
+      {images?.length ? (
         <div
           style={{
             display: "flex",
@@ -234,7 +241,7 @@ const BrandTab = () => {
             {images?.length && images?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -263,7 +270,7 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* MUSIC */}
-      {musics?.length && (
+      {musics?.length ? (
         <div
           style={{
             display: "flex",
@@ -283,7 +290,7 @@ const BrandTab = () => {
             {musics?.length && musics?.length > 2 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -313,7 +320,7 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* LOGO - IMAGES */}
-      {logos?.length && (
+      {logos?.length ? (
         <div
           style={{
             display: "flex",
@@ -333,7 +340,7 @@ const BrandTab = () => {
             {logos?.length && logos?.length > 4 ? "See all" : ""}
           </p>
         </div>
-      )}
+      ) : null}
       <Grid
         alignX="stretch"
         alignY="stretch"
