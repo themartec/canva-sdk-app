@@ -20,6 +20,7 @@ import { useRefreshMediaBrand } from "./refreshBrandFunc";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "src/db";
 import Fuse from "fuse.js";
+import { LIMIT } from "src/constants/fileSize";
 
 interface Props {}
 
@@ -63,9 +64,10 @@ const SeeAllMediaBrand = () => {
 
         const base64Image = (await imageUrlToBase64(url)) as string;
 
+        const imageType = `${url?.split(".").pop()}`;
         const result = await upload({
           type: "IMAGE",
-          mimeType: "image/png",
+          mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
         });
@@ -121,13 +123,13 @@ const SeeAllMediaBrand = () => {
       setSearchVal(name);
       switch (typeMedia) {
         case "videos":
-          fuzzySearchMediaName(name, "brandVideo", "videoName");
+          fuzzySearchMediaName(name, "brandVideo", "videoName", LIMIT.VIDEO);
           break;
         case "images":
-          fuzzySearchMediaName(name, "brandImage", "imageName");
+          fuzzySearchMediaName(name, "brandImage", "imageName", LIMIT.IMAGE);
           break;
         case "audios":
-          fuzzySearchMediaName(name, "brandAudio", "musicName");
+          fuzzySearchMediaName(name, "brandAudio", "musicName", LIMIT.AUDIO);
           break;
         default:
           fuzzySearchMediaName(name, "brandLogo", "logoName");
@@ -138,17 +140,20 @@ const SeeAllMediaBrand = () => {
     }
   };
 
-  const handleClearSearch = () => {
+  const handleClearSearch = async () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        setListAssets(brandVideo || []);
+        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
+        setListAssets(mediaVideo || []);
         break;
       case "images":
-        setListAssets(brandImage || []);
+        const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
+        setListAssets(mediaImage || []);
         break;
       case "audios":
-        setListAssets(brandAudio || []);
+        const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
+        setListAssets(mediaAudio || []);
         break;
       default:
         setListAssets(brandLogo || []);
@@ -185,12 +190,19 @@ const SeeAllMediaBrand = () => {
   const fuzzySearchMediaName = async (
     searchString: string,
     bdName: string,
-    keyName: string
+    keyName: string,
+    limitFileSize?: number
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      const images = await db.table(bdName).toArray();
-
+      const images =
+        keyName !== "logoName"
+          ? await db
+              .table(bdName)
+              .where("fileSize")
+              .between(1, limitFileSize, true, true)
+              .toArray()
+          : await db.table(bdName).toArray();
       // Configure Fuse.js for fuzzy searching
       const fuse = new Fuse(images, {
         keys: [keyName], // Search by 'name' field
@@ -213,21 +225,42 @@ const SeeAllMediaBrand = () => {
     refreshMediaBrand();
   };
 
-  useEffect(() => {
+  const getMediaInRange = async (table: string, limitFileSize: number) => {
+    try {
+      // Query for items with fileSize between 1 and 51200
+      const result = await db
+        .table(table)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true) // true, true for inclusive range
+        .toArray();
+      return result;
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        setListAssets(brandVideo || []);
+        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
+        setListAssets(mediaVideo || []);
         break;
       case "images":
-        setListAssets(brandImage || []);
+        const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
+        setListAssets(mediaImage || []);
         break;
       case "audios":
-        setListAssets(brandAudio || []);
+        const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
+        setListAssets(mediaAudio || []);
         break;
       default:
         setListAssets(brandLogo || []);
         break;
     }
+  };
+
+  useEffect(() => {
+    getListAssets();
   }, [brandVideo, brandImage, brandAudio, brandLogo]);
 
   useEffect(() => {

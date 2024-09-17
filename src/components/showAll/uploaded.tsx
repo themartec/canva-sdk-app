@@ -22,6 +22,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "src/db";
 import Fuse from "fuse.js";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { LIMIT } from "src/constants/fileSize";
 
 interface Props {}
 
@@ -65,12 +66,11 @@ const SeeAllMediaUploaded = () => {
         } else {
           setUploadType("logo");
         }
-
         const base64Image = (await imageUrlToBase64(url)) as string;
-
+        const imageType = `${url?.split(".").pop()}`;
         const result = await upload({
           type: "IMAGE",
-          mimeType: "image/png",
+          mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
         });
@@ -126,13 +126,13 @@ const SeeAllMediaUploaded = () => {
       setSearchVal(name);
       switch (typeMedia) {
         case "videos":
-          fuzzySearchMediaName(name, "uploadVideo");
+          fuzzySearchMediaName(name, "uploadVideo", LIMIT.VIDEO);
           break;
         case "images":
-          fuzzySearchMediaName(name, "uploadImage");
+          fuzzySearchMediaName(name, "uploadImage", LIMIT.IMAGE);
           break;
         default:
-          fuzzySearchMediaName(name, "uploadAudio");
+          fuzzySearchMediaName(name, "uploadAudio", LIMIT.AUDIO);
           break;
       }
     } else {
@@ -140,27 +140,38 @@ const SeeAllMediaUploaded = () => {
     }
   };
 
-  const handleClearSearch = () => {
+  const handleClearSearch = async () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        setListAssets(uploadVideo);
-        setListVideosImages(uploadVideo?.slice(0, 20));
+        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+        setListAssets(mediaVideo);
+        setListVideosImages(mediaVideo?.slice(0, 20));
         break;
       case "images":
-        setListAssets(uploadImage);
-        setListVideosImages(uploadImage?.slice(0, 20));
+        const mediaImage = await getMediaInRange("uploadImage", LIMIT.VIDEO);
+        setListAssets(mediaImage);
+        setListVideosImages(mediaImage?.slice(0, 20));
         break;
       default:
-        setListAssets(uploadAudio);
+        const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.VIDEO);
+        setListAssets(mediaAudio);
         break;
     }
   };
 
-  const fuzzySearchMediaName = async (searchString: string, bdName: string) => {
+  const fuzzySearchMediaName = async (
+    searchString: string,
+    bdName: string,
+    limitFileSize: number
+  ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      const images = await db.table(bdName).toArray();
+      const images = await db
+        .table(bdName)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true)
+        .toArray();
 
       // Configure Fuse.js for fuzzy searching
       const fuse = new Fuse(images, {
@@ -230,20 +241,41 @@ const SeeAllMediaUploaded = () => {
     });
   };
 
-  useEffect(() => {
+  const getMediaInRange = async (table: string, limitFileSize: number) => {
+    try {
+      // Query for items with fileSize between 1 and 51200
+      const result = await db
+        .table(table)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true) // true, true for inclusive range
+        .toArray();
+      return result;
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        setListAssets(uploadVideo);
-        setListVideosImages(uploadVideo?.slice(0, 20));
+        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+        setListAssets(mediaVideo);
+        setListVideosImages(mediaVideo?.slice(0, 20));
         break;
       case "images":
-        setListAssets(uploadImage);
-        setListVideosImages(uploadImage?.slice(0, 20));
+        const mediaImage = await getMediaInRange("uploadImage", LIMIT.IMAGE);
+        setListVideosImages(mediaImage?.slice(0, 20));
+        setListAssets(mediaImage);
         break;
       default:
-        setListAssets(uploadAudio);
+        const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.AUDIO);
+        setListAssets(mediaAudio);
         break;
     }
+  };
+
+  useEffect(() => {
+    getListAssets();
   }, [uploadVideo, uploadImage, uploadAudio]);
 
   useEffect(() => {

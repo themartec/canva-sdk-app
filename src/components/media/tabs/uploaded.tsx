@@ -14,7 +14,8 @@ import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
-// import { db } from "src/db";
+import { db } from "src/db";
+import { LIMIT } from "src/constants/fileSize";
 
 interface Props {}
 
@@ -22,8 +23,16 @@ const UploadedTab = () => {
   const { setSeeAllMediaUploaded, setTypeMedia, isRefreshingUpload } =
     useMediaStore();
   const [percent, setPercent] = useState<number>(0);
+  const [videos, setVideos] = useState<any>([]);
+  const [audios, setAudios] = useState<any>([]);
+  const [images, setImages] = useState<any>([]);
 
-  const { videos, audios, images, isLoading } = useGetUploadedMedias();
+  const {
+    videos: vdUpload,
+    audios: auUpload,
+    images: imgUpload,
+    isLoading,
+  } = useGetUploadedMedias();
 
   const currentVideos = useGetCurrentVideo();
 
@@ -46,9 +55,10 @@ const UploadedTab = () => {
 
         const base64Image = (await imageUrlToBase64(url)) as string;
 
+        const imageType = `${url?.split(".").pop()}`;
         const result = await upload({
           type: "IMAGE",
-          mimeType: "image/png",
+          mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
         });
@@ -99,6 +109,33 @@ const UploadedTab = () => {
     }
   };
 
+  const getMediaInRange = async (table: string, limitFileSize: number) => {
+    try {
+      // Query for items with fileSize between 1 and 51200
+      const result = await db
+        .table(table)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true) // true, true for inclusive range
+        .toArray();
+      return result;
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  const getListAssets = async () => {
+    const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+    const mediaImage = await getMediaInRange("uploadImage", LIMIT.IMAGE);
+    const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.AUDIO);
+    setVideos(mediaVideo);
+    setImages(mediaImage);
+    setAudios(mediaAudio);
+  };
+
+  useEffect(() => {
+    getListAssets();
+  }, [vdUpload, auUpload, imgUpload]);
+
   useEffect(() => {
     const increments = [
       { percent: 15, delay: 0 },
@@ -120,35 +157,6 @@ const UploadedTab = () => {
       setPercent(0);
     }
   }, [isLoading, isRefreshingUpload]);
-
-  // useEffect(() => {
-  //   if (videos?.length && !isRefreshingUpload) {
-  //     addListMediaToDB("uploadVideo", videos);
-  //   }
-  // }, [videos, isRefreshingUpload]);
-
-  // useEffect(() => {
-  //   if (images?.length && !isRefreshingUpload) {
-  //     addListMediaToDB("uploadImage", images);
-  //   }
-  // }, [images, isRefreshingUpload]);
-
-  // useEffect(() => {
-  //   if (audios?.length && !isRefreshingUpload) {
-  //     addListMediaToDB("uploadAudio", audios);
-  //   }
-  // }, [audios, isRefreshingUpload]);
-
-  // add list to DB dexie
-  // const addListMediaToDB = async (tableName: string, items: any[] = []) => {
-  //   try {
-  //     // Add multiple entries using bulkAdd to the specified table
-  //     await db.table(tableName).bulkAdd(items);
-  //     console.log(`Successfully added items to ${tableName}!`);
-  //   } catch (error) {
-  //     console.error(`Error adding items to ${tableName}:`, error);
-  //   }
-  // };
 
   if (isLoading || isRefreshingUpload) {
     return (

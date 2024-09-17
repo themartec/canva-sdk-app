@@ -17,6 +17,7 @@ import { useMediaStore } from "src/store";
 import { MediaState } from "src/types/store";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { db } from "src/db";
+import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 
 const MediaView = () => {
   const {
@@ -25,10 +26,12 @@ const MediaView = () => {
     isShowMediaDetail,
     storySelected,
     isRefreshingUpload,
+    isRefreshingBrand,
     setTabView,
   } = useMediaStore() as MediaState;
 
-  const { videos, audios, images, isLoading, isError } = useGetUploadedMedias();
+  const { videos, audios, images } = useGetUploadedMedias();
+  const { videos: vdBrand, musics: msBrand, images: imgBrand, logos } = useGetBrandKits();
 
   // add list to DB dexie
   const addListMediaToDB = async (tableName: string, items: any[] = []) => {
@@ -58,6 +61,30 @@ const MediaView = () => {
       addListMediaToDB("uploadAudio", audios);
     }
   }, [audios, isRefreshingUpload]);
+
+  useEffect(() => {
+    if (vdBrand?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandVideo", vdBrand);
+    }
+  }, [vdBrand, isRefreshingBrand]);
+
+  useEffect(() => {
+    if (imgBrand?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandImage", imgBrand);
+    }
+  }, [imgBrand, isRefreshingBrand]);
+
+  useEffect(() => {
+    if (msBrand?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandAudio", msBrand);
+    }
+  }, [msBrand, isRefreshingBrand]);
+
+  useEffect(() => {
+    if (logos?.length && !isRefreshingBrand) {
+      addListMediaToDB("brandLogo", logos);
+    }
+  }, [logos, isRefreshingBrand]);
 
   return (
     <div>
