@@ -10,7 +10,8 @@ const StoriesTab = () => {
   const [searchVal, setSearchVal] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
 
-  const { setShowMediaDetail, setStorySelected, isRefreshingStory } = useMediaStore();
+  const { setShowMediaDetail, setStorySelected, isRefreshingStory } =
+    useMediaStore();
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
@@ -39,6 +40,7 @@ const StoriesTab = () => {
 
   useEffect(() => {
     if (storiesDashboard?.length && !isRefreshingStory) {
+      db.table("storyDashboard").clear();
       addListMediaToDB("storyDashboard", storiesDashboard);
     }
   }, [storiesDashboard, isRefreshingStory]);
@@ -200,7 +202,3 @@ const StoriesTab = () => {
 };
 
 export default StoriesTab;
-function setListStories(arg0: any[]) {
-  throw new Error("Function not implemented.");
-}
-

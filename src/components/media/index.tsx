@@ -31,7 +31,12 @@ const MediaView = () => {
   } = useMediaStore() as MediaState;
 
   const { videos, audios, images } = useGetUploadedMedias();
-  const { videos: vdBrand, musics: msBrand, images: imgBrand, logos } = useGetBrandKits();
+  const {
+    videos: vdBrand,
+    musics: msBrand,
+    images: imgBrand,
+    logos,
+  } = useGetBrandKits();
 
   // add list to DB dexie
   const addListMediaToDB = async (tableName: string, items: any[] = []) => {
@@ -46,42 +51,49 @@ const MediaView = () => {
 
   useEffect(() => {
     if (videos?.length && !isRefreshingUpload) {
+      db.table("uploadVideo").clear();
       addListMediaToDB("uploadVideo", videos);
     }
   }, [videos, isRefreshingUpload]);
 
   useEffect(() => {
     if (images?.length && !isRefreshingUpload) {
+      db.table("uploadImage").clear();
       addListMediaToDB("uploadImage", images);
     }
   }, [images, isRefreshingUpload]);
 
   useEffect(() => {
     if (audios?.length && !isRefreshingUpload) {
+      db.table("uploadAudio").clear();
       addListMediaToDB("uploadAudio", audios);
     }
   }, [audios, isRefreshingUpload]);
 
   useEffect(() => {
     if (vdBrand?.length && !isRefreshingBrand) {
+      db.table("brandVideo").clear();
       addListMediaToDB("brandVideo", vdBrand);
     }
   }, [vdBrand, isRefreshingBrand]);
 
   useEffect(() => {
     if (imgBrand?.length && !isRefreshingBrand) {
+      db.table("brandImage").clear();
       addListMediaToDB("brandImage", imgBrand);
     }
   }, [imgBrand, isRefreshingBrand]);
 
   useEffect(() => {
     if (msBrand?.length && !isRefreshingBrand) {
+      db.table("brandAudio").clear();
       addListMediaToDB("brandAudio", msBrand);
     }
   }, [msBrand, isRefreshingBrand]);
 
   useEffect(() => {
     if (logos?.length && !isRefreshingBrand) {
+      db.table("brandLogo").clear();
       addListMediaToDB("brandLogo", logos);
     }
   }, [logos, isRefreshingBrand]);
