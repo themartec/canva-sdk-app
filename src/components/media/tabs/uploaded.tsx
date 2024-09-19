@@ -43,7 +43,8 @@ const UploadedTab = () => {
     url,
     type,
     thumbnail?: string,
-    duration?: number
+    duration?: number,
+    title?: string
   ) => {
     try {
       if (type === "image" || type === "logo") {
@@ -89,11 +90,12 @@ const UploadedTab = () => {
       }
 
       if (type === "audio") {
+        const audioDuration = Math.round(duration as number);
         const result = await upload({
           type: "AUDIO",
-          title: "Example audio",
+          title: title ? title : "Example audio",
           mimeType: "audio/mp3",
-          durationMs: (duration as number) * 1000,
+          durationMs: audioDuration * 1000,
           url,
         });
 
@@ -132,9 +134,9 @@ const UploadedTab = () => {
     setAudios(mediaAudio);
   };
 
-  useEffect(() => {
-    getListAssets();
-  }, [vdUpload, auUpload, imgUpload]);
+  // useEffect(() => {
+  //   getListAssets();
+  // }, [vdUpload, auUpload, imgUpload]);
 
   useEffect(() => {
     const increments = [
@@ -168,7 +170,7 @@ const UploadedTab = () => {
 
   return (
     <div>
-      {videos?.length ? (
+      {vdUpload?.length ? (
         <div
           style={{
             display: "flex",
@@ -185,7 +187,7 @@ const UploadedTab = () => {
               cursor: "pointer",
             }}
           >
-            {videos?.length && videos?.length > 4 ? "See all" : ""}
+            {vdUpload?.length && vdUpload?.length > 4 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -196,7 +198,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {videos?.slice(1, 5).map((video, index) => {
+        {vdUpload?.slice(0, 4).map((video, index) => {
           return (
             <div style={{ maxHeight: "106px" }}>
               <VideoCard
@@ -224,7 +226,7 @@ const UploadedTab = () => {
           );
         })}
       </Grid>
-      {images?.length ? (
+      {imgUpload?.length ? (
         <div
           style={{
             display: "flex",
@@ -241,7 +243,7 @@ const UploadedTab = () => {
               cursor: "pointer",
             }}
           >
-            {images?.length && images?.length > 4 ? "See all" : ""}
+            {imgUpload?.length && imgUpload?.length > 4 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -252,7 +254,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="imageKey"
       >
-        {images?.slice(0, 4).map((image, index) => (
+        {imgUpload?.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
             <ImageCard
               alt="grass image"
@@ -272,7 +274,7 @@ const UploadedTab = () => {
           </div>
         ))}
       </Grid>
-      {audios?.length ? (
+      {auUpload?.length ? (
         <div
           style={{
             display: "flex",
@@ -289,7 +291,7 @@ const UploadedTab = () => {
               cursor: "pointer",
             }}
           >
-            {audios?.length && audios?.length > 4 ? "See all" : ""}
+            {auUpload?.length && auUpload?.length > 4 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -300,7 +302,7 @@ const UploadedTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {audios
+        {auUpload
           // ?.filter((e) => e.fileSize <= 49 * 1024 * 1024)
           ?.slice(0, 2)
           .map((audio, index) => (
@@ -312,7 +314,13 @@ const UploadedTab = () => {
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("audio");
-                  handleUpload(audio?.filePath, "audio", "", audio?.duration);
+                  handleUpload(
+                    audio?.filePath,
+                    "audio",
+                    "",
+                    audio?.duration,
+                    audio?.name
+                  );
                 }}
                 onDragStart={() => {}}
                 thumbnailUrl=""
@@ -324,7 +332,7 @@ const UploadedTab = () => {
             </AudioContextProvider>
           ))}
       </Grid>
-      {!videos?.length && !images?.length && !audios?.length && (
+      {!vdUpload?.length && !imgUpload?.length && !auUpload?.length && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>
           You haven’t uploaded any media files yet.
         </p>

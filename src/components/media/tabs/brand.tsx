@@ -42,7 +42,8 @@ const BrandTab = () => {
     url,
     type,
     thumbnail?: string,
-    duration?: number
+    duration?: number,
+    title?: string
   ) => {
     try {
       if (type === "image" || type === "logo") {
@@ -85,11 +86,12 @@ const BrandTab = () => {
       }
 
       if (type === "audio") {
+        const audioDuration = Math.round(duration as number);
         const result = await upload({
           type: "AUDIO",
-          title: "Example audio",
+          title: title ? title : "Example audio",
           mimeType: "audio/mp3",
-          durationMs: (duration as number) * 1000,
+          durationMs: audioDuration * 1000,
           url,
         });
 
@@ -129,9 +131,9 @@ const BrandTab = () => {
     setMusics(mediaAudio);
   };
 
-  useEffect(() => {
-    getListAssets();
-  }, [vdBrand, msBrand, imgBrand]);
+  // useEffect(() => {
+  //   getListAssets();
+  // }, [vdBrand, msBrand, imgBrand]);
 
   useEffect(() => {
     const increments = [
@@ -168,7 +170,7 @@ const BrandTab = () => {
   return (
     <div>
       {/* VIDEOS */}
-      {videos?.length ? (
+      {vdBrand?.length ? (
         <div
           style={{
             display: "flex",
@@ -185,7 +187,7 @@ const BrandTab = () => {
               cursor: "pointer",
             }}
           >
-            {videos?.length && videos?.length > 4 ? "See all" : ""}
+            {vdBrand?.length && vdBrand?.length > 4 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -196,7 +198,7 @@ const BrandTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {videos?.slice(0, 4).map((video, index) => {
+        {vdBrand?.slice(0, 4).map((video, index) => {
           return (
             <div style={{ maxHeight: "106px" }}>
               <VideoCard
@@ -221,7 +223,7 @@ const BrandTab = () => {
         })}
       </Grid>
       {/* IMAGES */}
-      {images?.length ? (
+      {imgBrand?.length ? (
         <div
           style={{
             display: "flex",
@@ -238,7 +240,7 @@ const BrandTab = () => {
               cursor: "pointer",
             }}
           >
-            {images?.length && images?.length > 4 ? "See all" : ""}
+            {imgBrand?.length && imgBrand?.length > 4 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -249,7 +251,7 @@ const BrandTab = () => {
         spacing="1u"
         key="imageKey"
       >
-        {images?.slice(0, 4).map((image, index) => (
+        {imgBrand?.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }}>
             <ImageCard
               alt="grass image"
@@ -270,7 +272,7 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* MUSIC */}
-      {musics?.length ? (
+      {msBrand?.length ? (
         <div
           style={{
             display: "flex",
@@ -287,7 +289,7 @@ const BrandTab = () => {
               cursor: "pointer",
             }}
           >
-            {musics?.length && musics?.length > 2 ? "See all" : ""}
+            {msBrand?.length && msBrand?.length > 2 ? "See all" : ""}
           </p>
         </div>
       ) : null}
@@ -298,7 +300,7 @@ const BrandTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {musics?.slice(0, 2).map((audio, index) => (
+        {msBrand?.slice(0, 2).map((audio, index) => (
           <AudioContextProvider>
             <AudioCard
               ariaLabel="Add audio to design"
@@ -307,7 +309,13 @@ const BrandTab = () => {
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("audio");
-                handleUpload(audio?.Link, "audio", "", audio.duration);
+                handleUpload(
+                  audio?.Link,
+                  "audio",
+                  "",
+                  audio.duration,
+                  audio?.musicName || audio?.videoName
+                );
               }}
               onDragStart={() => {}}
               thumbnailUrl=""
@@ -374,9 +382,9 @@ const BrandTab = () => {
           </div>
         ))}
       </Grid>
-      {!videos?.length &&
-        !images?.length &&
-        !musics?.length &&
+      {!vdBrand?.length &&
+        !imgBrand?.length &&
+        !msBrand?.length &&
         !logos?.length && (
           <p style={{ marginTop: "20px", textAlign: "center" }}>
             You haven’t uploaded any media files yet.

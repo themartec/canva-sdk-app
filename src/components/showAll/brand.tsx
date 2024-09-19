@@ -52,7 +52,8 @@ const SeeAllMediaBrand = () => {
     url,
     type,
     thumbnail?: string,
-    duration?: number
+    duration?: number,
+    title?: string
   ) => {
     try {
       if (type === "image" || type === "logo") {
@@ -98,11 +99,12 @@ const SeeAllMediaBrand = () => {
       }
 
       if (type === "audio") {
+        const audioDuration = Math.round(duration as number);
         const result = await upload({
           type: "AUDIO",
-          title: "Example audio",
+          title: title ? title : "Example audio",
           mimeType: "audio/mp3",
-          durationMs: (duration as number) * 1000, // miliseconds
+          durationMs: audioDuration * 1000, // miliseconds
           url,
         });
 
@@ -144,16 +146,16 @@ const SeeAllMediaBrand = () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
-        setListAssets(mediaVideo || []);
+        // const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
+        setListAssets(brandVideo || []);
         break;
       case "images":
-        const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
-        setListAssets(mediaImage || []);
+        // const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
+        setListAssets(brandImage || []);
         break;
       case "audios":
-        const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
-        setListAssets(mediaAudio || []);
+        // const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
+        setListAssets(brandAudio || []);
         break;
       default:
         setListAssets(brandLogo || []);
@@ -195,16 +197,17 @@ const SeeAllMediaBrand = () => {
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      const images =
-        keyName !== "logoName"
-          ? await db
-              .table(bdName)
-              .where("fileSize")
-              .between(1, limitFileSize, true, true)
-              .toArray()
-          : await db.table(bdName).toArray();
+      // const assets =
+      //   keyName !== "logoName"
+      //     ? await db
+      //         .table(bdName)
+      //         .where("fileSize")
+      //         .between(1, limitFileSize, true, true)
+      //         .toArray()
+      //     : await db.table(bdName).toArray();
+      const assets = await db.table(bdName).toArray();
       // Configure Fuse.js for fuzzy searching
-      const fuse = new Fuse(images, {
+      const fuse = new Fuse(assets, {
         keys: [keyName], // Search by 'name' field
         threshold: 0.3, // Adjust this for more strict/loose matching
       });
@@ -260,7 +263,21 @@ const SeeAllMediaBrand = () => {
   };
 
   useEffect(() => {
-    getListAssets();
+    // getListAssets();
+    switch (typeMedia) {
+      case "videos":
+        setListAssets(brandVideo || []);
+        break;
+      case "images":
+        setListAssets(brandImage || []);
+        break;
+      case "audios":
+        setListAssets(brandAudio || []);
+        break;
+      default:
+        setListAssets(brandLogo || []);
+        break;
+    }
   }, [brandVideo, brandImage, brandAudio, brandLogo]);
 
   useEffect(() => {
@@ -509,7 +526,13 @@ const SeeAllMediaBrand = () => {
                   onClick={() => {
                     setUploadIndex(index);
                     setUploadType("audio");
-                    handleUpload(audio?.Link, "audio", "", audio?.duration);
+                    handleUpload(
+                      audio?.Link,
+                      "audio",
+                      "",
+                      audio?.duration,
+                      audio?.musicName || audio?.videoName
+                    );
                   }}
                   onDragStart={() => {}}
                   thumbnailUrl=""

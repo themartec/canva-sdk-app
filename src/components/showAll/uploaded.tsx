@@ -57,7 +57,8 @@ const SeeAllMediaUploaded = () => {
     url,
     type,
     thumbnail?: string,
-    duration?: number
+    duration?: number,
+    title?: string
   ) => {
     try {
       if (type === "image" || type === "logo") {
@@ -101,11 +102,12 @@ const SeeAllMediaUploaded = () => {
       }
 
       if (type === "audio") {
+        const audioDuration = Math.round(duration as number);
         const result = await upload({
           type: "AUDIO",
-          title: "Example audio",
+          title: title ? title : "Example audio",
           mimeType: "audio/mp3",
-          durationMs: (duration as number) * 1000,
+          durationMs: audioDuration * 1000,
           url: url,
         });
 
@@ -144,18 +146,18 @@ const SeeAllMediaUploaded = () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
-        setListAssets(mediaVideo);
-        setListVideosImages(mediaVideo?.slice(0, 20));
+        // const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+        setListAssets(uploadVideo);
+        setListVideosImages(uploadVideo?.slice(0, 20));
         break;
       case "images":
-        const mediaImage = await getMediaInRange("uploadImage", LIMIT.VIDEO);
-        setListAssets(mediaImage);
-        setListVideosImages(mediaImage?.slice(0, 20));
+        // const mediaImage = await getMediaInRange("uploadImage", LIMIT.VIDEO);
+        setListAssets(uploadImage);
+        setListVideosImages(uploadImage?.slice(0, 20));
         break;
       default:
-        const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.VIDEO);
-        setListAssets(mediaAudio);
+        // const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.VIDEO);
+        setListAssets(uploadAudio);
         break;
     }
   };
@@ -167,14 +169,16 @@ const SeeAllMediaUploaded = () => {
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      const images = await db
-        .table(bdName)
-        .where("fileSize")
-        .between(1, limitFileSize, true, true)
-        .toArray();
+      // const assets = await db
+      //   .table(bdName)
+      //   .where("fileSize")
+      //   .between(1, limitFileSize, true, true)
+      //   .toArray();
+
+      const assets = await db.table(bdName).toArray();
 
       // Configure Fuse.js for fuzzy searching
-      const fuse = new Fuse(images, {
+      const fuse = new Fuse(assets, {
         keys: ["name"], // Search by 'name' field
         threshold: 0.3, // Adjust this for more strict/loose matching
       });
@@ -275,7 +279,20 @@ const SeeAllMediaUploaded = () => {
   };
 
   useEffect(() => {
-    getListAssets();
+    // getListAssets();
+    switch (typeMedia) {
+      case "videos":
+        setListAssets(uploadVideo);
+        setListVideosImages(uploadVideo?.slice(0, 20));
+        break;
+      case "images":
+        setListVideosImages(uploadImage?.slice(0, 20));
+        setListAssets(uploadImage);
+        break;
+      default:
+        setListAssets(uploadAudio);
+        break;
+    }
   }, [uploadVideo, uploadImage, uploadAudio]);
 
   useEffect(() => {
@@ -544,7 +561,7 @@ const SeeAllMediaUploaded = () => {
                   onClick={() => {
                     setUploadIndex(index);
                     setUploadType("audio");
-                    handleUpload(audio?.filePath, "audio", "", audio?.duration);
+                    handleUpload(audio?.filePath, "audio", "", audio?.duration, audio?.name);
                   }}
                   onDragStart={() => {}}
                   thumbnailUrl=""

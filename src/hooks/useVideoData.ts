@@ -57,8 +57,10 @@ export const useStoryVideos = (contentId: string) => {
 
   // Use SWR to fetch data
   const { data, error, isLoading, mutate } = useSWR<ApiResponse>(
-    token && contentId ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}` : null, // Only fetch if designToken is available
-    fetcher,
+    token && contentId
+      ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}`
+      : null, // Only fetch if designToken is available
+    fetcher
   );
 
   const [isRefreshingBrand, setIsRefreshingBrand] = useState(false);
@@ -73,6 +75,6 @@ export const useStoryVideos = (contentId: string) => {
     data: data?.data, // Access the actual video data
     isLoading: isLoading || isRefreshingBrand, // Loading state
     isError: error, // Error state
-    refresh: refreshVideos
+    refresh: refreshVideos,
   };
 };
