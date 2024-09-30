@@ -31,6 +31,15 @@ export interface StoryVideoData {
   last_name: string;
 }
 
+const removeDuplicatesByVideoId = (videos) => {
+  const seen = new Set();
+  return videos?.filter(item => {
+    const duplicate = seen.has(item.video_id);
+    seen.add(item.video_id);
+    return !duplicate;
+  });
+};
+
 // Custom hook to fetch video data
 export const useStoryVideos = (contentId: string) => {
   const token = useGetAuthToken();
@@ -71,8 +80,10 @@ export const useStoryVideos = (contentId: string) => {
     setIsRefreshingBrand(false); // Set loading to false after refresh
   };
 
+  const listVideos = removeDuplicatesByVideoId(data?.data)
+
   return {
-    data: data?.data, // Access the actual video data
+    data: listVideos, // Access the actual video data
     isLoading: isLoading || isRefreshingBrand, // Loading state
     isError: error, // Error state
     refresh: refreshVideos,
