@@ -171,6 +171,31 @@ const BrandTab = () => {
     });
   };
 
+  const handleDragStartAudio = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    duration: number,
+    title: string
+  ) => {
+    const audioDuration = Math.round(duration as number);
+
+    await ui.startDragToPoint(event, {
+      type: "audio",
+      title: title,
+      durationMs: audioDuration * 1000,
+      resolveAudioRef: () => {
+        return upload({
+          type: "audio",
+          title: title,
+          mimeType: "audio/mp3",
+          url: url,
+          durationMs: 1000,
+          aiDisclosure: "app_generated"
+        });
+      },
+    });
+  };
+
   const getMediaInRange = async (table: string, limitFileSize: number) => {
     try {
       // Query for items with fileSize between 1 and 51200
@@ -385,7 +410,14 @@ const BrandTab = () => {
                   audio?.musicName || audio?.videoName
                 );
               }}
-              onDragStart={() => {}}
+              onDragStart={(e: any) =>
+                handleDragStartAudio(
+                  e,
+                  audio?.Link,
+                  audio?.duration,
+                  audio?.musicName || audio?.videoName
+                )
+              }
               thumbnailUrl=""
               title={audio?.musicName || audio?.videoName}
               loading={

@@ -71,7 +71,7 @@ const SeeAllMediaBrand = () => {
           mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         // console.log(result);
@@ -93,7 +93,7 @@ const SeeAllMediaBrand = () => {
           mimeType: "video/mp4",
           url,
           thumbnailImageUrl: thumbnail || "",
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         if (currentVideos.count) await addPage();
@@ -116,7 +116,7 @@ const SeeAllMediaBrand = () => {
           mimeType: "audio/mp3",
           durationMs: audioDuration * 1000, // miliseconds
           url,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         await addAudioTrack({
@@ -181,6 +181,31 @@ const SeeAllMediaBrand = () => {
         height: 180,
       },
       previewUrl: thumbnail,
+    });
+  };
+
+  const handleDragStartAudio = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    duration: number,
+    title: string
+  ) => {
+    const audioDuration = Math.round(duration as number);
+
+    await ui.startDragToPoint(event, {
+      type: "audio",
+      title: title,
+      durationMs: audioDuration * 1000,
+      resolveAudioRef: () => {
+        return upload({
+          type: "audio",
+          title: title,
+          mimeType: "audio/mp3",
+          url: url,
+          durationMs: 1000,
+          aiDisclosure: "app_generated",
+        });
+      },
     });
   };
 
@@ -482,7 +507,10 @@ const SeeAllMediaBrand = () => {
         >
           {listAssets?.map((video, index) => {
             return (
-              <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
+              <div
+                style={{ maxHeight: "106px", marginTop: "16px" }}
+                key={index}
+              >
                 <VideoCard
                   ariaLabel="Add video to design"
                   borderRadius="standard"
@@ -602,7 +630,14 @@ const SeeAllMediaBrand = () => {
                       audio?.musicName || audio?.videoName
                     );
                   }}
-                  onDragStart={() => {}}
+                  onDragStart={(e: any) =>
+                    handleDragStartAudio(
+                      e,
+                      audio?.Link,
+                      audio?.duration,
+                      audio?.musicName || audio?.videoName
+                    )
+                  }
                   thumbnailUrl=""
                   title={audio?.musicName || audio?.videoName}
                   loading={
@@ -672,46 +707,6 @@ const SeeAllMediaBrand = () => {
             </div>
           ))}
         </Grid>
-        //   <div  style={{ height: 'calc(100vh - 130px)', overflow: 'auto'}}>
-        //   <InfiniteScroll
-        //   dataLength={listAssets.length} //This is important field to render the next data
-        //   next={fetchMoreData}
-        //   hasMore={false}
-        //   loader={<h4>Loading...</h4>}
-        //   height={`calc(100vh - 130px)`}
-        //   endMessage={
-        //     <p style={{ textAlign: 'center' }}>
-        //       <b>Yay! You have seen it all</b>
-        //     </p>
-        //   }
-        // >
-        //   <Grid
-        //     alignX="stretch"
-        //     alignY="stretch"
-        //     columns={2}
-        //     spacing="1u"
-        //     key={"logoKey"}
-        //   >
-        //     {listAssets.map((logo, index) => (
-        //       <ImageCard
-        //         alt="grass image"
-        //         ariaLabel="Add image to design"
-        //         borderRadius="standard"
-        //         onClick={() => {
-        //           setUploadIndex(index);
-        //           setUploadType("logo");
-        //           handleUpload(logo, "logo");
-        //         }}
-        //         onDragStart={() => {}}
-        //         thumbnailUrl="https://www.canva.dev/example-assets/image-import/grass-image-thumbnail.jpg"
-        //         loading={
-        //           uploadIndex === index && uploadType == "logo" ? true : false
-        //         }
-        //       />
-        //     ))}
-        //   </Grid>
-        //   </InfiniteScroll>
-        //   </div>
       )}
     </div>
   );

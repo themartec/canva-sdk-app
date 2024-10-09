@@ -185,6 +185,31 @@ const SeeAllMediaUploaded = () => {
     });
   };
 
+  const handleDragStartAudio = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    duration: number,
+    title: string
+  ) => {
+    const audioDuration = Math.round(duration as number);
+
+    await ui.startDragToPoint(event, {
+      type: "audio",
+      title: title,
+      durationMs: audioDuration * 1000,
+      resolveAudioRef: () => {
+        return upload({
+          type: "audio",
+          title: title,
+          mimeType: "audio/mp3",
+          url: url,
+          durationMs: 1000,
+          aiDisclosure: "app_generated",
+        });
+      },
+    });
+  };
+
   const handleSearchMedia = async (name: string) => {
     if (name) {
       setSearchVal(name);
@@ -629,7 +654,14 @@ const SeeAllMediaUploaded = () => {
                     setUploadType("audio");
                     handleUpload(audio?.filePath, "audio", "", audio?.duration, audio?.name);
                   }}
-                  onDragStart={() => {}}
+                  onDragStart={(e: any) =>
+                    handleDragStartAudio(
+                      e,
+                      audio?.filePath,
+                      audio?.duration,
+                      audio?.name
+                    )
+                  }
                   thumbnailUrl=""
                   title={audio?.name}
                   loading={

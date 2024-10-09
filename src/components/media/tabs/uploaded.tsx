@@ -62,7 +62,7 @@ const UploadedTab = () => {
           mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         // console.log(result);
@@ -84,7 +84,7 @@ const UploadedTab = () => {
           mimeType: "video/mp4",
           url,
           thumbnailImageUrl: thumbnail || "",
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         if (currentVideos.count) await addPage();
@@ -107,7 +107,7 @@ const UploadedTab = () => {
           mimeType: "audio/mp3",
           durationMs: audioDuration * 1000,
           url,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         await addAudioTrack({
@@ -172,6 +172,31 @@ const UploadedTab = () => {
         height: 180,
       },
       previewUrl: thumbnail,
+    });
+  };
+
+  const handleDragStartAudio = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    duration: number,
+    title: string
+  ) => {
+    const audioDuration = Math.round(duration as number);
+
+    await ui.startDragToPoint(event, {
+      type: "audio",
+      title: title,
+      durationMs: audioDuration * 1000,
+      resolveAudioRef: () => {
+        return upload({
+          type: "audio",
+          title: title,
+          mimeType: "audio/mp3",
+          url: url,
+          durationMs: 1000,
+          aiDisclosure: "app_generated",
+        });
+      },
     });
   };
 
@@ -280,7 +305,11 @@ const UploadedTab = () => {
                   );
                 }}
                 onDragStart={(e: any) =>
-                  handleDragStartVideo(e, video?.filePath, video?.avatar || DEFAULT_THUMBNAIL)
+                  handleDragStartVideo(
+                    e,
+                    video?.filePath,
+                    video?.avatar || DEFAULT_THUMBNAIL
+                  )
                 }
                 thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
                 videoPreviewUrl={video?.filePath}
@@ -390,7 +419,14 @@ const UploadedTab = () => {
                     audio?.name
                   );
                 }}
-                onDragStart={() => {}}
+                onDragStart={(e: any) =>
+                  handleDragStartAudio(
+                    e,
+                    audio?.filePath,
+                    audio?.duration,
+                    audio?.name
+                  )
+                }
                 thumbnailUrl=""
                 title={audio?.name}
                 loading={
