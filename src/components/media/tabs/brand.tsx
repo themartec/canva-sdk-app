@@ -10,7 +10,7 @@ import {
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
-import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
+import { addAudioTrack, addPage, addElementAtPoint, ui } from "@canva/design";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 import { db } from "src/db";
 import { imageUrlToBase64 } from "src/constants/convertImage";
@@ -56,43 +56,54 @@ const BrandTab = () => {
 
         const imageType = `${url?.split(".").pop()}`;
         const result = await upload({
-          type: "IMAGE",
+          type: "image",
           mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
+          aiDisclosure: "app_generated",
         });
 
-        await addNativeElement({
-          type: "IMAGE",
+        await addElementAtPoint({
+          type: "image",
           ref: result?.ref,
+          altText: {
+            text: "elm",
+            decorative: true,
+          },
         });
       }
 
       if (type == "video") {
         setUploadType("video");
         const result = await upload({
-          type: "VIDEO",
+          type: "video",
           mimeType: "video/mp4",
           url,
           thumbnailImageUrl: thumbnail || "",
+          aiDisclosure: "app_generated",
         });
 
         if (currentVideos.count) await addPage();
 
-        await addNativeElement({
-          type: "VIDEO",
-          ref: result?.ref,
+        await addElementAtPoint({
+          type: "video",
+          ref: result.ref,
+          altText: {
+            text: "elm",
+            decorative: true,
+          },
         });
       }
 
       if (type === "audio") {
         const audioDuration = Math.round(duration as number);
         const result = await upload({
-          type: "AUDIO",
+          type: "audio",
           title: title ? title : "Example audio",
           mimeType: "audio/mp3",
           durationMs: audioDuration * 1000,
           url,
+          aiDisclosure: "app_generated",
         });
 
         await addAudioTrack({
@@ -105,6 +116,59 @@ const BrandTab = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDragStartImage = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string
+  ) => {
+    const imageType = `${url?.split(".").pop()}`;
+    await ui.startDragToPoint(event, {
+      type: "image",
+      resolveImageRef: () => {
+        return upload({
+          mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
+          thumbnailUrl: url,
+          type: "image",
+          url: url,
+          aiDisclosure: "none",
+        });
+      },
+      previewUrl: url,
+      previewSize: {
+        width: 320,
+        height: 180,
+      },
+      fullSize: {
+        width: 320,
+        height: 180,
+      },
+    });
+  };
+
+  const handleDragStartVideo = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    thumbnail: string
+  ) => {
+    await ui.startDragToPoint(event, {
+      type: "video",
+      resolveVideoRef: () => {
+        return upload({
+          mimeType: "video/mp4",
+          thumbnailImageUrl: thumbnail,
+          thumbnailVideoUrl: url,
+          type: "video",
+          url: url,
+          aiDisclosure: "app_generated",
+        });
+      },
+      previewSize: {
+        width: 320,
+        height: 180,
+      },
+      previewUrl: thumbnail,
+    });
   };
 
   const getMediaInRange = async (table: string, limitFileSize: number) => {
@@ -200,7 +264,7 @@ const BrandTab = () => {
       >
         {vdBrand?.slice(0, 4).map((video, index) => {
           return (
-            <div style={{ maxHeight: "106px" }}>
+            <div style={{ maxHeight: "106px" }} key={index}>
               <VideoCard
                 ariaLabel="Add video to design"
                 borderRadius="standard"
@@ -211,7 +275,9 @@ const BrandTab = () => {
                   setUploadType("video");
                   handleUpload(video?.Link, "video", video?.avatar);
                 }}
-                onDragStart={() => {}}
+                onDragStart={(e: any) =>
+                  handleDragStartVideo(e, video?.Link, video?.avatar)
+                }
                 thumbnailUrl={video?.avatar}
                 videoPreviewUrl={video?.Link}
                 loading={
@@ -252,7 +318,7 @@ const BrandTab = () => {
         key="imageKey"
       >
         {imgBrand?.slice(0, 4).map((image, index) => (
-          <div style={{ maxHeight: "106px" }}>
+          <div style={{ maxHeight: "106px" }} key={index}>
             <ImageCard
               alt="grass image"
               ariaLabel="Add image to design"
@@ -262,7 +328,9 @@ const BrandTab = () => {
                 setUploadType("image");
                 handleUpload(image?.Link, "image");
               }}
-              onDragStart={() => {}}
+              onDragStart={(e: any) =>
+                handleDragStartImage(e, image?.Link as string)
+              }
               thumbnailUrl={image?.Link}
               loading={
                 uploadIndex === index && uploadType == "image" ? true : false
@@ -301,7 +369,7 @@ const BrandTab = () => {
         key="audioKey"
       >
         {msBrand?.slice(0, 2).map((audio, index) => (
-          <AudioContextProvider>
+          <AudioContextProvider key={index}>
             <AudioCard
               ariaLabel="Add audio to design"
               audioPreviewUrl={audio?.Link}
@@ -363,6 +431,7 @@ const BrandTab = () => {
               border: "1px solid #424858",
               borderRadius: "8px",
             }}
+            key={index}
           >
             <ImageCard
               alt="grass image"
@@ -373,7 +442,9 @@ const BrandTab = () => {
                 setUploadType("logo");
                 handleUpload(logo?.Link, "logo");
               }}
-              onDragStart={() => {}}
+              onDragStart={(e: any) =>
+                handleDragStartImage(e, logo?.Link as string)
+              }
               thumbnailUrl={logo?.Link}
               loading={
                 uploadIndex === index && uploadType == "logo" ? true : false

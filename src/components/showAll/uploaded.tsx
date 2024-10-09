@@ -11,7 +11,7 @@ import {
 } from "@canva/app-ui-kit";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
-import { addAudioTrack, addNativeElement, addPage } from "@canva/design";
+import { addAudioTrack, addElementAtPoint, addPage, ui } from "@canva/design";
 import { upload } from "@canva/asset";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { imageUrlToBase64 } from "src/constants/convertImage";
@@ -70,45 +70,54 @@ const SeeAllMediaUploaded = () => {
         const base64Image = (await imageUrlToBase64(url)) as string;
         const imageType = `${url?.split(".").pop()}`;
         const result = await upload({
-          type: "IMAGE",
+          type: "image",
           mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
+          aiDisclosure: "app_generated"
         });
 
-        // console.log(result);
-
-        await addNativeElement({
-          type: "IMAGE",
+        await addElementAtPoint({
+          type: "image",
           ref: result?.ref,
+          altText: {
+            text: "elm",
+            decorative: true,
+          },
         });
       }
 
       if (type == "video") {
         setUploadType("video");
         const result = await upload({
-          type: "VIDEO",
+          type: "video",
           mimeType: "video/mp4",
           url: url,
           thumbnailImageUrl: thumbnail || "",
+          aiDisclosure: "app_generated"
         });
 
         if (currentVideos.count) await addPage();
 
-        await addNativeElement({
-          type: "VIDEO",
-          ref: result?.ref,
+        await addElementAtPoint({
+          type: "video",
+          ref: result.ref,
+          altText: {
+            text: "elm",
+            decorative: true,
+          },
         });
       }
 
       if (type === "audio") {
         const audioDuration = Math.round(duration as number);
         const result = await upload({
-          type: "AUDIO",
+          type: "audio",
           title: title ? title : "Example audio",
           mimeType: "audio/mp3",
           durationMs: audioDuration * 1000,
           url: url,
+          aiDisclosure: "app_generated"
         });
 
         await addAudioTrack({
@@ -121,6 +130,59 @@ const SeeAllMediaUploaded = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDragStartImage = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string
+  ) => {
+    const imageType = `${url?.split(".").pop()}`;
+    await ui.startDragToPoint(event, {
+      type: "image",
+      resolveImageRef: () => {
+        return upload({
+          mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
+          thumbnailUrl: url,
+          type: "image",
+          url: url,
+          aiDisclosure: "none",
+        });
+      },
+      previewUrl: url,
+      previewSize: {
+        width: 320,
+        height: 180,
+      },
+      fullSize: {
+        width: 320,
+        height: 180,
+      },
+    });
+  };
+
+  const handleDragStartVideo = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    thumbnail: string
+  ) => {
+    await ui.startDragToPoint(event, {
+      type: "video",
+      resolveVideoRef: () => {
+        return upload({
+          mimeType: "video/mp4",
+          thumbnailImageUrl: thumbnail,
+          thumbnailVideoUrl: url,
+          type: "video",
+          url: url,
+          aiDisclosure: "app_generated",
+        });
+      },
+      previewSize: {
+        width: 320,
+        height: 180,
+      },
+      previewUrl: thumbnail,
+    });
   };
 
   const handleSearchMedia = async (name: string) => {
@@ -448,7 +510,7 @@ const SeeAllMediaUploaded = () => {
           >
             {listVideosImages?.map((video, index) => {
               return (
-                <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+                <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
                   <VideoCard
                     ariaLabel="Add video to design"
                     borderRadius="standard"
@@ -463,7 +525,9 @@ const SeeAllMediaUploaded = () => {
                         video?.avatar || DEFAULT_THUMBNAIL
                       );
                     }}
-                    onDragStart={() => {}}
+                    onDragStart={(e: any) =>
+                      handleDragStartVideo(e, video?.Link,video?.avatar || DEFAULT_THUMBNAIL)
+                    }
                     thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
                     videoPreviewUrl={video?.filePath}
                     loading={
@@ -504,7 +568,7 @@ const SeeAllMediaUploaded = () => {
             key="imageKey"
           >
             {listVideosImages?.map((image, index) => (
-              <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+              <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
                 <ImageCard
                   alt="grass image"
                   ariaLabel="Add image to design"
@@ -514,7 +578,9 @@ const SeeAllMediaUploaded = () => {
                     setUploadType("image");
                     handleUpload(image?.filePath, "image");
                   }}
-                  onDragStart={() => {}}
+                  onDragStart={(e: any) =>
+                    handleDragStartImage(e, image?.filePath)
+                  }
                   thumbnailUrl={image?.filePath}
                   loading={
                     uploadIndex === index && uploadType == "image"
@@ -553,7 +619,7 @@ const SeeAllMediaUploaded = () => {
             key="audioKey"
           >
             {listAssets?.map((audio, index) => (
-              <AudioContextProvider>
+              <AudioContextProvider key={index}>
                 <AudioCard
                   ariaLabel="Add audio to design"
                   audioPreviewUrl={audio?.filePath}
@@ -582,26 +648,6 @@ const SeeAllMediaUploaded = () => {
           </p>
         )}
       </InfiniteScroll>
-      {/* <InfiniteScroll
-        dataLength={listAssets?.length}
-        next={handleFetchMoreMedia}
-        hasMore={typeMedia !== "audios" ? hasMore : false}
-        loader={
-          <p style={{ textAlign: "center" }}>
-            <b>Loading...</b>
-          </p>
-        }
-        height={`calc(100vh - 30px)`}
-        endMessage={
-          <p style={{ textAlign: "center" }}>
-            <b>You have seen it all</b>
-          </p>
-        }
-      >
-        {listVideosImages?.map((image, index) => (
-          <p>{image?.name}</p>
-        ))}
-      </InfiniteScroll> */}
     </div>
   );
 };

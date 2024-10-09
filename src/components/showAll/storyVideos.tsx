@@ -4,7 +4,7 @@ import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useStoryVideos } from "src/hooks/useVideoData";
 import { upload } from "@canva/asset";
-import { addNativeElement, addPage } from "@canva/design";
+import { addElementAtPoint, addPage, ui } from "@canva/design";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
 import {
   Grid,
@@ -53,17 +53,22 @@ export const StoryVideos = ({ storyId }: Props) => {
     try {
       setUploadType("video");
       const result = await upload({
-        type: "VIDEO",
+        type: "video",
         mimeType: "video/mp4",
         url,
         thumbnailImageUrl,
+        aiDisclosure: "app_generated"
       });
 
       if (currentVideos.count) await addPage();
 
-      await addNativeElement({
-        type: "VIDEO",
-        ref: result?.ref,
+      await addElementAtPoint({
+        type: "video",
+        ref: result.ref,
+        altText: {
+          text: "elm",
+          decorative: true,
+        },
       });
 
       setUploadIndex(-1);
@@ -71,6 +76,31 @@ export const StoryVideos = ({ storyId }: Props) => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDragStartVideo = async (
+    event: React.DragEvent<HTMLElement>,
+    url: string,
+    thumbnail: string
+  ) => {
+    await ui.startDragToPoint(event, {
+      type: "video",
+      resolveVideoRef: () => {
+        return upload({
+          mimeType: "video/mp4",
+          thumbnailImageUrl: thumbnail,
+          thumbnailVideoUrl: url,
+          type: "video",
+          url: url,
+          aiDisclosure: "app_generated",
+        });
+      },
+      previewSize: {
+        width: 320,
+        height: 180,
+      },
+      previewUrl: thumbnail,
+    });
   };
 
   useEffect(() => {
@@ -224,7 +254,7 @@ export const StoryVideos = ({ storyId }: Props) => {
       >
         {listStories?.map((video, index) => {
           return (
-            <Rows spacing="1u">
+            <Rows spacing="1u" key={index}>
               <div style={{ maxHeight: "106px", marginTop: "16px" }}>
                 <VideoCard
                   ariaLabel="Add video to design"
@@ -238,7 +268,9 @@ export const StoryVideos = ({ storyId }: Props) => {
                       video.thumbnail_image || DEFAULT_THUMBNAIL
                     );
                   }}
-                  onDragStart={() => {}}
+                  onDragStart={(e: any) =>
+                    handleDragStartVideo(e, video?.video_link, video.thumbnail_image || DEFAULT_THUMBNAIL)
+                  }
                   thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}
                   videoPreviewUrl={video?.video_link}
                   loading={

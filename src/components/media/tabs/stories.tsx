@@ -139,7 +139,7 @@ const StoriesTab = () => {
               .toLocaleLowerCase()
               .includes(searchVal.toLocaleLowerCase())
           )
-          ?.map((st: any) => (
+          ?.map((st: any, index: number) => (
             <div
               style={{
                 borderRadius: "8px",
@@ -150,6 +150,7 @@ const StoriesTab = () => {
                 height: "55px",
                 cursor: "pointer",
               }}
+              key={index}
               onClick={() => handleShowMediaByStory(st)}
             >
               <div
