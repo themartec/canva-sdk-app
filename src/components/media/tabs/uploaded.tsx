@@ -140,8 +140,8 @@ const UploadedTab = () => {
       },
       previewUrl: url,
       previewSize: {
-        width: 320,
-        height: 180,
+        width: 50,
+        height: 50,
       },
       fullSize: {
         width: 320,

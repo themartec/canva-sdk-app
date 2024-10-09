@@ -24,7 +24,7 @@ const insertAudio = async () => {
 
 const onDragStart = (event: React.DragEvent<HTMLElement>) => {
   ui.startDrag(event, {
-    type: "AUDIO",
+    type: "audio",
     resolveAudioRef: uploadAudio,
     durationMs: AUDIO_DURATION_MS,
     title: "MP3 Audio Track",

@@ -136,8 +136,8 @@ const BrandTab = () => {
       },
       previewUrl: url,
       previewSize: {
-        width: 320,
-        height: 180,
+        width: 50,
+        height: 50,
       },
       fullSize: {
         width: 320,
@@ -190,7 +190,7 @@ const BrandTab = () => {
           mimeType: "audio/mp3",
           url: url,
           durationMs: 1000,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
       },
     });

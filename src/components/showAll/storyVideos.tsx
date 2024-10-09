@@ -57,7 +57,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         mimeType: "video/mp4",
         url,
         thumbnailImageUrl,
-        aiDisclosure: "app_generated"
+        aiDisclosure: "app_generated",
       });
 
       if (currentVideos.count) await addPage();
@@ -105,7 +105,7 @@ export const StoryVideos = ({ storyId }: Props) => {
 
   useEffect(() => {
     setListStories(stories);
-  }, [stories]);
+  }, [JSON.stringify(stories)]);
 
   useEffect(() => {
     const increments = [
@@ -269,7 +269,11 @@ export const StoryVideos = ({ storyId }: Props) => {
                     );
                   }}
                   onDragStart={(e: any) =>
-                    handleDragStartVideo(e, video?.video_link, video.thumbnail_image || DEFAULT_THUMBNAIL)
+                    handleDragStartVideo(
+                      e,
+                      video?.video_link,
+                      video.thumbnail_image || DEFAULT_THUMBNAIL
+                    )
                   }
                   thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}
                   videoPreviewUrl={video?.video_link}
