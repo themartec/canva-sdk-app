@@ -14,18 +14,11 @@ import { addAudioTrack, addElementAtPoint, addPage, ui } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
-import { db } from "src/db";
-import { LIMIT } from "src/constants/fileSize";
-
-interface Props {}
 
 const UploadedTab = () => {
   const { setSeeAllMediaUploaded, setTypeMedia, isRefreshingUpload } =
     useMediaStore();
   const [percent, setPercent] = useState<number>(0);
-  const [videos, setVideos] = useState<any>([]);
-  const [audios, setAudios] = useState<any>([]);
-  const [images, setImages] = useState<any>([]);
 
   const {
     videos: vdUpload,
@@ -200,33 +193,6 @@ const UploadedTab = () => {
     });
   };
 
-  const getMediaInRange = async (table: string, limitFileSize: number) => {
-    try {
-      // Query for items with fileSize between 1 and 51200
-      const result = await db
-        .table(table)
-        .where("fileSize")
-        .between(1, limitFileSize, true, true) // true, true for inclusive range
-        .toArray();
-      return result;
-    } catch (error) {
-      console.error("Error fetching items:", error);
-    }
-  };
-
-  const getListAssets = async () => {
-    const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
-    const mediaImage = await getMediaInRange("uploadImage", LIMIT.IMAGE);
-    const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.AUDIO);
-    setVideos(mediaVideo);
-    setImages(mediaImage);
-    setAudios(mediaAudio);
-  };
-
-  // useEffect(() => {
-  //   getListAssets();
-  // }, [vdUpload, auUpload, imgUpload]);
-
   useEffect(() => {
     const increments = [
       { percent: 15, delay: 0 },
@@ -295,7 +261,7 @@ const UploadedTab = () => {
                 borderRadius="standard"
                 durationInSeconds={video?.duration}
                 mimeType="video/mp4"
-                onClick={(e) => {
+                onClick={() => {
                   setUploadIndex(index);
                   setUploadType("video");
                   handleUpload(
