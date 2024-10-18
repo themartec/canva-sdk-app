@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  ArrowLeftIcon,
   AudioCard,
   AudioContextProvider,
   Button,
@@ -7,7 +8,10 @@ import {
   ImageCard,
   ProgressBar,
   ReloadIcon,
+  SearchInputMenu,
   VideoCard,
+  Text,
+  Rows,
 } from "@canva/app-ui-kit";
 import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
@@ -23,6 +27,7 @@ import { db } from "src/db";
 import Fuse from "fuse.js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { LIMIT } from "src/constants/fileSize";
+import SkeletonLoading from "../skeleton";
 
 interface Props {}
 
@@ -47,6 +52,7 @@ const SeeAllMediaUploaded = () => {
   const [itemSize, setItemSize] = useState<number>(20);
   const [listVideosImages, setListVideosImages] = useState<any>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const currentVideos = useGetCurrentVideo();
 
@@ -74,7 +80,7 @@ const SeeAllMediaUploaded = () => {
           mimeType: `image/${imageType === "jpg" ? "jpeg" : imageType}` as any,
           url: base64Image,
           thumbnailUrl: base64Image,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         await addElementAtPoint({
@@ -94,7 +100,7 @@ const SeeAllMediaUploaded = () => {
           mimeType: "video/mp4",
           url: url,
           thumbnailImageUrl: thumbnail || "",
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         if (currentVideos.count) await addPage();
@@ -117,7 +123,7 @@ const SeeAllMediaUploaded = () => {
           mimeType: "audio/mp3",
           durationMs: audioDuration * 1000,
           url: url,
-          aiDisclosure: "app_generated"
+          aiDisclosure: "app_generated",
         });
 
         await addAudioTrack({
@@ -213,6 +219,7 @@ const SeeAllMediaUploaded = () => {
   const handleSearchMedia = async (name: string) => {
     if (name) {
       setSearchVal(name);
+      setIsSearching(true);
       switch (typeMedia) {
         case "videos":
           fuzzySearchMediaName(name, "uploadVideo", LIMIT.VIDEO);
@@ -226,11 +233,13 @@ const SeeAllMediaUploaded = () => {
       }
     } else {
       handleClearSearch();
+      setIsSearching(false);
     }
   };
 
   const handleClearSearch = async () => {
     setSearchVal("");
+    setIsSearching(false);
     switch (typeMedia) {
       case "videos":
         // const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
@@ -291,7 +300,7 @@ const SeeAllMediaUploaded = () => {
       case "images":
         return "Images";
       default:
-        return "Music";
+        return "Audio";
     }
   };
 
@@ -302,7 +311,7 @@ const SeeAllMediaUploaded = () => {
       case "images":
         return "images";
       default:
-        return "music";
+        return "audio";
     }
   };
 
@@ -407,7 +416,8 @@ const SeeAllMediaUploaded = () => {
   if (isLoading || isRefreshingUpload) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
+        <SkeletonLoading />
       </div>
     );
   }
@@ -423,108 +433,64 @@ const SeeAllMediaUploaded = () => {
             <b>Loading...</b>
           </p>
         }
-        height={`calc(100vh - 30px)`}
+        height={`calc(100vh - 40px)`}
         endMessage={
           <p style={{ textAlign: "center" }}>
             <b>You have seen it all</b>
           </p>
         }
+        style={{
+          width: "92vw",
+        }}
       >
         <div
           style={{
             display: "flex",
-            cursor: "pointer",
-            height: "30px",
-            width: "80px",
-          }}
-          onClick={() => {
-            setSeeAllMediaBrand(false);
-            setSeeAllMediaUploaded(false);
+            justifyContent: "space-between",
           }}
         >
           <div
             style={{
-              marginRight: "8px",
-            }}
-          >
-            <IconArrowLeft />
-          </div>
-          <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
-            {renderMediaType()}
-          </p>
-        </div>
-        <div
-          style={{
-            borderTop: "0.75px solid #424858",
-            height: "4px",
-            width: "100%",
-            marginTop: "2px",
-            marginBottom: "10px",
-          }}
-        />
-        <Button
-          alignment="center"
-          icon={() => {
-            return <ReloadIcon />;
-          }}
-          onClick={handleRefreshMedia}
-          variant="secondary"
-          stretch={true}
-        >
-          Refresh content
-        </Button>
-        <div
-          style={{
-            display: "flex",
-            background: "#fff",
-            borderRadius: "8px",
-            padding: "8px",
-            marginBottom: "-2px",
-            marginTop: "8px",
-          }}
-        >
-          <div
-            style={{
+              display: "flex",
               cursor: "pointer",
+              height: "30px",
+              width: "80px",
+              paddingTop: "4px",
+            }}
+            onClick={() => {
+              setSeeAllMediaBrand(false);
+              setSeeAllMediaUploaded(false);
             }}
           >
-            <IconSearch />
-          </div>
-          <input
-            type="text"
-            placeholder={`Search for any ${renderMediaTypeSearch()}...`}
-            style={{
-              background: "#fff",
-              color: "gray",
-              width: "90%",
-              outline: "none",
-              border: "none",
-              marginLeft: "4px",
-              marginRight: "4px",
-              marginBottom: "4px",
-            }}
-            value={searchVal}
-            onChange={(e) => handleSearchMedia(e.target.value)}
-          />
-          {searchVal && (
             <div
               style={{
-                width: "24px",
-                height: "22px",
-                background: "#f5f0f0",
-                borderRadius: "8px",
-                paddingTop: "3px",
-                paddingLeft: "3px",
-                cursor: "pointer",
-                boxShadow: "0.5px 0.5px 10px #bdbfc4",
+                marginRight: "8px",
               }}
-              title="Clear"
-              onClick={handleClearSearch}
             >
-              <IconTimes />
+              <ArrowLeftIcon />
             </div>
-          )}
+            <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
+              {renderMediaType()}
+            </p>
+          </div>
+          <div>
+            <Button
+              ariaLabel="ariaLabel"
+              icon={() => <ReloadIcon />}
+              size="small"
+              type="button"
+              variant="tertiary"
+              onClick={() => handleRefreshMedia()}
+              tooltipLabel="Refresh content"
+            />
+          </div>
         </div>
+        <SearchInputMenu
+          value={searchVal}
+          onChange={(e) => handleSearchMedia(e)}
+          onClear={handleClearSearch}
+          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
+        />
         {typeMedia === "videos" && (
           <Grid
             alignX="stretch"
@@ -535,10 +501,17 @@ const SeeAllMediaUploaded = () => {
           >
             {listVideosImages?.map((video, index) => {
               return (
-                <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
+                <div
+                  style={{
+                    maxHeight: "106px",
+                    marginTop: "16px",
+                    marginBottom: "16px",
+                  }}
+                  key={index}
+                >
                   <VideoCard
                     ariaLabel="Add video to design"
-                    borderRadius="standard"
+                    borderRadius="none"
                     durationInSeconds={video?.duration}
                     mimeType="video/mp4"
                     onClick={(e) => {
@@ -551,7 +524,11 @@ const SeeAllMediaUploaded = () => {
                       );
                     }}
                     onDragStart={(e: any) =>
-                      handleDragStartVideo(e, video?.Link,video?.avatar || DEFAULT_THUMBNAIL)
+                      handleDragStartVideo(
+                        e,
+                        video?.Link,
+                        video?.avatar || DEFAULT_THUMBNAIL
+                      )
                     }
                     thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
                     videoPreviewUrl={video?.filePath}
@@ -563,7 +540,7 @@ const SeeAllMediaUploaded = () => {
                   />
                   <div
                     style={{
-                      marginTop: "-14px",
+                      marginTop: "-8px",
                     }}
                   >
                     <p
@@ -593,11 +570,18 @@ const SeeAllMediaUploaded = () => {
             key="imageKey"
           >
             {listVideosImages?.map((image, index) => (
-              <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
+              <div
+                style={{
+                  maxHeight: "106px",
+                  marginTop: "16px",
+                  marginBottom: "16px",
+                }}
+                key={index}
+              >
                 <ImageCard
                   alt="grass image"
                   ariaLabel="Add image to design"
-                  borderRadius="standard"
+                  borderRadius="none"
                   onClick={() => {
                     setUploadIndex(index);
                     setUploadType("image");
@@ -615,7 +599,7 @@ const SeeAllMediaUploaded = () => {
                 />
                 <div
                   style={{
-                    marginTop: "-14px",
+                    marginTop: "-8px",
                   }}
                 >
                   <p
@@ -652,7 +636,13 @@ const SeeAllMediaUploaded = () => {
                   onClick={() => {
                     setUploadIndex(index);
                     setUploadType("audio");
-                    handleUpload(audio?.filePath, "audio", "", audio?.duration, audio?.name);
+                    handleUpload(
+                      audio?.filePath,
+                      "audio",
+                      "",
+                      audio?.duration,
+                      audio?.name
+                    );
                   }}
                   onDragStart={(e: any) =>
                     handleDragStartAudio(
@@ -674,10 +664,19 @@ const SeeAllMediaUploaded = () => {
             ))}
           </Grid>
         )}
-        {!listAssets?.length && (
+        {!listAssets?.length && !isSearching && (
           <p style={{ marginTop: "20px", textAlign: "center" }}>
             You haven’t uploaded any media files yet.
           </p>
+        )}
+        {!listAssets?.length && isSearching && (
+          <Rows spacing="2u">
+            <div />
+            <Text alignment="center" size="small">
+              {`No results found for ${searchVal}. Try searching for a different
+              term.`}
+            </Text>
+          </Rows>
         )}
       </InfiniteScroll>
     </div>

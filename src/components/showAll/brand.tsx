@@ -1,4 +1,5 @@
 import {
+  ArrowLeftIcon,
   AudioCard,
   AudioContextProvider,
   Button,
@@ -6,6 +7,7 @@ import {
   ImageCard,
   ProgressBar,
   ReloadIcon,
+  SearchInputMenu,
   VideoCard,
 } from "@canva/app-ui-kit";
 import { useEffect, useState } from "react";
@@ -21,6 +23,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "src/db";
 import Fuse from "fuse.js";
 import { LIMIT } from "src/constants/fileSize";
+import SkeletonLoading from "../skeleton";
 
 interface Props {}
 
@@ -259,7 +262,7 @@ const SeeAllMediaBrand = () => {
       case "images":
         return "Images";
       case "audios":
-        return "Music";
+        return "Audio";
       default:
         return "Logos";
     }
@@ -272,7 +275,7 @@ const SeeAllMediaBrand = () => {
       case "images":
         return "images";
       case "audios":
-        return "music";
+        return "audio";
       default:
         return "logos";
     }
@@ -396,7 +399,8 @@ const SeeAllMediaBrand = () => {
   if (isLoading || isRefreshingBrand) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
+        <SkeletonLoading />
       </div>
     );
   }
@@ -406,97 +410,51 @@ const SeeAllMediaBrand = () => {
       <div
         style={{
           display: "flex",
-          cursor: "pointer",
-          height: "30px",
-          width: "80px",
-        }}
-        onClick={() => {
-          setSeeAllMediaBrand(false);
-          setSeeAllMediaUploaded(false);
+          justifyContent: "space-between",
         }}
       >
         <div
           style={{
-            marginRight: "8px",
-          }}
-        >
-          <IconArrowLeft />
-        </div>
-        <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
-          {renderMediaType()}
-        </p>
-      </div>
-      <div
-        style={{
-          borderTop: "0.75px solid #424858",
-          height: "4px",
-          width: "100%",
-          marginTop: "2px",
-          marginBottom: "10px",
-        }}
-      />
-      <Button
-        alignment="center"
-        icon={() => {
-          return <ReloadIcon />;
-        }}
-        onClick={handleRefreshMedia}
-        variant="secondary"
-        stretch={true}
-      >
-        Refresh content
-      </Button>
-      <div
-        style={{
-          display: "flex",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "8px",
-          marginBottom: "-2px",
-          marginTop: "8px",
-        }}
-      >
-        <div
-          style={{
+            display: "flex",
             cursor: "pointer",
+            height: "30px",
+            width: "80px",
+            paddingTop: "4px",
+          }}
+          onClick={() => {
+            setSeeAllMediaBrand(false);
+            setSeeAllMediaUploaded(false);
           }}
         >
-          <IconSearch />
-        </div>
-        <input
-          type="text"
-          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
-          style={{
-            background: "#fff",
-            color: "gray",
-            width: "90%",
-            outline: "none",
-            border: "none",
-            marginLeft: "4px",
-            marginRight: "4px",
-          }}
-          value={searchVal}
-          onChange={(e) => handleSearchMedia(e.target.value)}
-        />
-        {searchVal && (
           <div
             style={{
-              width: "24px",
-              height: "22px",
-              background: "#f5f0f0",
-              borderRadius: "8px",
-              paddingTop: "3px",
-              paddingLeft: "3px",
-              cursor: "pointer",
-              boxShadow: "0.5px 0.5px 10px #bdbfc4",
+              marginRight: "8px",
             }}
-            title="Clear"
-            onClick={handleClearSearch}
           >
-            <IconTimes />
+            <ArrowLeftIcon />
           </div>
-        )}
+          <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
+            {renderMediaType()}
+          </p>
+        </div>
+        <div>
+          <Button
+            ariaLabel="ariaLabel"
+            icon={() => <ReloadIcon />}
+            size="small"
+            type="button"
+            variant="tertiary"
+            onClick={() => handleRefreshMedia()}
+            tooltipLabel="Refresh content"
+          />
+        </div>
       </div>
+      <SearchInputMenu
+        value={searchVal}
+        onChange={(e) => handleSearchMedia(e)}
+        onClear={handleClearSearch}
+        placeholder={`Search for any ${renderMediaTypeSearch()}...`}
+      />
       {typeMedia === "videos" && (
         <Grid
           alignX="stretch"
@@ -508,12 +466,16 @@ const SeeAllMediaBrand = () => {
           {listAssets?.map((video, index) => {
             return (
               <div
-                style={{ maxHeight: "106px", marginTop: "16px" }}
+                style={{
+                  maxHeight: "106px",
+                  marginTop: "16px",
+                  marginBottom: "16px",
+                }}
                 key={index}
               >
                 <VideoCard
                   ariaLabel="Add video to design"
-                  borderRadius="standard"
+                  borderRadius="none"
                   durationInSeconds={video?.duration}
                   mimeType="video/mp4"
                   onClick={(e) => {
@@ -534,7 +496,7 @@ const SeeAllMediaBrand = () => {
                 />
                 <div
                   style={{
-                    marginTop: "-14px",
+                    marginTop: "-8px",
                   }}
                 >
                   <p
@@ -564,11 +526,18 @@ const SeeAllMediaBrand = () => {
           key="imageKey"
         >
           {listAssets?.map((image, index) => (
-            <div style={{ maxHeight: "106px", marginTop: "16px" }} key={index}>
+            <div
+              style={{
+                maxHeight: "106px",
+                marginTop: "16px",
+                marginBottom: "16px",
+              }}
+              key={index}
+            >
               <ImageCard
                 alt="grass image"
                 ariaLabel="Add image to design"
-                borderRadius="standard"
+                borderRadius="none"
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("image");
@@ -584,7 +553,7 @@ const SeeAllMediaBrand = () => {
               />
               <div
                 style={{
-                  marginTop: "-14px",
+                  marginTop: "-8px",
                 }}
               >
                 <p
@@ -666,13 +635,14 @@ const SeeAllMediaBrand = () => {
                 border: "1px solid #424858",
                 borderRadius: "8px",
                 marginTop: "16px",
+                marginBottom: "16px",
               }}
               key={index}
             >
               <ImageCard
                 alt="grass image"
                 ariaLabel="Add image to design"
-                borderRadius="standard"
+                borderRadius="none"
                 onClick={() => {
                   setUploadIndex(index);
                   setUploadType("logo");
@@ -688,7 +658,7 @@ const SeeAllMediaBrand = () => {
               />
               <div
                 style={{
-                  marginTop: "-14px",
+                  marginTop: "-8px",
                 }}
               >
                 <p

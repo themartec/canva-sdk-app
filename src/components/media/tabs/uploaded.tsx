@@ -14,6 +14,9 @@ import { addAudioTrack, addElementAtPoint, addPage, ui } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { DEFAULT_THUMBNAIL } from "src/config/common";
+import SkeletonLoading from "src/components/skeleton";
+
+interface Props {}
 
 const UploadedTab = () => {
   const { setSeeAllMediaUploaded, setTypeMedia, isRefreshingUpload } =
@@ -218,7 +221,8 @@ const UploadedTab = () => {
   if (isLoading || isRefreshingUpload) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
+        <SkeletonLoading />
       </div>
     );
   }
@@ -258,7 +262,7 @@ const UploadedTab = () => {
             <div style={{ maxHeight: "106px" }} key={index}>
               <VideoCard
                 ariaLabel="Add video to design"
-                borderRadius="standard"
+                borderRadius="none"
                 durationInSeconds={video?.duration}
                 mimeType="video/mp4"
                 onClick={() => {
@@ -320,7 +324,7 @@ const UploadedTab = () => {
             <ImageCard
               alt="grass image"
               ariaLabel="Add image to design"
-              borderRadius="standard"
+              borderRadius="none"
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("image");
@@ -344,7 +348,7 @@ const UploadedTab = () => {
             justifyContent: "space-between",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Audios</p>
+          <p style={{ fontWeight: 700 }}>Audio</p>
           <p
             onClick={() => {
               setSeeAllMediaUploaded(true);

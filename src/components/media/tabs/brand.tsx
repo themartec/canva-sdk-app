@@ -6,6 +6,7 @@ import {
   ImageCard,
   ProgressBar,
   VideoCard,
+  Text
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
@@ -15,6 +16,7 @@ import { useGetBrandKits } from "src/hooks/useGetBrandKit";
 import { db } from "src/db";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { LIMIT } from "src/constants/fileSize";
+import SkeletonLoading from "src/components/skeleton";
 
 interface Props {}
 
@@ -251,7 +253,8 @@ const BrandTab = () => {
   if (isLoading || isRefreshingBrand) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
+        <SkeletonLoading />
       </div>
     );
   }
@@ -292,7 +295,7 @@ const BrandTab = () => {
             <div style={{ maxHeight: "106px" }} key={index}>
               <VideoCard
                 ariaLabel="Add video to design"
-                borderRadius="standard"
+                borderRadius="none"
                 durationInSeconds={video?.duration}
                 mimeType="video/mp4"
                 onClick={(e) => {
@@ -308,6 +311,7 @@ const BrandTab = () => {
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
                 }
+                
               />
             </div>
           );
@@ -347,7 +351,7 @@ const BrandTab = () => {
             <ImageCard
               alt="grass image"
               ariaLabel="Add image to design"
-              borderRadius="standard"
+              borderRadius="none"
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("image");
@@ -372,7 +376,7 @@ const BrandTab = () => {
             justifyContent: "space-between",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Audios</p>
+          <p style={{ fontWeight: 700 }}>Audio</p>
           <p
             onClick={() => {
               setSeeAllMediaBrand(true);
@@ -468,7 +472,7 @@ const BrandTab = () => {
             <ImageCard
               alt="grass image"
               ariaLabel="Add image to design"
-              borderRadius="standard"
+              borderRadius="none"
               onClick={() => {
                 setUploadIndex(index);
                 setUploadType("logo");

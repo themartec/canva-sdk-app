@@ -123,9 +123,22 @@ export const App = () => {
             width: "90%",
           }}
         >
-          <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+          {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
           <div style={{ textAlign: "center", width: "100%" }}>
-            <p> Connecting.... </p>
+            <h4>Get started</h4>
+            <p style={{ marginTop: "-17px" }}>
+              To view your content, log in to your account
+            </p>
+            <Rows spacing="0">
+              <Button
+                alignment="center"
+                loading
+                onClick={() => {}}
+                variant="primary"
+              >
+                Log in
+              </Button>
+            </Rows>
           </div>
         </div>
       </div>
@@ -134,7 +147,7 @@ export const App = () => {
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        {!isSeeAllMediaBrand &&
+        {/* {!isSeeAllMediaBrand &&
           !isSeeAllMediaUploaded &&
           !isShowMediaDetail && (
             <Button
@@ -148,45 +161,7 @@ export const App = () => {
             >
               Refresh content
             </Button>
-          )}
-        {/* <div
-          style={{
-            display: `${
-              isSeeAllMediaBrand || isSeeAllMediaUploaded || isShowMediaDetail
-                ? "none"
-                : "flex"
-            }`,
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ marginRight: "4px", width: "48%" }}>
-            <Button
-              alignment="center"
-              icon={() => {
-                return <IconGrid />;
-              }}
-              onClick={() => setIsMediaView(true)}
-              variant={isMediaView ? "primary" : "secondary"}
-              stretch={true}
-            >
-              Media
-            </Button>
-          </div>
-          <div style={{ marginLeft: "4px", width: "48%" }}>
-            <Button
-              alignment="center"
-              icon={() => {
-                return <IconExport />;
-              }}
-              onClick={() => setIsMediaView(false)}
-              variant={!isMediaView ? "primary" : "secondary"}
-              stretch={true}
-            >
-              Export
-            </Button>
-          </div>
-        </div> */}
-        {/* {isMediaView ? <MediaView /> : <ExportView />} */}
+          )} */}
         <MediaView />
       </Rows>
     </div>
