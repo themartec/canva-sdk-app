@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Grid, ProgressBar } from "@canva/app-ui-kit";
+import { Grid, ProgressBar, SearchInputMenu } from "@canva/app-ui-kit";
 import { IconSearch, IconTimes, IconRecord } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 import { db } from "src/db";
+import SkeletonLoading from "src/components/skeleton";
 
 const StoriesTab = () => {
   const { storiesDashboard, isLoading } = useGetStoriesDashboard();
@@ -68,7 +69,8 @@ const StoriesTab = () => {
   if (isLoading || isRefreshingStory) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
+        <SkeletonLoading />
       </div>
     );
   }
@@ -76,54 +78,13 @@ const StoriesTab = () => {
   return (
     <div style={{ marginTop: "12px" }}>
       {storiesDashboard?.length ? (
-        <div
-          style={{
-            display: "flex",
-            background: "#fff",
-            borderRadius: "8px",
-            padding: "8px",
-            marginBottom: "10px",
-          }}
-        >
-          <div
-            style={{
-              cursor: "pointer",
-            }}
-          >
-            <IconSearch />
-          </div>
-          <input
-            type="text"
-            placeholder="Search for any stories..."
-            style={{
-              background: "#fff",
-              color: "gray",
-              width: "90%",
-              outline: "none",
-              border: "none",
-              marginLeft: "4px",
-              marginRight: "4px",
-            }}
+        <div style={{ marginBottom: "10px" }}>
+          <SearchInputMenu
             value={searchVal}
-            onChange={(e) => handleSearchStory(e.target.value)}
+            onChange={(e) => handleSearchStory(e)}
+            onClear={handleClearSearch}
+            placeholder={`Search for any stories...`}
           />
-          {searchVal && (
-            <div
-              style={{
-                width: "24px",
-                height: "22px",
-                background: "#f5f0f0",
-                borderRadius: "8px",
-                paddingTop: "3px",
-                paddingLeft: "3px",
-                cursor: "pointer",
-              }}
-              title="Clear"
-              onClick={handleClearSearch}
-            >
-              <IconTimes />
-            </div>
-          )}
         </div>
       ) : null}
       <Grid

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { useStoryVideos } from "src/hooks/useVideoData";
@@ -13,7 +12,10 @@ import {
   VideoCard,
   Button,
   ReloadIcon,
+  ArrowLeftIcon,
+  SearchInputMenu,
 } from "@canva/app-ui-kit";
+import SkeletonLoading from "../skeleton";
 
 interface Props {
   storyId: string;
@@ -132,114 +134,68 @@ export const StoryVideos = ({ storyId }: Props) => {
   if (isLoading) {
     return (
       <div style={{ marginTop: "20px" }}>
-        <ProgressBar value={percent} ariaLabel={"loading progress bar"} />
+        <SkeletonLoading />
       </div>
     );
   }
 
   return (
-    <div style={{ marginTop: "12px" }}>
+    <div style={{ marginTop: "4px" }}>
       <div
         style={{
           display: "flex",
-          cursor: "pointer",
-          height: "19px",
-          width: "100%",
-        }}
-        onClick={() => {
-          setShowMediaDetail(false);
+          justifyContent: "space-between",
         }}
       >
         <div
           style={{
-            marginRight: "8px",
-            marginTop: "-15px",
-          }}
-        >
-          <IconArrowLeft />
-        </div>
-        <p
-          style={{
-            marginTop: "-15px",
-            fontSize: "14px",
-            width: "90%",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {storySelected?.audience_research?.headline}
-        </p>
-      </div>
-      <div
-        style={{
-          borderTop: "0.75px solid #424858",
-          height: "4px",
-          width: "100%",
-          marginBottom: "10px",
-        }}
-      />
-      <Button
-        alignment="center"
-        icon={() => {
-          return <ReloadIcon />;
-        }}
-        onClick={refresh}
-        variant="secondary"
-        stretch={true}
-      >
-        Refresh content
-      </Button>
-      <div
-        style={{
-          display: "flex",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "8px",
-          marginBottom: "-2px",
-          marginTop: "8px",
-        }}
-      >
-        <div
-          style={{
+            display: "flex",
             cursor: "pointer",
+            width: "100%",
+          }}
+          onClick={() => {
+            setShowMediaDetail(false);
           }}
         >
-          <IconSearch />
-        </div>
-        <input
-          type="text"
-          placeholder="Search for any videos..."
-          style={{
-            background: "#fff",
-            color: "gray",
-            width: "90%",
-            outline: "none",
-            border: "none",
-            marginLeft: "4px",
-            marginRight: "4px",
-          }}
-          value={searchVal}
-          onChange={(e) => handleSearchStory(e.target.value)}
-        />
-        {searchVal && (
           <div
             style={{
-              width: "24px",
-              height: "22px",
-              background: "#f5f0f0",
-              borderRadius: "8px",
-              paddingTop: "3px",
-              paddingLeft: "3px",
-              cursor: "pointer",
+              marginRight: "8px",
+              marginTop: "4px",
             }}
-            title="Clear"
-            onClick={handleClearSearch}
           >
-            <IconTimes />
+            <ArrowLeftIcon />
           </div>
-        )}
+          <p
+            style={{
+              marginTop: "4px",
+              fontSize: "14px",
+              width: "80%",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {storySelected?.audience_research?.headline}
+          </p>
+        </div>
+        <div>
+          <Button
+            ariaLabel="ariaLabel"
+            icon={() => <ReloadIcon />}
+            size="small"
+            type="button"
+            variant="tertiary"
+            onClick={() => refresh()}
+            tooltipLabel="Refresh content"
+          />
+        </div>
       </div>
+      <SearchInputMenu
+        value={searchVal}
+        onChange={(e) => handleSearchStory(e)}
+        onClear={handleClearSearch}
+        placeholder="Search for any videos..."
+      />
       {!listStories?.length && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>
           There are no videos for this story.
@@ -255,10 +211,16 @@ export const StoryVideos = ({ storyId }: Props) => {
         {listStories?.map((video, index) => {
           return (
             <Rows spacing="1u" key={index}>
-              <div style={{ maxHeight: "106px", marginTop: "16px" }}>
+              <div
+                style={{
+                  maxHeight: "106px",
+                  marginTop: "16px",
+                  marginBottom: "16px",
+                }}
+              >
                 <VideoCard
                   ariaLabel="Add video to design"
-                  borderRadius="standard"
+                  borderRadius="none"
                   mimeType="video/mp4"
                   onClick={(e) => {
                     setUploadIndex(index);
@@ -285,7 +247,7 @@ export const StoryVideos = ({ storyId }: Props) => {
                 />
                 <div
                   style={{
-                    marginTop: "-14px",
+                    marginTop: "-8px",
                   }}
                 >
                   <p

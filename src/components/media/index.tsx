@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import {
+  Button,
+  ReloadIcon,
   Rows,
   Tab,
   TabList,
@@ -18,6 +20,7 @@ import { MediaState } from "src/types/store";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
 import { db } from "src/db";
 import { useGetBrandKits } from "src/hooks/useGetBrandKit";
+import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 
 const MediaView = () => {
   const {
@@ -38,6 +41,17 @@ const MediaView = () => {
     logos,
   } = useGetBrandKits();
 
+  const {
+    setIsRefreshingBrand,
+    setIsRefreshingStory,
+    setIsRefreshingUpload,
+    tabView,
+  } = useMediaStore();
+
+  const { refresh: refreshBrand } = useGetBrandKits(true);
+  const { refresh: refreshUploaded } = useGetUploadedMedias(true);
+  const { refresh: refreshStories } = useGetStoriesDashboard(true);
+
   // add list to DB dexie
   const addListMediaToDB = async (tableName: string, items: any[] = []) => {
     try {
@@ -46,6 +60,36 @@ const MediaView = () => {
       console.log(`Successfully added items to ${tableName}!`);
     } catch (error) {
       console.error(`Error adding items to ${tableName}:`, error);
+    }
+  };
+
+  const handleRefreshMedia = async () => {
+    if (tabView === "stories") {
+      await setIsRefreshingStory(true);
+
+      await db.table("storyDashboard").clear();
+
+      await refreshStories();
+      await setIsRefreshingStory(false);
+    } else if (tabView === "uploaded") {
+      await setIsRefreshingUpload(true);
+
+      await db.table("uploadVideo").clear();
+      await db.table("uploadImage").clear();
+      await db.table("uploadAudio").clear();
+
+      await refreshUploaded();
+      await setIsRefreshingUpload(false);
+    } else {
+      await setIsRefreshingBrand(true);
+
+      await db.table("brandLogo").clear();
+      await db.table("brandImage").clear();
+      await db.table("brandVideo").clear();
+      await db.table("brandAudio").clear();
+
+      await refreshBrand();
+      await setIsRefreshingBrand(false);
     }
   };
 
@@ -111,28 +155,50 @@ const MediaView = () => {
       >
         <Tabs>
           <Rows spacing="1u">
-            <TabList>
-              <Tab id="brand" onClick={() => setTabView("brand")}>
-                Brand
-              </Tab>
-              <Tab id="stories" onClick={() => setTabView("stories")}>
-                Stories
-              </Tab>
-              <Tab id="uploaded" onClick={() => setTabView("uploaded")}>
-                Uploaded
-              </Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel id="brand" key={"brand"}>
-                <BrandTab />
-              </TabPanel>
-              <TabPanel id="stories" key={"stories"}>
-                <StoriesTab />
-              </TabPanel>
-              <TabPanel id="uploaded" key={"uploaded"}>
-                <UploadedTab />
-              </TabPanel>
-            </TabPanels>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ width: "200px" }}>
+                <TabList>
+                  <Tab id="brand" onClick={() => setTabView("brand")}>
+                    Brand
+                  </Tab>
+                  <Tab id="stories" onClick={() => setTabView("stories")}>
+                    Stories
+                  </Tab>
+                  <Tab id="uploaded" onClick={() => setTabView("uploaded")}>
+                    Uploads
+                  </Tab>
+                </TabList>
+              </div>
+              <div style={{ marginTop: "4px" }}>
+                <Button
+                  ariaLabel="ariaLabel"
+                  icon={() => <ReloadIcon />}
+                  size="small"
+                  type="button"
+                  variant="tertiary"
+                  onClick={() => handleRefreshMedia()}
+                  tooltipLabel="Refresh content"
+                />
+              </div>
+            </div>
+            <div style={{ width: "100%" }}>
+              <TabPanels>
+                <TabPanel id="brand" key={"brand"}>
+                  <BrandTab />
+                </TabPanel>
+                <TabPanel id="stories" key={"stories"}>
+                  <StoriesTab />
+                </TabPanel>
+                <TabPanel id="uploaded" key={"uploaded"}>
+                  <UploadedTab />
+                </TabPanel>
+              </TabPanels>
+            </div>
           </Rows>
         </Tabs>
       </div>
