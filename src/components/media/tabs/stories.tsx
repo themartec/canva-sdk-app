@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Grid, ProgressBar, SearchInputMenu } from "@canva/app-ui-kit";
-import { IconSearch, IconTimes, IconRecord } from "src/assets/icons";
+import { Grid, SearchInputMenu } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 import { db } from "src/db";
 import SkeletonLoading from "src/components/skeleton";
+import { StoryCard } from "./storyCard";
 
 const StoriesTab = () => {
   const { storiesDashboard, isLoading } = useGetStoriesDashboard();
@@ -69,7 +69,6 @@ const StoriesTab = () => {
   if (isLoading || isRefreshingStory) {
     return (
       <div style={{ marginTop: "20px" }}>
-        {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
         <SkeletonLoading />
       </div>
     );
@@ -100,59 +99,66 @@ const StoriesTab = () => {
               .toLocaleLowerCase()
               .includes(searchVal.toLocaleLowerCase())
           )
-          ?.map((st: any, index: number) => (
-            <div
-              style={{
-                borderRadius: "8px",
-                display: "flex",
-                marginTop: "4px",
-                border: "1px solid #424858",
-                padding: "4px",
-                height: "55px",
-                cursor: "pointer",
-              }}
-              key={index}
-              onClick={() => handleShowMediaByStory(st)}
-            >
-              <div
-                style={{
-                  margin: "16px 8px",
-                  padding: "6px",
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "8px",
-                  background: "#98E0E5",
-                  alignItems: "center",
-                  display: "flex",
-                }}
-              >
-                <IconRecord />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  height: "42px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: "14px",
-                    marginTop: "25px",
-                    // height: "100%",
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 2,
-                    textOverflow: "ellipsis",
-                    overflow: "hidden",
-                    wordWrap: "break-word",
-                  }}
-                >
-                  {st?.audience_research?.headline}
-                </p>
-              </div>
-            </div>
-          ))}
+          ?.map(
+            (story: any, index: number) => (
+              <StoryCard
+                key={index}
+                story={story}
+                onClick={() => handleShowMediaByStory(story)}
+              />
+            )
+            // <div
+            //   style={{
+            //     borderRadius: "8px",
+            //     display: "flex",
+            //     marginTop: "4px",
+            //     border: "1px solid #424858",
+            //     padding: "4px",
+            //     height: "55px",
+            //     cursor: "pointer",
+            //   }}
+            //   key={index}
+            //   onClick={() => handleShowMediaByStory(st)}
+            // >
+            //   <div
+            //     style={{
+            //       margin: "16px 8px",
+            //       padding: "6px",
+            //       width: "12px",
+            //       height: "12px",
+            //       borderRadius: "8px",
+            //       background: "#98E0E5",
+            //       alignItems: "center",
+            //       display: "flex",
+            //     }}
+            //   >
+            //     <IconRecord />
+            //   </div>
+            //   <div
+            //     style={{
+            //       display: "flex",
+            //       alignItems: "center",
+            //       height: "42px",
+            //     }}
+            //   >
+            //     <p
+            //       style={{
+            //         fontSize: "14px",
+            //         marginTop: "25px",
+            //         // height: "100%",
+            //         display: "-webkit-box",
+            //         WebkitBoxOrient: "vertical",
+            //         WebkitLineClamp: 2,
+            //         textOverflow: "ellipsis",
+            //         overflow: "hidden",
+            //         wordWrap: "break-word",
+            //       }}
+            //     >
+            //       {st?.audience_research?.headline}
+            //     </p>
+            //   </div>
+            // </div>
+          )}
       </Grid>
       {!storiesDashboard?.length && (
         <p style={{ marginTop: "20px", textAlign: "center" }}>
