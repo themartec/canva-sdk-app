@@ -25,11 +25,11 @@
     "./examples/*"
   ],
   "dependencies": {
-    "@canva/app-ui-kit": "^4.0.0",
+    "@canva/app-ui-kit": "^4.1.0",
     "@canva/asset": "^2.0.0",
     "@canva/design": "^2.1.0",
-    "@canva/error": "^1.1.0",
-    "@canva/platform": "^1.1.0",
+    "@canva/error": "^2.0.0",
+    "@canva/platform": "^2.0.0",
     "@canva/preview": "./sdk/preview",
     "@canva/user": "^1.0.0",
     "dexie": "^4.0.8",

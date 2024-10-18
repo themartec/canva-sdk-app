@@ -143,7 +143,7 @@ const SeeAllMediaUploaded = () => {
     url: string
   ) => {
     const imageType = `${url?.split(".").pop()}`;
-    await ui.startDragToPoint(event, {
+    await ui.startDragToCursor(event, {
       type: "image",
       resolveImageRef: () => {
         return upload({
