@@ -14,6 +14,7 @@ import {
   ReloadIcon,
   ArrowLeftIcon,
   SearchInputMenu,
+  Text,
 } from "@canva/app-ui-kit";
 import SkeletonLoading from "../skeleton";
 
@@ -30,14 +31,17 @@ export const StoryVideos = ({ storyId }: Props) => {
   const [uploadIndex, setUploadIndex] = useState(-1);
   const [uploadType, setUploadType] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const currentVideos = useGetCurrentVideo();
 
   const handleSearchStory = (name: string) => {
     if (!name) {
       setSearchVal("");
+      setIsSearching(false);
       setListStories((stories as any) || []);
     } else {
+      setIsSearching(true);
       setSearchVal(name);
       const result = stories?.filter((vd: any) =>
         vd?.question?.toLowerCase().includes(name?.toLocaleLowerCase())
@@ -48,6 +52,7 @@ export const StoryVideos = ({ storyId }: Props) => {
 
   const handleClearSearch = () => {
     setSearchVal("");
+    setIsSearching(false);
     setListStories(stories);
   };
 
@@ -145,13 +150,14 @@ export const StoryVideos = ({ storyId }: Props) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
+          marginBottom: "8px",
         }}
       >
         <div
           style={{
             display: "flex",
             cursor: "pointer",
-            width: "100%",
+            width: "86%",
           }}
           onClick={() => {
             setShowMediaDetail(false);
@@ -165,18 +171,16 @@ export const StoryVideos = ({ storyId }: Props) => {
           >
             <ArrowLeftIcon />
           </div>
-          <p
+          <div
             style={{
               marginTop: "4px",
-              fontSize: "14px",
-              width: "80%",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
+              width: "90%",
             }}
           >
-            {storySelected?.audience_research?.headline}
-          </p>
+            <Text lineClamp={1}>
+              {storySelected?.audience_research?.headline}
+            </Text>
+          </div>
         </div>
         <div>
           <Button
@@ -196,11 +200,6 @@ export const StoryVideos = ({ storyId }: Props) => {
         onClear={handleClearSearch}
         placeholder="Search for any videos..."
       />
-      {!listStories?.length && (
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
-          There are no videos for this story.
-        </p>
-      )}
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -268,6 +267,20 @@ export const StoryVideos = ({ storyId }: Props) => {
           );
         })}
       </Grid>
+      {!listStories?.length && !isSearching && (
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
+          There are no videos for this story.
+        </p>
+      )}
+      {!listStories?.length && isSearching && (
+        <Rows spacing="2u">
+          <div />
+          <Text alignment="center" size="small">
+            {`No results found for ${searchVal}. Try searching for a different
+              term.`}
+          </Text>
+        </Rows>
+      )}
     </div>
   );
 };

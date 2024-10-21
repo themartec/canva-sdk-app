@@ -4,8 +4,11 @@ import {
   AudioContextProvider,
   Grid,
   ImageCard,
-  ProgressBar,
   VideoCard,
+  Text,
+  Rows,
+  Button,
+  OpenInNewIcon,
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
@@ -13,8 +16,11 @@ import { upload } from "@canva/asset";
 import { addAudioTrack, addElementAtPoint, addPage, ui } from "@canva/design";
 import { imageUrlToBase64 } from "src/constants/convertImage";
 import { useGetUploadedMedias } from "src/hooks/useGetUploadedMedias";
-import { DEFAULT_THUMBNAIL } from "src/config/common";
+import { DEFAULT_THUMBNAIL, PLATFORM_HOST } from "src/config/common";
 import SkeletonLoading from "src/components/skeleton";
+import { requestOpenExternalUrl } from "@canva/platform";
+import { db } from "src/db";
+import { LIMIT } from "src/constants/fileSize";
 
 interface Props {}
 
@@ -22,6 +28,9 @@ const UploadedTab = () => {
   const { setSeeAllMediaUploaded, setTypeMedia, isRefreshingUpload } =
     useMediaStore();
   const [percent, setPercent] = useState<number>(0);
+  const [videos, setVideos] = useState<any>([]);
+  const [music, setMusic] = useState<any>([]);
+  const [images, setImages] = useState<any>([]);
 
   const {
     videos: vdUpload,
@@ -196,6 +205,58 @@ const UploadedTab = () => {
     });
   };
 
+  const handleRedirectToPlatform = () => {
+    const creativeStudio = `${PLATFORM_HOST}/employer/creative-studio`;
+    requestOpenExternalUrl({ url: creativeStudio })
+  };
+
+  const getMediaInRange = async (
+    table: string,
+    limitFileSize: number,
+    isVideo?: boolean
+  ) => {
+    try {
+      // Query for items with fileSize between 1 and 51200
+      const result = await db
+        .table(table)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true) // true, true for inclusive range
+        .toArray();
+
+      // Filter items where Link ends with ".mov"
+      const itemsToDelete = result?.filter((item) =>
+        item?.Link.endsWith(".mov")
+      );
+
+      // Delete each item that matches the condition
+      const deletePromises = itemsToDelete?.map((item) =>
+        db.table(table).delete(item.id)
+      );
+
+      // Wait for all deletions to complete
+      await Promise?.all(deletePromises);
+
+      return !isVideo
+        ? result
+        : result.filter((item) => !item.Link.endsWith(".mov"));
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  };
+
+  const getListAssets = async () => {
+    const mediaImage = await getMediaInRange("uploadImage", LIMIT.IMAGE);
+    const mediaAudio = await getMediaInRange("uploadAudio", LIMIT.AUDIO);
+    const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO, true);
+    setVideos(mediaVideo);
+    setImages(mediaImage);
+    setMusic(mediaAudio);
+  };
+
+  useEffect(() => {
+    getListAssets();
+  }, [vdUpload, auUpload, imgUpload]);
+
   useEffect(() => {
     const increments = [
       { percent: 15, delay: 0 },
@@ -234,20 +295,36 @@ const UploadedTab = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            marginBottom: "12px",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Videos</p>
-          <p
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Videos
+          </Text>
+          <div
+            style={{
+              width: "fit-content",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setSeeAllMediaUploaded(true);
               setTypeMedia("videos");
             }}
-            style={{
-              cursor: "pointer",
-            }}
           >
-            {vdUpload?.length && vdUpload?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {vdUpload?.length && vdUpload?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -296,20 +373,36 @@ const UploadedTab = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            margin: "12px 0",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Images</p>
-          <p
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Images
+          </Text>
+          <div
+            style={{
+              width: "fit-content",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setSeeAllMediaUploaded(true);
               setTypeMedia("images");
             }}
-            style={{
-              cursor: "pointer",
-            }}
           >
-            {imgUpload?.length && imgUpload?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {imgUpload?.length && imgUpload?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -346,20 +439,36 @@ const UploadedTab = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            margin: "12px 0"
           }}
         >
-          <p style={{ fontWeight: 700 }}>Audio</p>
-          <p
-            onClick={() => {
-              setSeeAllMediaUploaded(true);
-              setTypeMedia("audios");
-            }}
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Audio
+          </Text>
+          <div
             style={{
+              width: "fit-content",
               cursor: "pointer",
             }}
+            onClick={() => {
+              setSeeAllMediaUploaded(true);
+              setTypeMedia("audio");
+            }}
           >
-            {auUpload?.length && auUpload?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {auUpload?.length && auUpload?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -406,10 +515,43 @@ const UploadedTab = () => {
             </AudioContextProvider>
           ))}
       </Grid>
+      {/* No stories responsing */}
       {!vdUpload?.length && !imgUpload?.length && !auUpload?.length && (
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
-          You haven’t uploaded any media files yet.
-        </p>
+        <Rows align="stretch" spacing="1u">
+          <div style={{ marginTop: "50%" }}>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="large"
+              variant="bold"
+            >
+              You haven't uploaded anything
+            </Text>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="small"
+              variant="regular"
+            >
+              Content you add to The Martec will appear here
+            </Text>
+            <div style={{ marginTop: "12px" }} />
+            <Rows spacing="0">
+              <Button
+                alignment="center"
+                onClick={() => {
+                  handleRedirectToPlatform();
+                }}
+                icon={() => {
+                  return <OpenInNewIcon />;
+                }}
+                variant="primary"
+              >
+                Go to The Martec
+              </Button>
+            </Rows>
+          </div>
+        </Rows>
       )}
     </div>
   );

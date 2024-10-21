@@ -7,11 +7,12 @@ import {
   ImageCard,
   ProgressBar,
   ReloadIcon,
+  Rows,
   SearchInputMenu,
   VideoCard,
+  Text,
 } from "@canva/app-ui-kit";
 import { useEffect, useState } from "react";
-import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
 import { upload } from "@canva/asset";
@@ -238,16 +239,17 @@ const SeeAllMediaBrand = () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        // const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
-        setListAssets(brandVideo || []);
+        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO, true);
+        setListAssets(mediaVideo || []);
+        // setListAssets(brandVideo || []);
         break;
       case "images":
-        // const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
-        setListAssets(brandImage || []);
+        const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
+        setListAssets(mediaImage || []);
         break;
       case "audios":
-        // const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
-        setListAssets(brandAudio || []);
+        const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
+        setListAssets(mediaAudio || []);
         break;
       default:
         setListAssets(brandLogo || []);
@@ -285,19 +287,19 @@ const SeeAllMediaBrand = () => {
     searchString: string,
     bdName: string,
     keyName: string,
-    limitFileSize?: number
+    limitFileSize?: number,
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      // const assets =
-      //   keyName !== "logoName"
-      //     ? await db
-      //         .table(bdName)
-      //         .where("fileSize")
-      //         .between(1, limitFileSize, true, true)
-      //         .toArray()
-      //     : await db.table(bdName).toArray();
-      const assets = await db.table(bdName).toArray();
+      const assets =
+        keyName !== "logoName"
+          ? await db
+              .table(bdName)
+              .where("fileSize")
+              .between(1, limitFileSize, true, true)
+              .toArray()
+          : await db.table(bdName).toArray();
+      // const assets = await db.table(bdName).toArray();
       // Configure Fuse.js for fuzzy searching
       const fuse = new Fuse(assets, {
         keys: [keyName], // Search by 'name' field
@@ -320,7 +322,7 @@ const SeeAllMediaBrand = () => {
     refreshMediaBrand();
   };
 
-  const getMediaInRange = async (table: string, limitFileSize: number) => {
+  const getMediaInRange = async (table: string, limitFileSize: number, isVideo?: boolean) => {
     try {
       // Query for items with fileSize between 1 and 51200
       const result = await db
@@ -328,7 +330,23 @@ const SeeAllMediaBrand = () => {
         .where("fileSize")
         .between(1, limitFileSize, true, true) // true, true for inclusive range
         .toArray();
-      return result;
+
+      // Filter items where Link ends with ".mov"
+      const itemsToDelete = result?.filter((item) =>
+        item?.Link.endsWith(".mov")
+      );
+
+      // Delete each item that matches the condition
+      const deletePromises = itemsToDelete?.map((item) =>
+        db.table(table).delete(item.id)
+      );
+
+      // Wait for all deletions to complete
+      await Promise?.all(deletePromises);
+
+      return !isVideo
+        ? result
+        : result.filter((item) => !item.Link.endsWith(".mov"));
     } catch (error) {
       console.error("Error fetching items:", error);
     }
@@ -337,7 +355,7 @@ const SeeAllMediaBrand = () => {
   const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
+        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO, true);
         setListAssets(mediaVideo || []);
         break;
       case "images":
@@ -355,21 +373,21 @@ const SeeAllMediaBrand = () => {
   };
 
   useEffect(() => {
-    // getListAssets();
-    switch (typeMedia) {
-      case "videos":
-        setListAssets(brandVideo || []);
-        break;
-      case "images":
-        setListAssets(brandImage || []);
-        break;
-      case "audios":
-        setListAssets(brandAudio || []);
-        break;
-      default:
-        setListAssets(brandLogo || []);
-        break;
-    }
+    getListAssets();
+    // switch (typeMedia) {
+    //   case "videos":
+    //     setListAssets(brandVideo || []);
+    //     break;
+    //   case "images":
+    //     setListAssets(brandImage || []);
+    //     break;
+    //   case "audios":
+    //     setListAssets(brandAudio || []);
+    //     break;
+    //   default:
+    //     setListAssets(brandLogo || []);
+    //     break;
+    // }
   }, [brandVideo, brandImage, brandAudio, brandLogo]);
 
   useEffect(() => {
@@ -407,6 +425,7 @@ const SeeAllMediaBrand = () => {
 
   return (
     <div>
+      <p>{listAssets?.length}</p>
       <div
         style={{
           display: "flex",
@@ -632,8 +651,8 @@ const SeeAllMediaBrand = () => {
             <div
               style={{
                 maxHeight: "106px",
-                border: "1px solid #424858",
-                borderRadius: "8px",
+                // border: "1px solid #424858",
+                // borderRadius: "8px",
                 marginTop: "16px",
                 marginBottom: "16px",
               }}
@@ -677,6 +696,15 @@ const SeeAllMediaBrand = () => {
             </div>
           ))}
         </Grid>
+      )}
+      {!listAssets?.length && (
+        <Rows spacing="2u">
+          <div />
+          <Text alignment="center" size="small">
+            {`No results found for ${searchVal}. Try searching for a different
+              term.`}
+          </Text>
+        </Rows>
       )}
     </div>
   );
