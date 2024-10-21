@@ -13,7 +13,6 @@ import {
   Text,
   Rows,
 } from "@canva/app-ui-kit";
-import { IconArrowLeft, IconSearch, IconTimes } from "src/assets/icons";
 import { useMediaStore } from "src/store";
 import { addAudioTrack, addElementAtPoint, addPage, ui } from "@canva/design";
 import { upload } from "@canva/asset";
@@ -52,7 +51,6 @@ const SeeAllMediaUploaded = () => {
   const [itemSize, setItemSize] = useState<number>(20);
   const [listVideosImages, setListVideosImages] = useState<any>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   const currentVideos = useGetCurrentVideo();
 
@@ -219,7 +217,6 @@ const SeeAllMediaUploaded = () => {
   const handleSearchMedia = async (name: string) => {
     if (name) {
       setSearchVal(name);
-      setIsSearching(true);
       switch (typeMedia) {
         case "videos":
           fuzzySearchMediaName(name, "uploadVideo", LIMIT.VIDEO);
@@ -233,16 +230,15 @@ const SeeAllMediaUploaded = () => {
       }
     } else {
       handleClearSearch();
-      setIsSearching(false);
     }
   };
 
   const handleClearSearch = async () => {
     setSearchVal("");
-    setIsSearching(false);
     switch (typeMedia) {
       case "videos":
         // const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+        // setListAssets(mediaVideo);
         setListAssets(uploadVideo);
         setListVideosImages(uploadVideo?.slice(0, 20));
         break;
@@ -265,13 +261,13 @@ const SeeAllMediaUploaded = () => {
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
-      // const assets = await db
-      //   .table(bdName)
-      //   .where("fileSize")
-      //   .between(1, limitFileSize, true, true)
-      //   .toArray();
+      const assets = await db
+        .table(bdName)
+        .where("fileSize")
+        .between(1, limitFileSize, true, true)
+        .toArray();
 
-      const assets = await db.table(bdName).toArray();
+      // const assets = await db.table(bdName).toArray();
 
       // Configure Fuse.js for fuzzy searching
       const fuse = new Fuse(assets, {
@@ -341,7 +337,11 @@ const SeeAllMediaUploaded = () => {
     });
   };
 
-  const getMediaInRange = async (table: string, limitFileSize: number) => {
+  const getMediaInRange = async (
+    table: string,
+    limitFileSize: number,
+    isVideo?: boolean
+  ) => {
     try {
       // Query for items with fileSize between 1 and 51200
       const result = await db
@@ -349,7 +349,23 @@ const SeeAllMediaUploaded = () => {
         .where("fileSize")
         .between(1, limitFileSize, true, true) // true, true for inclusive range
         .toArray();
-      return result;
+
+      // Filter items where Link ends with ".mov"
+      const itemsToDelete = result?.filter((item) =>
+        item?.filePath.endsWith(".mov")
+      );
+
+      // Delete each item that matches the condition
+      const deletePromises = itemsToDelete?.map((item) =>
+        db.table(table).delete(item.id)
+      );
+
+      // Wait for all deletions to complete
+      await Promise?.all(deletePromises);
+
+      return !isVideo
+        ? result
+        : result.filter((item) => !item.Link.endsWith(".mov"));
     } catch (error) {
       console.error("Error fetching items:", error);
     }
@@ -358,7 +374,7 @@ const SeeAllMediaUploaded = () => {
   const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO);
+        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO, true);
         setListAssets(mediaVideo);
         setListVideosImages(mediaVideo?.slice(0, 20));
         break;
@@ -664,12 +680,12 @@ const SeeAllMediaUploaded = () => {
             ))}
           </Grid>
         )}
-        {!listAssets?.length && !isSearching && (
+        {!listAssets?.length && (
           <p style={{ marginTop: "20px", textAlign: "center" }}>
             You haven’t uploaded any media files yet.
           </p>
         )}
-        {!listAssets?.length && isSearching && (
+        {!listAssets?.length && (
           <Rows spacing="2u">
             <div />
             <Text alignment="center" size="small">

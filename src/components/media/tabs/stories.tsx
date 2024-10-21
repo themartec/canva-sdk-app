@@ -1,26 +1,51 @@
 import { useEffect, useState } from "react";
-import { Grid, SearchInputMenu } from "@canva/app-ui-kit";
+import {
+  Button,
+  Rows,
+  OpenInNewIcon,
+  Text,
+  Grid,
+  SearchInputMenu,
+} from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetStoriesDashboard } from "src/hooks/useGetStoriesDashboard";
 import { db } from "src/db";
 import SkeletonLoading from "src/components/skeleton";
 import { StoryCard } from "./storyCard";
+import { IconRecord } from "src/assets/icons";
+import { PLATFORM_HOST } from "src/config/common";
+import { requestOpenExternalUrl } from "@canva/platform";
 
 const StoriesTab = () => {
   const { storiesDashboard, isLoading } = useGetStoriesDashboard();
   const [searchVal, setSearchVal] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [listStories, setListStories] = useState<any>(storiesDashboard || []);
 
   const { setShowMediaDetail, setStorySelected, isRefreshingStory } =
     useMediaStore();
 
   const handleSearchStory = (name: string) => {
     setSearchVal(name);
-    // const listStories = [];
+    if (name) {
+      setIsSearching(true);
+      const result = storiesDashboard?.filter((el) =>
+        el?.audience_research?.headline
+          .toLocaleLowerCase()
+          .includes(searchVal.toLocaleLowerCase())
+      );
+      setListStories(result);
+    } else {
+      setIsSearching(false);
+      setListStories(storiesDashboard);
+    }
   };
 
   const handleClearSearch = () => {
     setSearchVal("");
+    setListStories(storiesDashboard);
+    setIsSearching(false);
   };
 
   const handleShowMediaByStory = (story?: any) => {
@@ -38,6 +63,15 @@ const StoriesTab = () => {
       console.error(`Error adding items to ${tableName}:`, error);
     }
   };
+
+  const handleRedirectToPlatform = () => {
+    const storyBuilder = `${PLATFORM_HOST}/employer/story-builder`;
+    requestOpenExternalUrl({ url: storyBuilder });
+  };
+
+  useEffect(() => {
+    setListStories(storiesDashboard);
+  }, [JSON.stringify(storiesDashboard)]);
 
   useEffect(() => {
     if (storiesDashboard?.length && !isRefreshingStory) {
@@ -93,77 +127,61 @@ const StoriesTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {storiesDashboard
-          ?.filter((el) =>
-            el?.audience_research?.headline
-              .toLocaleLowerCase()
-              .includes(searchVal.toLocaleLowerCase())
-          )
-          ?.map(
-            (story: any, index: number) => (
-              <StoryCard
-                key={index}
-                story={story}
-                onClick={() => handleShowMediaByStory(story)}
-              />
-            )
-            // <div
-            //   style={{
-            //     borderRadius: "8px",
-            //     display: "flex",
-            //     marginTop: "4px",
-            //     border: "1px solid #424858",
-            //     padding: "4px",
-            //     height: "55px",
-            //     cursor: "pointer",
-            //   }}
-            //   key={index}
-            //   onClick={() => handleShowMediaByStory(st)}
-            // >
-            //   <div
-            //     style={{
-            //       margin: "16px 8px",
-            //       padding: "6px",
-            //       width: "12px",
-            //       height: "12px",
-            //       borderRadius: "8px",
-            //       background: "#98E0E5",
-            //       alignItems: "center",
-            //       display: "flex",
-            //     }}
-            //   >
-            //     <IconRecord />
-            //   </div>
-            //   <div
-            //     style={{
-            //       display: "flex",
-            //       alignItems: "center",
-            //       height: "42px",
-            //     }}
-            //   >
-            //     <p
-            //       style={{
-            //         fontSize: "14px",
-            //         marginTop: "25px",
-            //         // height: "100%",
-            //         display: "-webkit-box",
-            //         WebkitBoxOrient: "vertical",
-            //         WebkitLineClamp: 2,
-            //         textOverflow: "ellipsis",
-            //         overflow: "hidden",
-            //         wordWrap: "break-word",
-            //       }}
-            //     >
-            //       {st?.audience_research?.headline}
-            //     </p>
-            //   </div>
-            // </div>
-          )}
+        {listStories?.map((story: any, index: number) => (
+          <StoryCard
+          key={index}
+          story={story}
+          onClick={() => handleShowMediaByStory(story)}
+        />
+        ))}
       </Grid>
-      {!storiesDashboard?.length && (
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
-          You don’t have any stories at the moment.
-        </p>
+      {/* No results searching */}
+      {!listStories?.length && isSearching && (
+        <Rows spacing="2u">
+            <div />
+            <Text alignment="center" size="small">
+              {`No results found for ${searchVal}. Try searching for a different
+              term.`}
+            </Text>
+          </Rows>
+      )}
+      {/* No stories responsing */}
+      {!storiesDashboard?.length && !isSearching && (
+        <Rows align="stretch" spacing="1u">
+          <div style={{ marginTop: "50%" }}>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="large"
+              variant="bold"
+            >
+              There's nothing to see yet
+            </Text>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="small"
+              variant="regular"
+            >
+              Stories you create will appear here
+            </Text>
+            <div style={{ marginTop: "12px" }} />
+            <Rows spacing="0">
+              <Button
+                alignment="center"
+                onClick={() => {
+                  handleRedirectToPlatform();
+                }}
+                icon={() => {
+                  return <OpenInNewIcon />;
+                }}
+                variant="primary"
+              >
+                Create a story
+              </Button>
+            </Rows>
+          </div>
+        </Rows>
       )}
     </div>
   );

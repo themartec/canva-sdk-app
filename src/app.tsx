@@ -1,4 +1,4 @@
-import { Button, ProgressBar, ReloadIcon, Rows } from "@canva/app-ui-kit";
+import { Button, OpenInNewIcon, Text, Rows, Alert } from "@canva/app-ui-kit";
 import styles from "styles/components.css";
 import { useEffect, useState } from "react";
 import { useMediaStore } from "./store";
@@ -19,6 +19,7 @@ const _window = window as any;
 export const App = () => {
   const [percent, setPercent] = useState(0);
   const [authState, setAuthState] = useState(false);
+  const [isShowAlert, setIsShowAlert] = useState(true);
   // const [isMediaView, setIsMediaView] = useState<boolean>(true);
 
   const { isSeeAllMediaBrand, isSeeAllMediaUploaded, isShowMediaDetail } =
@@ -111,24 +112,29 @@ export const App = () => {
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
+          width: "95%",
           height: "100%",
         }}
       >
-        <div
-          style={{
-            width: "90%",
-          }}
-        >
-          {/* <ProgressBar value={percent} ariaLabel={"loading progress bar"} /> */}
-          <div style={{ textAlign: "center", width: "100%" }}>
-            <h4>Get started</h4>
-            <p style={{ marginTop: "-17px" }}>
+        <Rows align="stretch" spacing="1u">
+          <div style={{ marginTop: "50%" }}>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="large"
+              variant="bold"
+            >
+              Get started
+            </Text>
+            <Text
+              alignment="center"
+              capitalization="default"
+              size="small"
+              variant="regular"
+            >
               To view your content, log in to your account
-            </p>
+            </Text>
+            <div style={{ marginTop: "12px" }} />
             <Rows spacing="0">
               <Button
                 alignment="center"
@@ -140,28 +146,31 @@ export const App = () => {
               </Button>
             </Rows>
           </div>
-        </div>
+        </Rows>
       </div>
     );
 
   return (
     <div className={styles.scrollContainer}>
       <Rows spacing="2u">
-        {/* {!isSeeAllMediaBrand &&
-          !isSeeAllMediaUploaded &&
-          !isShowMediaDetail && (
-            <Button
+        {/* {isShowAlert && (
+          <Alert
+            onDismiss={() => {
+              setIsShowAlert(false);
+            }}
+            tone="info"
+          >
+            <Text
               alignment="center"
-              icon={() => {
-                return <ReloadIcon />;
-              }}
-              onClick={handleRefreshMedia}
-              variant="secondary"
-              stretch={true}
+              capitalization="default"
+              size="small"
+              variant="bold"
             >
-              Refresh content
-            </Button>
-          )} */}
+              MOV files and files over 100MB cannot be synced to the Canva App
+              at the moment.
+            </Text>
+          </Alert>
+        )} */}
         <MediaView />
       </Rows>
     </div>

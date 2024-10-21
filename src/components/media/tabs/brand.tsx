@@ -6,7 +6,7 @@ import {
   ImageCard,
   ProgressBar,
   VideoCard,
-  Text
+  Text,
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
@@ -29,7 +29,7 @@ const BrandTab = () => {
   const [uploadType, setUploadType] = useState<string>("");
   const [percent, setPercent] = useState<number>(0);
   const [videos, setVideos] = useState<any>([]);
-  const [musics, setMusics] = useState<any>([]);
+  const [music, setMusic] = useState<any>([]);
   const [images, setImages] = useState<any>([]);
 
   const {
@@ -198,7 +198,11 @@ const BrandTab = () => {
     });
   };
 
-  const getMediaInRange = async (table: string, limitFileSize: number) => {
+  const getMediaInRange = async (
+    table: string,
+    limitFileSize: number,
+    isVideo?: boolean
+  ) => {
     try {
       // Query for items with fileSize between 1 and 51200
       const result = await db
@@ -206,7 +210,23 @@ const BrandTab = () => {
         .where("fileSize")
         .between(1, limitFileSize, true, true) // true, true for inclusive range
         .toArray();
-      return result;
+
+      // Filter items where Link ends with ".mov"
+      const itemsToDelete = result?.filter((item) =>
+        item?.Link.endsWith(".mov")
+      );
+
+      // Delete each item that matches the condition
+      const deletePromises = itemsToDelete?.map((item) =>
+        db.table(table).delete(item.id)
+      );
+
+      // Wait for all deletions to complete
+      await Promise?.all(deletePromises);
+
+      return !isVideo
+        ? result
+        : result.filter((item) => !item.Link.endsWith(".mov"));
     } catch (error) {
       console.error("Error fetching items:", error);
     }
@@ -216,15 +236,15 @@ const BrandTab = () => {
     const mediaLogo = await getMediaInRange("brandLogo", LIMIT.VIDEO);
     const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
     const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
-    const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO);
+    const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO, true);
     setVideos(mediaVideo);
     setImages(mediaImage);
-    setMusics(mediaAudio);
+    setMusic(mediaAudio);
   };
 
-  // useEffect(() => {
-  //   getListAssets();
-  // }, [vdBrand, msBrand, imgBrand]);
+  useEffect(() => {
+    getListAssets();
+  }, [vdBrand, msBrand, imgBrand, logos]);
 
   useEffect(() => {
     const increments = [
@@ -262,25 +282,41 @@ const BrandTab = () => {
   return (
     <div>
       {/* VIDEOS */}
-      {vdBrand?.length ? (
+      {videos?.length ? (
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
+            marginBottom: "12px",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Videos</p>
-          <p
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Videos
+          </Text>
+          <div
+            style={{
+              width: "fit-content",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setSeeAllMediaBrand(true);
               setTypeMedia("videos");
             }}
-            style={{
-              cursor: "pointer",
-            }}
           >
-            {vdBrand?.length && vdBrand?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {vdBrand?.length && vdBrand?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -290,7 +326,7 @@ const BrandTab = () => {
         spacing="1u"
         key="videoKey"
       >
-        {vdBrand?.slice(0, 4).map((video, index) => {
+        {videos?.slice(0, 4).map((video, index) => {
           return (
             <div style={{ maxHeight: "106px" }} key={index}>
               <VideoCard
@@ -311,32 +347,47 @@ const BrandTab = () => {
                 loading={
                   uploadIndex === index && uploadType == "video" ? true : false
                 }
-                
               />
             </div>
           );
         })}
       </Grid>
       {/* IMAGES */}
-      {imgBrand?.length ? (
+      {images?.length ? (
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
+            margin: "12px 0",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Images</p>
-          <p
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Images
+          </Text>
+          <div
+            style={{
+              width: "fit-content",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setSeeAllMediaBrand(true);
               setTypeMedia("images");
             }}
-            style={{
-              cursor: "pointer",
-            }}
           >
-            {imgBrand?.length && imgBrand?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {imgBrand?.length && imgBrand?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -346,7 +397,7 @@ const BrandTab = () => {
         spacing="1u"
         key="imageKey"
       >
-        {imgBrand?.slice(0, 4).map((image, index) => (
+        {images?.slice(0, 4).map((image, index) => (
           <div style={{ maxHeight: "106px" }} key={index}>
             <ImageCard
               alt="grass image"
@@ -369,25 +420,41 @@ const BrandTab = () => {
         ))}
       </Grid>
       {/* MUSIC */}
-      {msBrand?.length ? (
+      {music?.length ? (
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
+            margin: "12px 0",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Audio</p>
-          <p
-            onClick={() => {
-              setSeeAllMediaBrand(true);
-              setTypeMedia("audios");
-            }}
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Audio
+          </Text>
+          <div
             style={{
+              width: "fit-content",
               cursor: "pointer",
             }}
+            onClick={() => {
+              setSeeAllMediaBrand(true);
+              setTypeMedia("audio");
+            }}
           >
-            {msBrand?.length && msBrand?.length > 2 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {msBrand?.length && msBrand?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -397,7 +464,7 @@ const BrandTab = () => {
         spacing="1u"
         key="audioKey"
       >
-        {msBrand?.slice(0, 2).map((audio, index) => (
+        {music?.slice(0, 2).map((audio, index) => (
           <AudioContextProvider key={index}>
             <AudioCard
               ariaLabel="Add audio to design"
@@ -437,20 +504,36 @@ const BrandTab = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            margin: "12px 0",
           }}
         >
-          <p style={{ fontWeight: 700 }}>Logos</p>
-          <p
+          <Text
+            alignment="start"
+            capitalization="default"
+            size="medium"
+            variant="bold"
+          >
+            Logos
+          </Text>
+          <div
+            style={{
+              width: "fit-content",
+              cursor: "pointer",
+            }}
             onClick={() => {
               setSeeAllMediaBrand(true);
               setTypeMedia("logos");
             }}
-            style={{
-              cursor: "pointer",
-            }}
           >
-            {logos?.length && logos?.length > 4 ? "See all" : ""}
-          </p>
+            <Text
+              alignment="start"
+              capitalization="default"
+              size="medium"
+              variant="regular"
+            >
+              {logos?.length && logos?.length > 4 ? "See all" : ""}
+            </Text>
+          </div>
         </div>
       ) : null}
       <Grid
@@ -464,8 +547,8 @@ const BrandTab = () => {
           <div
             style={{
               maxHeight: "106px",
-              border: "1px solid #424858",
-              borderRadius: "8px",
+              // border: "1px solid #424858",
+              // borderRadius: "8px",
             }}
             key={index}
           >
