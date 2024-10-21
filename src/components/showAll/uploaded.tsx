@@ -447,7 +447,7 @@ const SeeAllMediaUploaded = () => {
       <InfiniteScroll
         dataLength={listVideosImages?.length}
         next={handleFetchMoreMedia}
-        hasMore={typeMedia !== "audios" ? hasMore : false}
+        hasMore={typeMedia !== "audio" ? hasMore : false}
         loader={
           <Text alignment="center" size="small">
             Loading...
@@ -621,7 +621,7 @@ const SeeAllMediaUploaded = () => {
             ))}
           </Grid>
         )}
-        {typeMedia === "audios" && (
+        {typeMedia === "audio" && (
           <Grid
             alignX="stretch"
             alignY="stretch"

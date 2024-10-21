@@ -223,7 +223,7 @@ const SeeAllMediaBrand = () => {
         case "images":
           fuzzySearchMediaName(name, "brandImage", "imageName", LIMIT.IMAGE);
           break;
-        case "audios":
+        case "audio":
           fuzzySearchMediaName(name, "brandAudio", "musicName", LIMIT.AUDIO);
           break;
         default:
@@ -251,7 +251,7 @@ const SeeAllMediaBrand = () => {
         const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
         setListAssets(mediaImage || []);
         break;
-      case "audios":
+      case "audio":
         const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
         setListAssets(mediaAudio || []);
         break;
@@ -267,7 +267,7 @@ const SeeAllMediaBrand = () => {
         return "Videos";
       case "images":
         return "Images";
-      case "audios":
+      case "audio":
         return "Audio";
       default:
         return "Logos";
@@ -280,7 +280,7 @@ const SeeAllMediaBrand = () => {
         return "videos";
       case "images":
         return "images";
-      case "audios":
+      case "audio":
         return "audio";
       default:
         return "logos";
@@ -374,7 +374,7 @@ const SeeAllMediaBrand = () => {
         const mediaImage = await getMediaInRange("brandImage", LIMIT.IMAGE);
         setListAssets(mediaImage || []);
         break;
-      case "audios":
+      case "audio":
         const mediaAudio = await getMediaInRange("brandAudio", LIMIT.AUDIO);
         setListAssets(mediaAudio || []);
         break;
@@ -393,7 +393,7 @@ const SeeAllMediaBrand = () => {
     //   case "images":
     //     setListAssets(brandImage || []);
     //     break;
-    //   case "audios":
+    //   case "audio":
     //     setListAssets(brandAudio || []);
     //     break;
     //   default:
@@ -582,7 +582,7 @@ const SeeAllMediaBrand = () => {
           ))}
         </Grid>
       )}
-      {typeMedia === "audios" && (
+      {typeMedia === "audio" && (
         <div style={{ marginTop: 16 }}>
           <Grid
             alignX="stretch"
