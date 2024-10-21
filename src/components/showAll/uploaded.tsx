@@ -505,7 +505,7 @@ const SeeAllMediaUploaded = () => {
           value={searchVal}
           onChange={(e) => handleSearchMedia(e)}
           onClear={handleClearSearch}
-          placeholder={`Search for any ${renderMediaTypeSearch()}...`}
+          placeholder={`Search ${renderMediaTypeSearch()}...`}
         />
         {typeMedia === "videos" && (
           <Grid
@@ -689,7 +689,7 @@ const SeeAllMediaUploaded = () => {
           <Rows spacing="2u">
             <div />
             <Text alignment="center" size="small">
-              {`No results found for ${searchVal}. Try searching for a different
+              {`No results found for "${searchVal}". Try searching for a different
               term.`}
             </Text>
           </Rows>

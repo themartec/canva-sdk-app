@@ -6,4 +6,4 @@ export const BASE_API_URL = `${
 
 export const DEFAULT_THUMBNAIL = `https://cdnstaging.themartec.com/assets/TheMartecVietnamStaging/bbfe02cf-7d1c-41fe-a774-b0f33ee08b3c/1bd57add-a509-4547-a927-ecb365bba780-profilePicture.png`;
 
-export const PLATFORM_HOST = 'https://appstaging.themartec.com'
+export const PLATFORM_HOST = 'https://app.themartec.com'

@@ -116,7 +116,7 @@ const StoriesTab = () => {
             value={searchVal}
             onChange={(e) => handleSearchStory(e)}
             onClear={handleClearSearch}
-            placeholder={`Search for any stories...`}
+            placeholder={`Search stories...`}
           />
         </div>
       ) : null}
@@ -140,7 +140,7 @@ const StoriesTab = () => {
         <Rows spacing="2u">
             <div />
             <Text alignment="center" size="small">
-              {`No results found for ${searchVal}. Try searching for a different
+              {`No results found for "${searchVal}". Try searching for a different
               term.`}
             </Text>
           </Rows>

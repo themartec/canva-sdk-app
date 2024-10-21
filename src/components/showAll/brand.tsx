@@ -239,7 +239,11 @@ const SeeAllMediaBrand = () => {
     setSearchVal("");
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO, true);
+        const mediaVideo = await getMediaInRange(
+          "brandVideo",
+          LIMIT.VIDEO,
+          true
+        );
         setListAssets(mediaVideo || []);
         // setListAssets(brandVideo || []);
         break;
@@ -287,7 +291,7 @@ const SeeAllMediaBrand = () => {
     searchString: string,
     bdName: string,
     keyName: string,
-    limitFileSize?: number,
+    limitFileSize?: number
   ) => {
     try {
       // Retrieve all the video records from IndexedDB
@@ -322,7 +326,11 @@ const SeeAllMediaBrand = () => {
     refreshMediaBrand();
   };
 
-  const getMediaInRange = async (table: string, limitFileSize: number, isVideo?: boolean) => {
+  const getMediaInRange = async (
+    table: string,
+    limitFileSize: number,
+    isVideo?: boolean
+  ) => {
     try {
       // Query for items with fileSize between 1 and 51200
       const result = await db
@@ -355,7 +363,11 @@ const SeeAllMediaBrand = () => {
   const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("brandVideo", LIMIT.VIDEO, true);
+        const mediaVideo = await getMediaInRange(
+          "brandVideo",
+          LIMIT.VIDEO,
+          true
+        );
         setListAssets(mediaVideo || []);
         break;
       case "images":
@@ -425,7 +437,6 @@ const SeeAllMediaBrand = () => {
 
   return (
     <div>
-      <p>{listAssets?.length}</p>
       <div
         style={{
           display: "flex",
@@ -472,7 +483,7 @@ const SeeAllMediaBrand = () => {
         value={searchVal}
         onChange={(e) => handleSearchMedia(e)}
         onClear={handleClearSearch}
-        placeholder={`Search for any ${renderMediaTypeSearch()}...`}
+        placeholder={`Search ${renderMediaTypeSearch()}...`}
       />
       {typeMedia === "videos" && (
         <Grid
@@ -701,7 +712,7 @@ const SeeAllMediaBrand = () => {
         <Rows spacing="2u">
           <div />
           <Text alignment="center" size="small">
-            {`No results found for ${searchVal}. Try searching for a different
+            {`No results found for "${searchVal}". Try searching for a different
               term.`}
           </Text>
         </Rows>

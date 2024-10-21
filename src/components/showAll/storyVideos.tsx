@@ -198,7 +198,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         value={searchVal}
         onChange={(e) => handleSearchStory(e)}
         onClear={handleClearSearch}
-        placeholder="Search for any videos..."
+        placeholder="Search videos..."
       />
       <Grid
         alignX="stretch"
@@ -276,7 +276,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         <Rows spacing="2u">
           <div />
           <Text alignment="center" size="small">
-            {`No results found for ${searchVal}. Try searching for a different
+            {`No results found for "${searchVal}". Try searching for a different
               term.`}
           </Text>
         </Rows>
