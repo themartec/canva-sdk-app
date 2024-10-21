@@ -4,9 +4,9 @@ import {
   AudioContextProvider,
   Grid,
   ImageCard,
-  ProgressBar,
   VideoCard,
   Text,
+  Rows,
 } from "@canva/app-ui-kit";
 import { useMediaStore } from "src/store";
 import { useGetCurrentVideo } from "src/hooks/useGetCurrentVideo";
@@ -576,9 +576,12 @@ const BrandTab = () => {
         !imgBrand?.length &&
         !msBrand?.length &&
         !logos?.length && (
-          <p style={{ marginTop: "20px", textAlign: "center" }}>
-            You haven’t uploaded any media files yet.
-          </p>
+          <Rows spacing="2u">
+            <div />
+            <Text alignment="center" size="small">
+              You haven’t uploaded any media files yet.
+            </Text>
+          </Rows>
         )}
     </div>
   );

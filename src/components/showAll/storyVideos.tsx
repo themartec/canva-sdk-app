@@ -200,6 +200,7 @@ export const StoryVideos = ({ storyId }: Props) => {
         onClear={handleClearSearch}
         placeholder="Search videos..."
       />
+      <div style={{ marginTop: "10px" }} />
       <Grid
         alignX="stretch"
         alignY="stretch"
@@ -213,8 +214,7 @@ export const StoryVideos = ({ storyId }: Props) => {
               <div
                 style={{
                   maxHeight: "106px",
-                  marginTop: "16px",
-                  marginBottom: "16px",
+                  marginTop: "4px",
                 }}
               >
                 <VideoCard
@@ -244,33 +244,21 @@ export const StoryVideos = ({ storyId }: Props) => {
                       : false
                   }
                 />
-                <div
-                  style={{
-                    marginTop: "-8px",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      width: "100%",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {video?.question}
-                  </p>
-                </div>
               </div>
+              <Text lineClamp={1} variant="bold">
+                {storySelected?.audience_research?.headline}
+              </Text>
             </Rows>
           );
         })}
       </Grid>
       {!listStories?.length && !isSearching && (
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
+        <Rows spacing="2u">
+        <div />
+        <Text alignment="center" size="small" >
           There are no videos for this story.
-        </p>
+        </Text>
+      </Rows>
       )}
       {!listStories?.length && isSearching && (
         <Rows spacing="2u">

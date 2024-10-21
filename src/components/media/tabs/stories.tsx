@@ -129,10 +129,10 @@ const StoriesTab = () => {
       >
         {listStories?.map((story: any, index: number) => (
           <StoryCard
-          key={index}
-          story={story}
-          onClick={() => handleShowMediaByStory(story)}
-        />
+            key={index}
+            story={story}
+            onClick={() => handleShowMediaByStory(story)}
+          />
         ))}
       </Grid>
       {/* No results searching */}
@@ -142,8 +142,8 @@ const StoriesTab = () => {
             <Text alignment="center" size="small">
               {`No results found for "${searchVal}". Try searching for a different
               term.`}
-            </Text>
-          </Rows>
+          </Text>
+        </Rows>
       )}
       {/* No stories responsing */}
       {!storiesDashboard?.length && !isSearching && (

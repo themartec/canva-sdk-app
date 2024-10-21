@@ -374,7 +374,11 @@ const SeeAllMediaUploaded = () => {
   const getListAssets = async () => {
     switch (typeMedia) {
       case "videos":
-        const mediaVideo = await getMediaInRange("uploadVideo", LIMIT.VIDEO, true);
+        const mediaVideo = await getMediaInRange(
+          "uploadVideo",
+          LIMIT.VIDEO,
+          true
+        );
         setListAssets(mediaVideo);
         setListVideosImages(mediaVideo?.slice(0, 20));
         break;
@@ -445,15 +449,15 @@ const SeeAllMediaUploaded = () => {
         next={handleFetchMoreMedia}
         hasMore={typeMedia !== "audios" ? hasMore : false}
         loader={
-          <p style={{ textAlign: "center" }}>
-            <b>Loading...</b>
-          </p>
+          <Text alignment="center" size="small">
+            Loading...
+          </Text>
         }
         height={`calc(100vh - 40px)`}
         endMessage={
-          <p style={{ textAlign: "center" }}>
-            <b>You have seen it all</b>
-          </p>
+          <Text alignment="center" size="small">
+            You have seen it all
+          </Text>
         }
         style={{
           width: "92vw",
@@ -485,9 +489,9 @@ const SeeAllMediaUploaded = () => {
             >
               <ArrowLeftIcon />
             </div>
-            <p style={{ marginTop: 0, fontSize: "16px", fontWeight: 700 }}>
+            <Text alignment="center" size="medium" variant="bold">
               {renderMediaType()}
-            </p>
+            </Text>
           </div>
           <div>
             <Button
@@ -507,6 +511,7 @@ const SeeAllMediaUploaded = () => {
           onClear={handleClearSearch}
           placeholder={`Search ${renderMediaTypeSearch()}...`}
         />
+        <div style={{ marginTop: "10px" }} />
         {typeMedia === "videos" && (
           <Grid
             alignX="stretch"
@@ -517,62 +522,53 @@ const SeeAllMediaUploaded = () => {
           >
             {listVideosImages?.map((video, index) => {
               return (
-                <div
-                  style={{
-                    maxHeight: "106px",
-                    marginTop: "16px",
-                    marginBottom: "16px",
-                  }}
-                  key={index}
-                >
-                  <VideoCard
-                    ariaLabel="Add video to design"
-                    borderRadius="none"
-                    durationInSeconds={video?.duration}
-                    mimeType="video/mp4"
-                    onClick={(e) => {
-                      setUploadIndex(index);
-                      setUploadType("video");
-                      handleUpload(
-                        video?.filePath,
-                        "video",
-                        video?.avatar || DEFAULT_THUMBNAIL
-                      );
-                    }}
-                    onDragStart={(e: any) =>
-                      handleDragStartVideo(
-                        e,
-                        video?.Link,
-                        video?.avatar || DEFAULT_THUMBNAIL
-                      )
-                    }
-                    thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
-                    videoPreviewUrl={video?.filePath}
-                    loading={
-                      uploadIndex === index && uploadType == "video"
-                        ? true
-                        : false
-                    }
-                  />
+                <Rows spacing="1u" key={index}>
                   <div
                     style={{
-                      marginTop: "-8px",
+                      maxHeight: "106px",
+                      marginTop: "4px",
                     }}
+                    key={index}
                   >
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        width: "100%",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
+                    <VideoCard
+                      ariaLabel="Add video to design"
+                      borderRadius="none"
+                      durationInSeconds={video?.duration}
+                      mimeType="video/mp4"
+                      onClick={(e) => {
+                        setUploadIndex(index);
+                        setUploadType("video");
+                        handleUpload(
+                          video?.filePath,
+                          "video",
+                          video?.avatar || DEFAULT_THUMBNAIL
+                        );
                       }}
-                    >
-                      {video?.name}
-                    </p>
+                      onDragStart={(e: any) =>
+                        handleDragStartVideo(
+                          e,
+                          video?.Link,
+                          video?.avatar || DEFAULT_THUMBNAIL
+                        )
+                      }
+                      thumbnailUrl={video?.avatar || DEFAULT_THUMBNAIL}
+                      videoPreviewUrl={video?.filePath}
+                      loading={
+                        uploadIndex === index && uploadType == "video"
+                          ? true
+                          : false
+                      }
+                    />
                   </div>
-                </div>
+                  <Text
+                    alignment="start"
+                    size="small"
+                    variant="bold"
+                    lineClamp={1}
+                  >
+                    {video?.name}
+                  </Text>
+                </Rows>
               );
             })}
           </Grid>
@@ -586,52 +582,42 @@ const SeeAllMediaUploaded = () => {
             key="imageKey"
           >
             {listVideosImages?.map((image, index) => (
-              <div
-                style={{
-                  maxHeight: "106px",
-                  marginTop: "16px",
-                  marginBottom: "16px",
-                }}
-                key={index}
-              >
-                <ImageCard
-                  alt="grass image"
-                  ariaLabel="Add image to design"
-                  borderRadius="none"
-                  onClick={() => {
-                    setUploadIndex(index);
-                    setUploadType("image");
-                    handleUpload(image?.filePath, "image");
-                  }}
-                  onDragStart={(e: any) =>
-                    handleDragStartImage(e, image?.filePath)
-                  }
-                  thumbnailUrl={image?.filePath}
-                  loading={
-                    uploadIndex === index && uploadType == "image"
-                      ? true
-                      : false
-                  }
-                />
+              <Rows spacing="1u" key={index}>
                 <div
                   style={{
-                    marginTop: "-8px",
+                    maxHeight: "106px",
+                    marginTop: "4px",
                   }}
                 >
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      width: "100%",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
+                  <ImageCard
+                    alt="grass image"
+                    ariaLabel="Add image to design"
+                    borderRadius="none"
+                    onClick={() => {
+                      setUploadIndex(index);
+                      setUploadType("image");
+                      handleUpload(image?.filePath, "image");
                     }}
-                  >
-                    {image?.name}
-                  </p>
+                    onDragStart={(e: any) =>
+                      handleDragStartImage(e, image?.filePath)
+                    }
+                    thumbnailUrl={image?.filePath}
+                    loading={
+                      uploadIndex === index && uploadType == "image"
+                        ? true
+                        : false
+                    }
+                  />
                 </div>
-              </div>
+                <Text
+                  alignment="start"
+                  size="small"
+                  variant="bold"
+                  lineClamp={1}
+                >
+                  {image?.name}
+                </Text>
+              </Rows>
             ))}
           </Grid>
         )}
@@ -681,9 +667,12 @@ const SeeAllMediaUploaded = () => {
           </Grid>
         )}
         {!listAssets?.length && (
-          <p style={{ marginTop: "20px", textAlign: "center" }}>
-            You haven’t uploaded any media files yet.
-          </p>
+          <Rows spacing="2u">
+            <div />
+            <Text alignment="center" size="small">
+              You haven’t uploaded any media files yet.
+            </Text>
+          </Rows>
         )}
         {!listAssets?.length && (
           <Rows spacing="2u">
