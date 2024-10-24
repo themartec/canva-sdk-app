@@ -44,7 +44,7 @@ export const StoryVideos = ({ storyId }: Props) => {
       setIsSearching(true);
       setSearchVal(name);
       const result = stories?.filter((vd: any) =>
-        vd?.question?.toLowerCase().includes(name?.toLocaleLowerCase())
+        vd?.title?.toLowerCase().includes(name?.toLocaleLowerCase())
       );
       setListStories((result as any) || []);
     }
@@ -225,19 +225,19 @@ export const StoryVideos = ({ storyId }: Props) => {
                     setUploadIndex(index);
                     setUploadType("video");
                     handleUpload(
-                      video?.video_link,
-                      video.thumbnail_image || DEFAULT_THUMBNAIL
+                      video?.videoLink?.link,
+                      video?.thumbnail?.link || DEFAULT_THUMBNAIL
                     );
                   }}
                   onDragStart={(e: any) =>
                     handleDragStartVideo(
                       e,
-                      video?.video_link,
-                      video.thumbnail_image || DEFAULT_THUMBNAIL
+                      video?.videoLink?.link,
+                      video?.thumbnail?.link || DEFAULT_THUMBNAIL
                     )
                   }
-                  thumbnailUrl={video?.thumbnail_image || DEFAULT_THUMBNAIL}
-                  videoPreviewUrl={video?.video_link}
+                  thumbnailUrl={video?.thumbnail?.link || DEFAULT_THUMBNAIL}
+                  videoPreviewUrl={video?.videoLink?.link}
                   loading={
                     uploadIndex === index && uploadType == "video"
                       ? true
@@ -246,7 +246,7 @@ export const StoryVideos = ({ storyId }: Props) => {
                 />
               </div>
               <Text lineClamp={1} variant="bold">
-                {storySelected?.audience_research?.headline}
+                {video?.title}
               </Text>
             </Rows>
           );

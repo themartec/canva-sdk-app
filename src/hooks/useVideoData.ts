@@ -34,8 +34,8 @@ export interface StoryVideoData {
 const removeDuplicatesByVideoId = (videos) => {
   const seen = new Set();
   return videos?.filter(item => {
-    const duplicate = seen.has(item.video_id);
-    seen.add(item.video_id);
+    const duplicate = seen.has(item.videoId);
+    seen.add(item.videoId);
     return !duplicate;
   });
 };
@@ -67,7 +67,7 @@ export const useStoryVideos = (contentId: string) => {
   // Use SWR to fetch data
   const { data, error, isLoading, mutate } = useSWR<ApiResponse>(
     token && contentId
-      ? `${BASE_API_URL}/v1/video/platform-for-canva?contentId=${contentId}`
+      ? `${BASE_API_URL}/v1/video/platform-for-canva-v2?contentId=${contentId}`
       : null, // Only fetch if designToken is available
     fetcher
   );
